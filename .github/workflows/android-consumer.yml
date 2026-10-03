@@ -38,7 +38,7 @@ jobs:
           set -euo pipefail
           test ! -d supabase/migrations
           test ! -d android/app/src/merchant
-          if grep -R -n -E 'RECEIVE_SMS|READ_SMS|MerchantSmsReceiver|MerchantSecureStore|SUPABASE_SERVICE_ROLE_KEY|sb_secret_|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY' .             --exclude-dir=.git --exclude-dir=.github --exclude-dir=node_modules --exclude=package-lock.json; then
+          if grep -R -n -E 'RECEIVE_SMS|READ_SMS|MerchantSmsReceiver|MerchantSecureStore|SUPABASE_SERVICE_ROLE_KEY|sb_secret_|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY' .             --exclude-dir=.git --exclude-dir=.github --exclude-dir=node_modules --exclude=package-lock.json --exclude=supabase.js; then
             echo "::error::Private or sensitive source leaked into the public consumer build"
             exit 1
           fi
