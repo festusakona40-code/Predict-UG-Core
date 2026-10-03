@@ -1,0 +1,12 @@
+{
+  "name": "predict-ug-core",
+  "private": true,
+  "version": "0.7.36",
+  "description": "Predict UG public consumer Android build mirror",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.117.2"
+  }
+}
