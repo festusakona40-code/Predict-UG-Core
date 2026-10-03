@@ -1,0 +1,11 @@
+title = "Predict UG Gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Supabase publishable keys are intentionally public client identifiers"
+regexTarget = "secret"
+regexes = [
+  '''^sb_publishable_[A-Za-z0-9_-]+$'''
+]
