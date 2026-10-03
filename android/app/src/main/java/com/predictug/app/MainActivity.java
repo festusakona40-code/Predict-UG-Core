@@ -24,7 +24,12 @@ import android.view.ViewGroup;
 
 import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedCallback;
+import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebViewAssetLoader;
+import androidx.webkit.WebViewCompat;
+import androidx.webkit.WebViewFeature;
+
+import java.util.Collections;
 
 public class MainActivity extends ComponentActivity {
     private static final String APP_ORIGIN = "https://appassets.androidplatform.net";
@@ -102,10 +107,26 @@ public class MainActivity extends ComponentActivity {
                 return super.onConsoleMessage(consoleMessage);
             }
         });
-        webView.addJavascriptInterface(
-                new PlayIntegrityBridge(this, webView, BuildConfig.PLAY_CLOUD_PROJECT_NUMBER),
-                "PredictUGIntegrity"
-        );
+        final PlayIntegrityBridge integrityBridge =
+                new PlayIntegrityBridge(this, BuildConfig.PLAY_CLOUD_PROJECT_NUMBER);
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+            WebViewCompat.addWebMessageListener(
+                    webView,
+                    "PredictUGIntegrity",
+                    Collections.singleton(APP_ORIGIN),
+                    (view, message, sourceOrigin, isMainFrame, replyProxy) -> {
+                        if (!isMainFrame
+                                || !AppOriginPolicy.isInternal(
+                                        sourceOrigin.getScheme(),
+                                        sourceOrigin.getHost()
+                                )
+                                || message.getType() != WebMessageCompat.TYPE_STRING) {
+                            return;
+                        }
+                        integrityBridge.handleMessage(message.getData(), replyProxy);
+                    }
+            );
+        }
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
