@@ -1,0 +1,21 @@
+{
+  "generated_at_utc": "2026-10-03T07:20:00Z",
+  "source_repository": "festusakona40-code/Predict-Ug",
+  "source_visibility": "private",
+  "source_commit": "7fd6e063f39cb6fe598502ab2a47bdcba9a77415",
+  "public_repository": "festusakona40-code/Predict-UG-Core",
+  "public_commit": "cfb6dff08ad7be9393ae1029c47051bfcc7f44e6",
+  "consumer_version": "0.7.36",
+  "consumer_version_code": 43,
+  "public_ci_run": 37105899206,
+  "public_ci_conclusion": "success",
+  "artifact_name": "predict-ug-public-consumer",
+  "artifact_id": 11267663729,
+  "private_components_excluded": [
+    "supabase/migrations",
+    "android/app/src/merchant",
+    "production signing material",
+    "provider credentials",
+    "private operational runbooks"
+  ]
+}
