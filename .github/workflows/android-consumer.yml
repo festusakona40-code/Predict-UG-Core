@@ -62,6 +62,12 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      - name: Restore stable public beta debug signing key
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: predict-ug-public-beta-debug-keystore-v1
+
       - name: Set up Android SDK
         uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd
 
@@ -99,7 +105,15 @@ jobs:
 
           unzip -l "$APK" | grep -q 'assets/index.html'
           unzip -l "$APK" | grep -q 'assets/supabase.js'
-          sha256sum "$APK" "$AAB"
+
+          sha256sum "$APK" "$AAB" > android/SHA256SUMS.txt
+          APKSIGNER="$(command -v apksigner || true)"
+          if [ -z "$APKSIGNER" ]; then
+            APKSIGNER="$ANDROID_HOME/build-tools/36.0.0/apksigner"
+          fi
+          "$APKSIGNER" verify --print-certs "$APK" > android/SIGNING_CERT.txt
+          cat android/SHA256SUMS.txt
+          cat android/SIGNING_CERT.txt
 
       - name: Upload unsigned public build artifacts
         uses: actions/upload-artifact@v4
@@ -108,4 +122,6 @@ jobs:
           path: |
             android/app/build/outputs/apk/consumer/debug/app-consumer-debug.apk
             android/app/build/outputs/bundle/consumerRelease/app-consumer-release.aab
+            android/SHA256SUMS.txt
+            android/SIGNING_CERT.txt
           retention-days: 14
