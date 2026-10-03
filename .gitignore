@@ -1,0 +1,19 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Supabase local state
+.supabase/
+supabase/.temp/
+
+# Common build/tooling output
+node_modules/
+dist/
+build/
+coverage/
+.DS_Store
