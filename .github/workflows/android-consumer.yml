@@ -2,8 +2,20 @@ name: Public Consumer Android CI
 
 on:
   pull_request:
+    paths:
+      - "android/**"
+      - "package.json"
+      - "package-lock.json"
+      - "scripts/prepare-consumer-assets.mjs"
+      - ".github/workflows/android-consumer.yml"
   push:
     branches: [main]
+    paths:
+      - "android/**"
+      - "package.json"
+      - "package-lock.json"
+      - "scripts/prepare-consumer-assets.mjs"
+      - ".github/workflows/android-consumer.yml"
   workflow_dispatch:
 
 permissions:
