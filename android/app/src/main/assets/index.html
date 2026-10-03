@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Public consumer snapshot for Predict UG Android 0.7.36; private backend source is excluded. -->
+  <!-- Public consumer snapshot for Predict UG Android 0.7.37; private backend source is excluded. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#071426"/>
@@ -88,6 +88,52 @@
 <button id="merchantQuickConnect" class="merchant-quick hidden" aria-label="Connect merchant phone">⚡ Connect MTN + Airtel</button>
 <div id="toast"></div>
 
+<script>
+window.__predictUgBootReady=false;
+window.__predictUgBootPhase='html';
+window.__predictUgShowStartupFailure=function(message){
+  if(window.__predictUgBootReady)return;
+  const view=document.getElementById('view');
+  if(!view)return;
+  const box=document.createElement('div');
+  box.className='empty';
+  const title=document.createElement('h2');
+  title.textContent='Predict UG startup problem';
+  const msg=document.createElement('p');
+  msg.textContent=String(message||'Startup timed out.').slice(0,280);
+  const retry=document.createElement('button');
+  retry.className='btn primary';
+  retry.textContent='Retry';
+  retry.onclick=function(){location.reload()};
+  const reset=document.createElement('button');
+  reset.className='btn ghost';
+  reset.style.marginLeft='8px';
+  reset.textContent='Reset saved session';
+  reset.onclick=function(){
+    try{
+      for(let i=localStorage.length-1;i>=0;i--){
+        const k=localStorage.key(i)||'';
+        if(k.startsWith('sb-')&&k.includes('auth-token'))localStorage.removeItem(k);
+      }
+      sessionStorage.removeItem('predictug_auth_recovery_once');
+    }catch{}
+    location.reload();
+  };
+  box.append(title,msg,retry,reset);
+  view.replaceChildren(box);
+};
+window.addEventListener('error',function(e){
+  const src=e && e.filename ? (' · '+String(e.filename).split('/').pop()+':'+(e.lineno||0)) : '';
+  window.__predictUgShowStartupFailure((e && e.message ? e.message : 'JavaScript startup error')+src);
+});
+window.addEventListener('unhandledrejection',function(e){
+  const r=e && e.reason;
+  window.__predictUgShowStartupFailure(r && r.message ? r.message : 'Startup request failed');
+});
+window.__predictUgBootTimer=setTimeout(function(){
+  window.__predictUgShowStartupFailure('Startup took too long. Retry, or reset the saved session if this started after an update.');
+},12000);
+</script>
 <script src="supabase.js"></script>
 <script>
 const { createClient } = window.supabase;
@@ -95,8 +141,32 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.36';
+const APP_BUILD='0.7.37';
+const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
+let authRestoreFailed=false;
+let authListenerInstalled=false;
+
+function markBootReady(phase='ready'){
+  window.__predictUgBootPhase=phase;
+  window.__predictUgBootReady=true;
+  if(window.__predictUgBootTimer)clearTimeout(window.__predictUgBootTimer);
+}
+function promiseTimeout(promise,ms,label){
+  let timer;
+  return Promise.race([
+    promise,
+    new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(label||'Request timed out')),ms)})
+  ]).finally(()=>clearTimeout(timer));
+}
+function clearStoredAuthSession(){
+  try{
+    for(let i=localStorage.length-1;i>=0;i--){
+      const k=localStorage.key(i)||'';
+      if(k.startsWith('sb-')&&k.includes('auth-token'))localStorage.removeItem(k);
+    }
+  }catch{}
+}
 
 const state={tab:'markets',session:null,user:null,isAdmin:false,status:null,categories:[],markets:[],category:'',search:'',market:null,portfolio:null,watchlist:[],notifications:[],leaderboard:[],trends:[],stories:[],creators:[],externalSignals:[],weatherSignals:[],statementSignals:[],officialData:[],admin:null,ceo:null,aiProviders:[],autonomy:null,loading:false,online:navigator.onLine,realtimeStatus:'idle',realtimeMarketId:null,balance:null,balanceMode:'forecast_credit',unreadNotifications:0};
 
@@ -262,7 +332,8 @@ async function rpc(name,args={}){
   for(let attempt=0;attempt<maxAttempts;attempt++){
     const timeoutMs=mutating?15000:8000;
     try{
-      const query=supabase.rpc(name,args).abortSignal(rpcTimeoutSignal(timeoutMs));
+      const rpcClient=(!mutating&&!state.user)?publicSupabase:supabase;
+      const query=rpcClient.rpc(name,args).abortSignal(rpcTimeoutSignal(timeoutMs));
       const {data,error}=await query;
       if(!error)return data;
       lastError=error;
@@ -296,7 +367,7 @@ function showMerchantPairingSheet(pairing,connectUri){
     '<div class="modal"><div class="sheet" style="max-width:480px">'+
       '<button class="close" id="merchantPairClose">✕</button>'+
       '<h2>Connect merchant phone</h2>'+
-      '<p class="auth-note">Predict UG Android 0.7.36 · bundled frontend</p>'+
+      '<p class="auth-note">Predict UG Android 0.7.37 · bundled frontend</p>'+
       '<div class="card" style="text-align:center;margin:14px 0">'+
         '<div class="media-label">Pairing code</div>'+
         '<div id="merchantPairCode" style="font-size:1.6rem;font-weight:900;letter-spacing:.14em;margin-top:8px">'+esc(code)+'</div>'+
@@ -419,7 +490,51 @@ function aiProviderSetupUrl(provider){
   })[provider]||'';
 }
 function cachedAgeLabel(entry){if(!entry?.saved_at)return '';const ms=Date.now()-new Date(entry.saved_at).getTime();if(ms<60000)return 'just now';if(ms<3600000)return Math.floor(ms/60000)+'m ago';return Math.floor(ms/3600000)+'h ago'}
-async function loadSession(){const {data}=await supabase.auth.getSession();state.session=data.session;state.user=data.session?.user||null;if(state.user){try{state.isAdmin=!!(await rpc('is_admin'))}catch{state.isAdmin=false}}else state.isAdmin=false}
+async function loadSession(){
+  const {data}=await promiseTimeout(supabase.auth.getSession(),4500,'Session restore timed out');
+  state.session=data?.session||null;
+  state.user=data?.session?.user||null;
+  if(state.user){try{state.isAdmin=!!(await rpc('is_admin'))}catch{state.isAdmin=false}}
+  else state.isAdmin=false;
+}
+async function restoreSessionAfterPublicRender(){
+  try{
+    await loadSession();
+    authRestoreFailed=false;
+    try{sessionStorage.removeItem('predictug_auth_recovery_once')}catch{}
+    return true;
+  }catch(e){
+    authRestoreFailed=true;
+    state.session=null;state.user=null;state.isAdmin=false;
+    reportClientError(e.message||'Session restore timed out',e.stack||'',{kind:'session_restore_timeout'});
+    let recovered=false;
+    try{
+      if(sessionStorage.getItem('predictug_auth_recovery_once')!=='1'){
+        sessionStorage.setItem('predictug_auth_recovery_once','1');
+        clearStoredAuthSession();
+        recovered=true;
+      }
+    }catch{}
+    if(recovered){
+      setTimeout(()=>location.reload(),80);
+      return false;
+    }
+    toast('Saved session could not be restored. Public markets are still available; sign in again.',true);
+    return false;
+  }
+}
+function installAuthListener(){
+  if(authListenerInstalled||authRestoreFailed)return;
+  authListenerInstalled=true;
+  supabase.auth.onAuthStateChange((event,session)=>{
+    state.session=session||null;
+    state.user=session?.user||null;
+    state.isAdmin=false;
+    render();
+    if(state.user){setTimeout(async()=>{try{state.isAdmin=!!(await rpc('is_admin'));await Promise.all([loadBalance(),loadUnreadNotifications()]);render();await ensureLegalAcceptance()}catch{}},0)}
+    else{state.balance=null;state.unreadNotifications=0}
+  });
+}
 
 async function ensureLegalAcceptance(){
   if(!state.user)return true;
@@ -523,14 +638,23 @@ async function loadPublicBootstrap(){
   }
 }
 async function bootstrap(){
-  await loadSession();
+  window.__predictUgBootPhase='public-bootstrap';
   await loadPublicBootstrap();
   state.loading=false;
   render();
-  if(state.user){
-    Promise.all([loadBalance(),loadUnreadNotifications()]).then(render).catch(()=>{});
-    setTimeout(()=>ensureLegalAcceptance(),0);
+  markBootReady('public-ready');
+
+  window.__predictUgBootPhase='session-restore';
+  const sessionOk=await restoreSessionAfterPublicRender();
+  if(sessionOk){
+    installAuthListener();
+    render();
+    if(state.user){
+      Promise.all([loadBalance(),loadUnreadNotifications()]).then(render).catch(()=>{});
+      setTimeout(()=>ensureLegalAcceptance(),0);
+    }
   }
+
   loadDiscover().catch(()=>{});
   syncPaymentReturn();
   const linked=linkedMarketId();
@@ -2121,7 +2245,7 @@ async function runAppCheck(){
     const s=await supabase.auth.getSession();
     out.push(s.data?.session?'Session: signed in':'Session: signed out');
   }catch{out.push('Session: check failed')}
-  out.push('App: Android 0.7.36 · bundled frontend');
+  out.push('App: Android 0.7.37 · bundled frontend');
   return out.join(' · ');
 }
 
@@ -2357,13 +2481,6 @@ $('#balanceBtn').onclick=async()=>{state.tab='portfolio';if(state.user)await loa
 $('#refreshBtn').onclick=refreshAll;
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){stopMarketRealtime();$('#overlay').innerHTML='';if(state.market){state.market=null;setMarketUrl(null,true)}}});
 window.addEventListener('popstate',async()=>{const id=linkedMarketId();if(id){await openMarket(id,{updateUrl:false})}else{stopMarketRealtime();$('#overlay').innerHTML='';state.market=null}});
-supabase.auth.onAuthStateChange((event,session)=>{
-  state.session=session||null;
-  state.user=session?.user||null;
-  state.isAdmin=false;
-  render();
-  if(state.user){setTimeout(async()=>{try{state.isAdmin=!!(await rpc('is_admin'));await Promise.all([loadBalance(),loadUnreadNotifications()]);render();await ensureLegalAcceptance()}catch{}},0);}else{state.balance=null;state.unreadNotifications=0;}
-});
-bootstrap().catch(e=>{reportClientError(e.message||'Bootstrap failed',e.stack||'',{kind:'bootstrap'});$('#view').innerHTML='<div class="empty">Predict UG could not load.<br><br>'+esc(e.message)+'</div>';});
+bootstrap().catch(e=>{reportClientError(e.message||'Bootstrap failed',e.stack||'',{kind:'bootstrap'});window.__predictUgShowStartupFailure(e.message||'Predict UG could not load');});
 </script>
 </body></html>
