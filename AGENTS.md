@@ -33,7 +33,7 @@ Do not weaken `Public Source Guard` to make CI pass.
 ## Android contract
 
 - Consumer app only.
-- No RECEIVE_SMS or READ_SMS permissions.
+- The consumer app must not request SMS-reading or SMS-receive permissions.
 - No merchant-only launcher/components.
 - Java 17.
 - Android API 36.
