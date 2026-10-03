@@ -7,8 +7,12 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.webkit.ConsoleMessage;
 import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
 import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -78,7 +82,26 @@ public class MainActivity extends ComponentActivity {
         cookies.setAcceptCookie(true);
         cookies.setAcceptThirdPartyCookies(webView, false);
 
-        webView.setWebChromeClient(new WebChromeClient());
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                if (consoleMessage != null
+                        && consoleMessage.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
+                    NativeCrashReporter.reportNonFatal(
+                            MainActivity.this,
+                            "android-webview",
+                            BuildConfig.VERSION_NAME,
+                            "WebView console error",
+                            consoleMessage.message()
+                                    + " @ "
+                                    + consoleMessage.sourceId()
+                                    + ":"
+                                    + consoleMessage.lineNumber()
+                    );
+                }
+                return super.onConsoleMessage(consoleMessage);
+            }
+        });
         webView.addJavascriptInterface(
                 new PlayIntegrityBridge(this, webView, BuildConfig.PLAY_CLOUD_PROJECT_NUMBER),
                 "PredictUGIntegrity"
@@ -88,6 +111,59 @@ public class MainActivity extends ComponentActivity {
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                 WebResourceResponse local = assetLoader.shouldInterceptRequest(request.getUrl());
                 return local != null ? local : super.shouldInterceptRequest(view, request);
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    if (webView == null || isFinishing()) return;
+                    webView.evaluateJavascript(
+                            "(function(){return window.__predictUgBootReady===true?'ready':String(window.__predictUgBootPhase||'not-ready')})()",
+                            value -> {
+                                if (value == null || !value.contains("ready")) {
+                                    NativeCrashReporter.reportNonFatal(
+                                            MainActivity.this,
+                                            "android-webview",
+                                            BuildConfig.VERSION_NAME,
+                                            "Predict UG startup watchdog",
+                                            "WebView boot state after 15s: " + String.valueOf(value)
+                                    );
+                                    Toast.makeText(
+                                            MainActivity.this,
+                                            "Predict UG startup is taking too long. Tap Retry in the app.",
+                                            Toast.LENGTH_LONG
+                                    ).show();
+                                }
+                            }
+                    );
+                }, 15000);
+            }
+
+            @Override
+            public void onReceivedError(
+                    WebView view,
+                    WebResourceRequest request,
+                    WebResourceError error
+            ) {
+                super.onReceivedError(view, request, error);
+                if (request != null && request.isForMainFrame()) {
+                    String description = error == null
+                            ? "Unknown WebView load error"
+                            : String.valueOf(error.getDescription());
+                    NativeCrashReporter.reportNonFatal(
+                            MainActivity.this,
+                            "android-webview",
+                            BuildConfig.VERSION_NAME,
+                            "WebView main-frame load error",
+                            description
+                    );
+                    Toast.makeText(
+                            MainActivity.this,
+                            "Predict UG could not load its local app shell. Reopen the app.",
+                            Toast.LENGTH_LONG
+                    ).show();
+                }
             }
 
             @Override
