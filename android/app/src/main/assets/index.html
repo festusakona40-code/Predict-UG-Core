@@ -1,0 +1,2369 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Public consumer snapshot for Predict UG Android 0.7.36; private backend source is excluded. -->
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="theme-color" content="#071426"/>
+  <link rel="preconnect" href="https://rnvyrlmrwhfauuskyhje.supabase.co" crossorigin>
+  <link rel="dns-prefetch" href="//rnvyrlmrwhfauuskyhje.supabase.co">
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  
+  <title>Predict UG</title>
+  <meta name="description" content="Uganda-first prediction markets and forecasting intelligence."/>
+  <style>
+    :root{
+      --bg:#071426;--surface:#0d1d33;--surface2:#132943;--line:#203957;
+      --text:#f4f8ff;--muted:#8fa5bd;--green:#33d69f;--green2:#24b985;
+      --red:#ff6b72;--amber:#f4bf55;--blue:#61a8ff;--shadow:0 18px 48px rgba(0,0,0,.28)
+    }
+    *{box-sizing:border-box} html{background:var(--bg)} body{margin:0;background:radial-gradient(circle at top right,#0d2942 0,transparent 28%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button,input,select,textarea{font:inherit} button{cursor:pointer} a{color:inherit}
+    .app{max-width:1180px;margin:0 auto;min-height:100vh;padding-bottom:88px}
+    .topbar{position:sticky;top:0;z-index:30;backdrop-filter:blur(18px);background:rgba(7,20,38,.88);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) 14px max(18px,env(safe-area-inset-left));gap:10px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.04em;font-size:1.25rem}
+    .logo{width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,var(--green),#5af2c2);display:grid;place-items:center;color:#052319;font-weight:1000;box-shadow:0 0 26px rgba(51,214,159,.25)}
+    .header-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    .container{padding:18px}
+    .hero{padding:14px 0 4px}.hero h1{font-size:clamp(1.65rem,4vw,2.5rem);margin:0 0 7px;letter-spacing:-.045em}.hero p{color:var(--muted);margin:0;max-width:760px}
+    .pill,.btn{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:12px;padding:10px 13px}.btn.primary{background:var(--green);border-color:var(--green);color:#05251a;font-weight:800}.btn.ghost{background:transparent}.btn.danger{background:rgba(255,107,114,.1);border-color:rgba(255,107,114,.3);color:#ff9aa0}.btn.small{padding:7px 10px;font-size:.85rem}
+    .statusbar{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}.statuschip{font-size:.78rem;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.02)}.statuschip.ok{color:#7ff0c8;border-color:rgba(51,214,159,.35)}.statuschip.warn{color:#ffd27b;border-color:rgba(244,191,85,.35)}
+    .searchrow{display:grid;grid-template-columns:1fr auto;gap:10px;margin:14px 0}.input{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:13px;padding:12px 13px;outline:none}.input:focus{border-color:var(--green)}
+    .chips{display:flex;gap:8px;overflow:auto;padding:2px 0 11px;scrollbar-width:none}.chip{white-space:nowrap;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:8px 11px}.chip.active{background:rgba(51,214,159,.13);border-color:rgba(51,214,159,.45);color:#9cf7d6}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+    .card{background:linear-gradient(180deg,rgba(18,39,65,.96),rgba(11,27,48,.96));border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}.market-card{cursor:pointer;transition:.18s transform,.18s border-color}.market-card:hover{transform:translateY(-2px);border-color:#31577b}
+    .eyebrow{display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--muted);font-size:.76rem;text-transform:uppercase;letter-spacing:.08em}.market-title{font-size:1.05rem;font-weight:800;line-height:1.32;margin:10px 0 14px}
+    .prob-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}.prob{border:1px solid var(--line);background:rgba(255,255,255,.025);border-radius:13px;padding:10px}.prob b{font-size:1.2rem}.yes{color:#73ebc1}.no{color:#ff9ba0}
+    .bar{height:6px;border-radius:999px;background:#20364f;overflow:hidden;margin-top:10px}.bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--green),#61e8bc)}
+    .meta{display:flex;justify-content:space-between;gap:12px;margin-top:12px;color:var(--muted);font-size:.78rem}
+    .section-title{display:flex;justify-content:space-between;align-items:center;margin:22px 0 11px}.section-title h2{margin:0;font-size:1.15rem}
+    .empty,.loading{border:1px dashed var(--line);border-radius:16px;padding:24px;text-align:center;color:var(--muted)}
+    .bottomnav{position:fixed;bottom:0;left:0;right:0;z-index:40;background:rgba(7,20,38,.94);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:center;padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+    .bottomnav .inner{max-width:700px;width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.navbtn{background:transparent;border:0;color:var(--muted);padding:9px 4px;border-radius:12px}.navbtn.active{background:rgba(51,214,159,.1);color:#85f0ca}.navbtn span{display:block;font-size:.72rem;margin-top:3px}
+    .modal{position:fixed;inset:0;z-index:60;background:rgba(2,8,15,.78);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center}.sheet{background:var(--bg);border:1px solid var(--line);border-radius:24px 24px 0 0;width:min(900px,100%);max-height:94vh;overflow:auto;padding:20px}.sheet.full{height:94vh}.close{float:right;border:0;background:var(--surface2);color:var(--text);border-radius:10px;width:36px;height:36px}
+    .detail-title{font-size:1.45rem;line-height:1.24;margin:10px 46px 6px 0}.detail-sub{color:var(--muted);font-size:.9rem}
+    .detail-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:14px;margin-top:16px}@media(max-width:800px){.detail-grid{grid-template-columns:1fr}.detail-grid>aside{order:-1}.tradebox{position:static}}
+    .tradebox{position:sticky;top:0}.outcome-btns{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0}.outcome-btn{padding:13px;border-radius:13px;border:1px solid var(--line);background:var(--surface2);color:var(--text);font-weight:800}.outcome-btn.active.y{border-color:var(--green);color:#8cf2cd;background:rgba(51,214,159,.1)}.outcome-btn.active.n{border-color:var(--red);color:#ff9da2;background:rgba(255,107,114,.08)}
+    .quote{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:13px;padding:11px;margin:10px 0;display:grid;gap:6px}.quote-row{display:flex;justify-content:space-between;color:var(--muted)}.quote-row b{color:var(--text)}
+    .tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}.tab{border:1px solid var(--line);background:transparent;color:var(--muted);padding:8px 10px;border-radius:10px}.tab.active{background:var(--surface2);color:var(--text)}
+    .timeline{display:grid;gap:9px}.item{border:1px solid var(--line);border-radius:13px;padding:11px;background:rgba(255,255,255,.02)}.item small{color:var(--muted)}
+    .spark{height:150px;width:100%;background:rgba(255,255,255,.018);border:1px solid var(--line);border-radius:13px;padding:6px}
+    .auth-wrap{display:grid;gap:10px}.auth-note{color:var(--muted);font-size:.85rem}
+    .statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stat{border:1px solid var(--line);border-radius:13px;padding:12px;background:rgba(255,255,255,.02)}.stat b{display:block;font-size:1.15rem;margin-top:4px}.stat small{color:var(--muted)}
+    .admin-list{display:grid;gap:8px;max-height:360px;overflow:auto}
+    .toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:100;background:#112b25;color:#a2f9da;border:1px solid rgba(51,214,159,.35);padding:10px 14px;border-radius:12px;box-shadow:var(--shadow)}
+    .toast.err{background:#31191e;color:#ffb0b4;border-color:rgba(255,107,114,.35)}
+    .merchant-quick{position:fixed;right:14px;bottom:calc(82px + env(safe-area-inset-bottom));z-index:55;border:0;border-radius:999px;padding:13px 16px;background:var(--green);color:#05251a;font-weight:900;box-shadow:0 12px 34px rgba(0,0,0,.38);max-width:calc(100vw - 28px)}
+    .merchant-quick:disabled{opacity:.62}
+    .hidden{display:none!important}
+    @media(min-width:900px){.bottomnav{position:sticky;top:63px;bottom:auto;border-top:0;border-bottom:1px solid rgba(255,255,255,.06);padding:7px}.bottomnav .inner{grid-template-columns:repeat(4,130px);justify-content:center}.app{padding-bottom:20px}}
+    .homehero{background:linear-gradient(135deg,rgba(51,214,159,.16),rgba(97,168,255,.08) 48%,rgba(255,255,255,.025));border:1px solid rgba(125,255,211,.16);border-radius:24px;padding:22px;margin-bottom:14px;overflow:hidden;position:relative}.homehero:after{content:'';position:absolute;width:180px;height:180px;border-radius:50%;right:-70px;top:-90px;background:rgba(51,214,159,.11);filter:blur(8px)}.homehero h1{font-size:clamp(1.8rem,6vw,3rem);letter-spacing:-.055em;margin:0 0 8px;max-width:760px}.homehero p{color:var(--muted);max-width:720px;margin:0}.hero-kpis{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.hero-kpi{padding:8px 11px;border:1px solid rgba(255,255,255,.08);border-radius:999px;background:rgba(0,0,0,.16);font-size:.78rem}
+    .market-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.market-price{font-size:1.75rem;font-weight:900;letter-spacing:-.05em;color:#8cf2cd;white-space:nowrap}.market-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.market-mini{border:1px solid var(--line);border-radius:11px;padding:8px 10px;background:rgba(255,255,255,.02);font-size:.82rem}.market-mini.y{color:#8cf2cd}.market-mini.n{color:#ff9da2}
+    .media-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.media-card{border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.022);padding:14px;min-height:145px}.media-card h3{margin:7px 0 8px;font-size:1rem;line-height:1.35}.media-card p{margin:0;color:var(--muted);font-size:.86rem;line-height:1.45}.media-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#7ff0c8}.source-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.source-pill{font-size:.72rem;border:1px solid var(--line);border-radius:999px;padding:5px 8px;color:var(--muted)}
+    .ai-shell{max-width:820px;margin:0 auto}.ai-box{background:linear-gradient(180deg,rgba(18,39,65,.92),rgba(10,24,42,.96));border:1px solid rgba(97,168,255,.22);border-radius:22px;padding:18px}.ai-answer{white-space:pre-wrap;line-height:1.55;margin-top:14px;border-top:1px solid var(--line);padding-top:14px}.quick-prompts{display:flex;gap:8px;overflow:auto;padding:8px 0 2px;scrollbar-width:none}.quick-prompt{white-space:nowrap;border:1px solid var(--line);background:rgba(255,255,255,.025);color:var(--muted);border-radius:999px;padding:7px 10px;font-size:.78rem}
+    @media(max-width:820px){.media-grid{grid-template-columns:1fr}.homehero{padding:18px}.topbar{padding:calc(12px + env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) 12px max(14px,env(safe-area-inset-left))}.container{padding:14px}.market-price{font-size:1.5rem}}
+    .chat-thread{display:grid;gap:10px;max-height:52vh;overflow:auto;padding:6px 2px 12px}.chat-msg{max-width:90%;border:1px solid var(--line);border-radius:16px;padding:11px 13px;line-height:1.48;white-space:pre-wrap}.chat-msg.user{justify-self:end;background:rgba(51,214,159,.10);border-color:rgba(51,214,159,.25)}.chat-msg.assistant{justify-self:start;background:rgba(255,255,255,.025)}.chat-msg small{display:block;color:var(--muted);margin-top:7px}.quick-stakes{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:8px 0}.quick-stake{border:1px solid var(--line);background:rgba(255,255,255,.025);color:var(--text);border-radius:10px;padding:8px}
+    .result-chip{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:.72rem;font-weight:800;border:1px solid var(--line)}.result-chip.open{color:#8cf2cd;background:rgba(51,214,159,.08)}.result-chip.won{color:#8cf2cd;background:rgba(51,214,159,.10)}.result-chip.lost{color:#ff9da2;background:rgba(255,98,109,.08)}.result-chip.void,.result-chip.closed{color:#c5cfdd;background:rgba(255,255,255,.04)}.notif-dot{display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:999px;background:#ff626d;color:white;font-size:.68rem;text-align:center;margin-left:4px;padding:0 4px}
+  </style>
+</head>
+<body>
+<div id="app" class="app">
+  <header class="topbar">
+    <div class="brand"><div class="logo">P</div><span>Predict UG</span></div>
+    <div class="header-actions">
+      <button class="btn small primary hidden" id="installBtn" aria-hidden="true" tabindex="-1">Installed</button>
+      <button class="btn small ghost" id="refreshBtn">↻</button>
+      <button class="btn small hidden" id="notifBtn" aria-label="Notifications">🔔</button>
+      <button class="btn small hidden" id="balanceBtn">0 credits</button>
+      <button class="btn small hidden" id="inviteBtn">Invite</button>
+      <button class="btn small" id="authBtn">Sign in</button>
+    </div>
+  </header>
+  <nav class="bottomnav"><div class="inner" id="nav"></div></nav>
+  <main class="container" id="view"><div class="loading">Loading Predict UG…</div></main>
+</div>
+<div id="overlay"></div>
+<button id="merchantQuickConnect" class="merchant-quick hidden" aria-label="Connect merchant phone">⚡ Connect MTN + Airtel</button>
+<div id="toast"></div>
+
+<script src="supabase.js"></script>
+<script>
+const { createClient } = window.supabase;
+
+const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
+const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
+const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
+const APP_BUILD='0.7.36';
+const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
+
+const state={tab:'markets',session:null,user:null,isAdmin:false,status:null,categories:[],markets:[],category:'',search:'',market:null,portfolio:null,watchlist:[],notifications:[],leaderboard:[],trends:[],stories:[],creators:[],externalSignals:[],weatherSignals:[],statementSignals:[],officialData:[],admin:null,ceo:null,aiProviders:[],autonomy:null,loading:false,online:navigator.onLine,realtimeStatus:'idle',realtimeMarketId:null,balance:null,balanceMode:'forecast_credit',unreadNotifications:0};
+
+const $=s=>document.querySelector(s);
+const esc=(s='')=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+const ugx=n=>'UGX '+Number(n||0).toLocaleString('en-UG');
+const pct=n=>Number(n??0).toFixed(0)+'%';
+const dt=s=>s?new Date(s).toLocaleString('en-UG',{dateStyle:'medium',timeStyle:'short'}):'—';
+const short=s=>String(s||'').length>150?String(s).slice(0,147)+'…':String(s||'');
+const isClosed=m=>m?.status!=='open'||new Date(m?.close_time)<new Date();
+const linkedMarketId=()=>new URLSearchParams(location.search).get('market');
+function setMarketUrl(id,replace=false){const u=new URL(location.href);if(id)u.searchParams.set('market',id);else u.searchParams.delete('market');const next=u.pathname+(u.searchParams.toString()?'?'+u.searchParams.toString():'');history[replace?'replaceState':'pushState']({},'',next)}
+async function shareMarketLink(id,title){const u=new URL(location.href);u.search='';u.searchParams.set('market',id);const url=u.toString();try{if(navigator.share){await navigator.share({title:title||'Predict UG market',text:title||'Predict UG market',url});return}if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url);toast('Market link copied');return}prompt('Copy this market link',url)}catch(e){if(e?.name!=='AbortError')toast('Could not share market link',true)}}
+
+const REFERRAL_STORAGE='predictug_pending_referral_v1';
+function normalizeReferralCode(value){
+  const code=String(value||'').trim().toUpperCase();
+  return /^[A-Z0-9]{10}$/.test(code)?code:'';
+}
+function pendingReferralCode(){
+  try{return normalizeReferralCode(localStorage.getItem(REFERRAL_STORAGE)||'')}catch{return ''}
+}
+function rememberReferralCode(value){
+  const code=normalizeReferralCode(value);
+  if(!code)return '';
+  try{localStorage.setItem(REFERRAL_STORAGE,code)}catch{}
+  return code;
+}
+const linkedReferralCode=normalizeReferralCode(new URLSearchParams(location.search).get('ref'));
+if(linkedReferralCode)rememberReferralCode(linkedReferralCode);
+
+async function claimReferralForNewAccount(value){
+  const code=rememberReferralCode(value||pendingReferralCode());
+  if(!state.user||!code)return null;
+  try{
+    const result=await rpc('claim_referral',{p_code:code});
+    if(result?.claimed||['already_attributed','self_referral'].includes(String(result?.reason||''))){
+      try{localStorage.removeItem(REFERRAL_STORAGE)}catch{}
+    }
+    return result;
+  }catch(e){
+    reportClientError(e.message||'Referral attribution failed',e.stack||'',{kind:'referral_claim'});
+    return null;
+  }
+}
+async function showInvite(){
+  if(!state.user){showAuth();return}
+  try{
+    const stats=await rpc('my_referral_stats');
+    const code=normalizeReferralCode(stats?.code);
+    const inviteUrl=String(stats?.invite_url||'');
+    if(!code||!inviteUrl)throw new Error('Invite link unavailable');
+    $('#overlay').innerHTML=
+      '<div class="modal"><div class="sheet" style="max-width:500px">'+
+        '<button class="close" id="inviteClose">✕</button>'+
+        '<h2>Invite someone to Predict UG</h2>'+
+        '<p class="auth-note">Share your link or code. Referral tracking is attribution only — no cash or credit reward is attached.</p>'+
+        '<div class="card" style="margin:12px 0">'+
+          '<div class="eyebrow"><span>Your invite code</span><span>'+esc(code)+'</span></div>'+
+          '<div style="font-size:1.35rem;font-weight:900;letter-spacing:.08em;margin-top:10px">'+esc(code)+'</div>'+
+          '<div class="auth-note" style="margin-top:8px">'+Number(stats?.attributed_signups||0).toLocaleString('en-UG')+' attributed signup'+(Number(stats?.attributed_signups||0)===1?'':'s')+'</div>'+
+        '</div>'+
+        '<div class="auth-wrap">'+
+          '<button class="btn primary" id="shareInvite">Share invite link</button>'+
+          '<button class="btn" id="copyInvite">Copy invite link</button>'+
+          '<button class="btn ghost" id="copyInviteCode">Copy code only</button>'+
+        '</div>'+
+      '</div></div>';
+    $('#inviteClose').onclick=()=>$('#overlay').innerHTML='';
+    const copy=async(value,label)=>{
+      try{
+        if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(value);toast(label);return}
+      }catch{}
+      prompt('Copy this',value);
+    };
+    $('#copyInvite').onclick=()=>copy(inviteUrl,'Invite link copied');
+    $('#copyInviteCode').onclick=()=>copy(code,'Invite code copied');
+    $('#shareInvite').onclick=async()=>{
+      try{
+        if(navigator.share){await navigator.share({title:'Predict UG',text:'Join me on Predict UG. If you install the APK directly, use invite code '+code+'.',url:inviteUrl});return}
+        await copy(inviteUrl,'Invite link copied');
+      }catch(e){if(e?.name!=='AbortError')toast('Could not share invite',true)}
+    };
+  }catch(e){toast(e.message||'Could not create invite link',true)}
+}
+
+function toast(msg,err=false){const el=$('#toast');el.className='toast'+(err?' err':'');el.textContent=msg;clearTimeout(window.__t);window.__t=setTimeout(()=>{el.className='';el.textContent=''},3500)}
+let marketRealtimeChannel=null;
+let marketRealtimeTimer=null;
+let marketRealtimeFallbackTimer=null;
+function stopMarketRealtime(){
+  if(marketRealtimeTimer){clearTimeout(marketRealtimeTimer);marketRealtimeTimer=null}
+  if(marketRealtimeFallbackTimer){clearTimeout(marketRealtimeFallbackTimer);marketRealtimeFallbackTimer=null}
+  if(marketRealtimeChannel){const channel=marketRealtimeChannel;marketRealtimeChannel=null;try{supabase.removeChannel(channel)}catch{}}
+  state.realtimeStatus='idle';state.realtimeMarketId=null;
+}
+async function refreshOpenMarketLive(id){
+  if(!state.online||!state.market?.market||state.market.market.id!==id)return;
+  try{
+    const watched=!!state.market.__watched;
+    const page=await rpc('market_page',{p_market_id:id});
+    page.__watched=watched;page.__offline_cache=false;state.market=page;cacheWrite('market:'+id,page);
+    if(isClosed(page.market)){stopMarketRealtime()}
+    drawMarket();
+  }catch(e){reportClientError(e.message||'Realtime market refresh failed',e.stack||'',{kind:'realtime_market_refresh',market_id:id})}
+}
+function scheduleMarketLiveRefresh(id){
+  if(!state.online||state.market?.market?.id!==id)return;
+  if(marketRealtimeTimer)clearTimeout(marketRealtimeTimer);
+  marketRealtimeTimer=setTimeout(()=>{marketRealtimeTimer=null;refreshOpenMarketLive(id)},300);
+}
+function scheduleRealtimeFallback(id,delay=15000){
+  if(marketRealtimeFallbackTimer)clearTimeout(marketRealtimeFallbackTimer);
+  marketRealtimeFallbackTimer=setTimeout(async()=>{
+    marketRealtimeFallbackTimer=null;
+    if(!state.online||state.market?.market?.id!==id||isClosed(state.market.market))return;
+    if(state.realtimeStatus!=='live'){await refreshOpenMarketLive(id);if(state.market?.market?.id===id&&!isClosed(state.market.market))scheduleRealtimeFallback(id,20000)}
+  },delay);
+}
+function startMarketRealtime(id){
+  stopMarketRealtime();
+  if(!state.online||!id||!state.market?.market||state.market.market.id!==id||isClosed(state.market.market))return;
+  state.realtimeStatus='connecting';state.realtimeMarketId=id;scheduleRealtimeFallback(id,12000);
+  const channel=supabase.channel('predict-market-live:'+id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'market_live_events',filter:'market_id=eq.'+id},()=>scheduleMarketLiveRefresh(id))
+    .subscribe(status=>{
+      if(state.realtimeMarketId!==id)return;
+      if(status==='SUBSCRIBED'){state.realtimeStatus='live';if(marketRealtimeFallbackTimer){clearTimeout(marketRealtimeFallbackTimer);marketRealtimeFallbackTimer=null}if(state.market?.market?.id===id)drawMarket()}
+      else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){state.realtimeStatus='reconnecting';scheduleRealtimeFallback(id,2500);if(state.market?.market?.id===id)drawMarket()}
+      else if(status==='CLOSED'){state.realtimeStatus='idle'}
+    });
+  marketRealtimeChannel=channel;
+}
+function rpcNeedsNetworkMutationGuard(name){
+  const n=String(name||'');
+  return /^(place_|cancel_|cash_out_|request_|set_|settle_|void_|create_|accept_|delete_|update_|save_|challenge_)/.test(n) ||
+    /^(admin_.*(?:create|set|add|publish|propose|review|clear|update|pair|revoke)|mark_)/.test(n);
+}
+function rpcTimeoutSignal(ms){
+  if(typeof AbortSignal!=='undefined'&&typeof AbortSignal.timeout==='function'){
+    return AbortSignal.timeout(ms);
+  }
+  const controller=new AbortController();
+  setTimeout(()=>controller.abort(),ms);
+  return controller.signal;
+}
+function rpcReadRetryable(error){
+  const code=String(error?.code||'').toUpperCase();
+  const msg=String(error?.message||error||'').toLowerCase();
+  if(code==='42501'||code.startsWith('23')||code.startsWith('PGRST1')||code.startsWith('PGRST2'))return false;
+  return code.startsWith('08')
+    ||code.startsWith('53')
+    ||['PGRST000','PGRST001','PGRST002','PGRST003'].includes(code)
+    ||/timeout|timed out|network|failed to fetch|fetch failed|aborted|connection/.test(msg);
+}
+async function rpc(name,args={}){
+  const mutating=rpcNeedsNetworkMutationGuard(name);
+  if(!state.online&&mutating){
+    throw new Error('Offline: reconnect before changing markets, orders, account data or money.');
+  }
+  const maxAttempts=mutating?1:3;
+  let lastError=null;
+  for(let attempt=0;attempt<maxAttempts;attempt++){
+    const timeoutMs=mutating?15000:8000;
+    try{
+      const query=supabase.rpc(name,args).abortSignal(rpcTimeoutSignal(timeoutMs));
+      const {data,error}=await query;
+      if(!error)return data;
+      lastError=error;
+    }catch(error){
+      lastError=error;
+    }
+    if(mutating||!state.online||!rpcReadRetryable(lastError)||attempt===maxAttempts-1)break;
+    await new Promise(resolve=>setTimeout(resolve,attempt===0?300:850));
+  }
+  throw lastError||new Error('Predict UG request failed');
+}
+let __reportingClientError=false;
+async function reportClientError(message,stack='',context={}){
+  if(__reportingClientError||!navigator.onLine)return;
+  __reportingClientError=true;
+  try{
+    const token=state.session?.access_token;
+    await fetch(SUPABASE_URL+'/functions/v1/client-error-report',{
+      method:'POST',
+      headers:{'content-type':'application/json',...(token?{'authorization':'Bearer '+token}:{})},
+      body:JSON.stringify({source:'web',app_version:APP_BUILD,message:String(message||'Unknown client error').slice(0,700),stack:String(stack||'').slice(0,4000),context:{tab:state.tab,online:state.online,...context}})
+    });
+  }catch{}finally{__reportingClientError=false}
+}
+window.addEventListener('error',e=>reportClientError(e.message,e.error?.stack||'',{kind:'window_error'}));
+window.addEventListener('unhandledrejection',e=>reportClientError(e.reason?.message||String(e.reason||'Unhandled promise rejection'),e.reason?.stack||'',{kind:'unhandled_rejection'}));
+function openHosted(path){location.href=PUBLIC_ORIGIN+path}
+function showMerchantPairingSheet(pairing,connectUri){
+  const code=String(pairing?.pairing_code||'').trim();
+  $('#overlay').innerHTML=
+    '<div class="modal"><div class="sheet" style="max-width:480px">'+
+      '<button class="close" id="merchantPairClose">✕</button>'+
+      '<h2>Connect merchant phone</h2>'+
+      '<p class="auth-note">Predict UG Android 0.7.36 · bundled frontend</p>'+
+      '<div class="card" style="text-align:center;margin:14px 0">'+
+        '<div class="media-label">Pairing code</div>'+
+        '<div id="merchantPairCode" style="font-size:1.6rem;font-weight:900;letter-spacing:.14em;margin-top:8px">'+esc(code)+'</div>'+
+        '<div class="auth-note" style="margin-top:8px">Expires in about 10 minutes.</div>'+
+      '</div>'+
+      '<div class="auth-wrap">'+
+        '<button class="btn primary" id="merchantOpenApp">Open Predict UG Merchant</button>'+
+        '<button class="btn" id="merchantCopyCode">Copy pairing code</button>'+
+        '<button class="btn" id="merchantCheckConnected">Check connection</button>'+
+        '<div id="merchantPairStatus" class="auth-note" style="min-height:24px"></div>'+
+      '</div>'+
+    '</div></div>';
+  $('#merchantPairClose').onclick=()=>$('#overlay').innerHTML='';
+  $('#merchantOpenApp').onclick=()=>{location.href=connectUri};
+  $('#merchantCopyCode').onclick=async()=>{
+    try{
+      await navigator.clipboard.writeText(code);
+      toast('Pairing code copied');
+    }catch{
+      const el=$('#merchantPairCode');
+      const range=document.createRange();range.selectNodeContents(el);
+      const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+      toast('Code selected — copy it');
+    }
+  };
+  $('#merchantCheckConnected').onclick=async()=>{
+    const el=$('#merchantPairStatus');
+    if(el)el.textContent='Checking…';
+    try{
+      const devices=await rpc('admin_list_merchant_ingest_devices')||[];
+      const active=devices.find(d=>d.enabled);
+      if(active){
+        if(el)el.textContent='Connected ✓ '+(active.network_scope||'BOTH')+' merchant phone is active.';
+        const quick=$('#merchantQuickConnect');
+        if(quick){quick.textContent='✓ Merchant connected';quick.disabled=false}
+        toast('Merchant phone connected ✓');
+      }else if(el){
+        el.textContent='Not connected yet. Open the Merchant app and use the code above.';
+      }
+    }catch(e){
+      if(el)el.textContent=e.message||'Could not check connection';
+    }
+  };
+}
+
+async function createAndOpenMerchantPairing(){
+  const pairing=await rpc('admin_create_merchant_pairing_code',{
+    p_label:'My MTN + Airtel merchant phone',
+    p_network_scope:'BOTH'
+  });
+  const code=String(pairing?.pairing_code||'').trim();
+  const connectUri=pairing?.connect_uri||('predictug://merchant-connect?code='+encodeURIComponent(code));
+  if(!code)throw new Error('Could not create pairing code');
+  showMerchantPairingSheet(pairing,connectUri);
+  toast('Opening Predict UG Merchant…');
+  setTimeout(()=>{location.href=connectUri},350);
+}
+
+async function quickConnectMerchantPhone(){
+  if(!state.user){showAuth();return}
+  if(!state.isAdmin){toast('Admin access required',true);return}
+  const btn=$('#merchantQuickConnect');
+  if(btn)btn.disabled=true;
+  try{
+    const existingDevices=await rpc('admin_list_merchant_ingest_devices')||[];
+    const activeDevice=existingDevices.find(d=>d&&d.enabled);
+    if(activeDevice){
+      toast('Merchant phone registered ✓');
+      if(btn){btn.textContent='✓ Merchant registered';btn.disabled=false}
+      $('#overlay').innerHTML=
+        '<div class="modal"><div class="sheet" style="max-width:480px">'+
+          '<button class="close" id="merchantExistingClose">✕</button>'+
+          '<h2>Merchant phone registered ✓</h2>'+
+          '<p class="auth-note">The server has an active '+esc(activeDevice.network_scope||'MTN + Airtel')+' merchant device. If the Merchant app says this phone is not paired after an update/reinstall, use Repair below to issue fresh secure credentials.</p>'+
+          '<div class="auth-wrap">'+
+            '<button class="btn primary" id="merchantExistingTest">Open Merchant app & check connection</button>'+
+            '<button class="btn" id="merchantExistingRepair">Repair / reconnect this phone</button>'+
+            '<button class="btn" data-tab="admin">View merchant status</button>'+
+          '</div>'+
+        '</div></div>';
+      $('#merchantExistingClose').onclick=()=>$('#overlay').innerHTML='';
+      $('#merchantExistingTest').onclick=()=>{location.href='predictug://merchant-test'};
+      $('#merchantExistingRepair').onclick=async()=>{
+        const repair=$('#merchantExistingRepair');
+        if(repair)repair.disabled=true;
+        try{
+          toast('Creating replacement secure pairing…');
+          await createAndOpenMerchantPairing();
+        }catch(e){
+          toast(e.message||'Could not repair merchant pairing',true);
+          if(repair)repair.disabled=false;
+        }
+      };
+      return;
+    }
+    toast('Creating secure connection…');
+    await createAndOpenMerchantPairing();
+  }catch(e){
+    toast(e.message||'Could not connect merchant phone',true);
+    if(btn)btn.disabled=false;
+  }
+}
+const CACHE_PREFIX='predict-ug-live-v14:';
+function cacheWrite(key,value){try{localStorage.setItem(CACHE_PREFIX+key,JSON.stringify({saved_at:new Date().toISOString(),value}))}catch{}}
+function cacheRead(key){try{const raw=localStorage.getItem(CACHE_PREFIX+key);if(!raw)return null;return JSON.parse(raw)}catch{return null}}
+function filterMarketRows(rows,category='',search=''){
+  let out=Array.isArray(rows)?rows.slice():[];
+  const cat=String(category||'').trim().toLowerCase();
+  const q=String(search||'').trim().toLowerCase();
+  if(cat)out=out.filter(m=>String(m?.category_key||m?.category||'').toLowerCase()===cat);
+  if(q)out=out.filter(m=>[m?.title,m?.description,m?.category,m?.source_name].some(v=>String(v||'').toLowerCase().includes(q)));
+  return out;
+}
+function aiProviderSetupUrl(provider){
+  return ({
+    gemini:'https://aistudio.google.com/app/apikey',
+    openrouter:'https://openrouter.ai/settings/keys',
+    groq:'https://console.groq.com/keys',
+    cloudflare:'https://dash.cloudflare.com/'
+  })[provider]||'';
+}
+function cachedAgeLabel(entry){if(!entry?.saved_at)return '';const ms=Date.now()-new Date(entry.saved_at).getTime();if(ms<60000)return 'just now';if(ms<3600000)return Math.floor(ms/60000)+'m ago';return Math.floor(ms/3600000)+'h ago'}
+async function loadSession(){const {data}=await supabase.auth.getSession();state.session=data.session;state.user=data.session?.user||null;if(state.user){try{state.isAdmin=!!(await rpc('is_admin'))}catch{state.isAdmin=false}}else state.isAdmin=false}
+
+async function ensureLegalAcceptance(){
+  if(!state.user)return true;
+  try{
+    const legal=await rpc('my_legal_acceptance_status');
+    if(legal?.complete)return true;
+    $('#overlay').innerHTML=
+      '<div class="modal"><div class="sheet" style="max-width:500px">'+
+        '<h2>Before you continue</h2>'+
+        '<p>Review the Predict UG Terms of Use and Privacy Policy for this public beta.</p>'+
+        '<div class="auth-wrap">'+
+          '<button class="btn" id="legalTerms">Read Terms of Use</button>'+
+          '<button class="btn" id="legalPrivacy">Read Privacy Policy</button>'+
+          '<label class="auth-note"><input type="checkbox" id="legalAgree"> I agree to the Terms of Use and acknowledge the Privacy Policy.</label>'+
+          '<button class="btn primary" id="legalAccept">Agree & continue</button>'+
+          '<button class="btn ghost" id="legalSignout">Sign out</button>'+
+          '<div id="legalStatus" class="auth-note"></div>'+
+        '</div>'+
+      '</div></div>';
+    $('#legalTerms').onclick=()=>openHosted('/terms.html');
+    $('#legalPrivacy').onclick=()=>openHosted('/privacy.html');
+    $('#legalSignout').onclick=async()=>{await supabase.auth.signOut();$('#overlay').innerHTML='';await loadSession();render()};
+    $('#legalAccept').onclick=async()=>{
+      const status=$('#legalStatus');
+      if(!state.online){status.textContent='Offline: reconnect before accepting legal documents.';return}
+      if(!$('#legalAgree').checked){status.textContent='Tick the agreement box to continue.';return}
+      const btn=$('#legalAccept');btn.disabled=true;status.textContent='Saving…';
+      try{
+        const saved=await rpc('accept_current_legal_documents',{p_source:'app'});
+        if(!saved?.complete)throw new Error('Acceptance could not be saved');
+        $('#overlay').innerHTML='';
+        toast('Terms accepted');
+      }catch(e){status.textContent=e.message||'Could not save acceptance';btn.disabled=false}
+    };
+    return false;
+  }catch(e){
+    reportClientError(e.message||'Legal acceptance check failed',e.stack||'',{kind:'legal_acceptance'});
+    return true;
+  }
+}
+async function loadBalance(){
+  if(!state.user){state.balance=null;state.balanceMode='forecast_credit';return}
+  try{
+    const p=await rpc('my_portfolio');
+    state.balanceMode=p?.trading_mode||'forecast_credit';
+    state.balance=state.balanceMode==='cash'
+      ?Number(p?.cash_wallet?.available_ugx||0)
+      :Number(p?.profile?.forecast_credit_balance_ugx||0);
+  }catch{}
+}
+async function loadUnreadNotifications(){
+  if(!state.user){state.unreadNotifications=0;return}
+  try{
+    const {count,error}=await supabase.from('notifications').select('id',{count:'exact',head:true}).eq('is_read',false);
+    if(error)throw error;
+    state.unreadNotifications=Number(count||0);
+  }catch{}
+}
+async function syncPaymentReturn(){
+  const qs=new URLSearchParams(location.search);
+  const intent=
+    qs.get('OrderMerchantReference')||
+    qs.get('orderMerchantReference')||
+    qs.get('payment_intent_id')||
+    qs.get('tx_ref');
+  if(!intent||!state.session)return;
+  try{
+    const res=await fetch(SUPABASE_URL+'/functions/v1/payment-router?action=sync-status',{
+      method:'POST',
+      headers:{'content-type':'application/json','authorization':'Bearer '+state.session.access_token},
+      body:JSON.stringify({
+        payment_intent_id:intent,
+        transaction_id:qs.get('transaction_id')||qs.get('transactionId')||null
+      })
+    });
+    const data=await res.json();
+    if(res.ok)toast('Payment status: '+(data.status||'updated'));else toast(data.error||'Payment sync failed',true);
+    history.replaceState({},'',location.pathname);
+  }catch(e){toast('Payment status check failed',true)}
+}
+async function loadPublicBootstrap(){
+  const key='bootstrap:'+(state.category||'all')+':'+(state.search||'');
+  try{
+    const b=await rpc('web_bootstrap',{
+      p_category:state.category||null,
+      p_search:state.search||null,
+      p_limit:80
+    });
+    state.status=b?.status||{};
+    state.categories=b?.categories||[];
+    state.markets=b?.markets||[];
+    cacheWrite(key,b);
+  }catch(e){
+    const cached=cacheRead(key);
+    if(!cached)throw e;
+    const b=cached.value||{};
+    state.status=b?.status||{};
+    state.categories=b?.categories||[];
+    state.markets=b?.markets||[];
+    state.status={...(state.status||{}),offline_cache:true,offline_saved_at:cached.saved_at};
+  }
+}
+async function bootstrap(){
+  await loadSession();
+  await loadPublicBootstrap();
+  state.loading=false;
+  render();
+  if(state.user){
+    Promise.all([loadBalance(),loadUnreadNotifications()]).then(render).catch(()=>{});
+    setTimeout(()=>ensureLegalAcceptance(),0);
+  }
+  loadDiscover().catch(()=>{});
+  syncPaymentReturn();
+  const linked=linkedMarketId();
+  if(linked)await openMarket(linked,{updateUrl:false});
+}
+async function loadMarkets(){
+  const key='feed:'+(state.category||'all')+':'+(state.search||'');
+  try{
+    const rows=await rpc('market_feed',{p_category:state.category||null,p_search:state.search||null,p_limit:80})||[];
+    state.markets=rows;
+    cacheWrite(key,rows);
+    if(state.status?.offline_cache){
+      const next={...(state.status||{})};
+      delete next.offline_cache;
+      delete next.offline_saved_at;
+      state.status=next;
+    }
+  }catch(e){
+    const exact=cacheRead(key);
+    const bootstrapCache=cacheRead('bootstrap:all:');
+    const baseRows=exact?.value||bootstrapCache?.value?.markets||state.markets||[];
+    if(!Array.isArray(baseRows)||!baseRows.length)throw e;
+    state.markets=filterMarketRows(baseRows,state.category,state.search);
+    state.status={...(state.status||{}),offline_cache:true,offline_saved_at:exact?.saved_at||bootstrapCache?.saved_at||null};
+  }
+}
+async function refreshAll(){
+  try{
+    state.loading=true;render();
+    await loadSession();
+    if(state.tab==='markets')await loadPublicBootstrap();
+    else{
+      state.status=await rpc('app_status');
+      if(state.tab==='portfolio'&&state.user)state.portfolio=await rpc('my_portfolio');
+      if(state.tab==='media'||state.tab==='discover')await loadDiscover();
+      if(state.tab==='watchlist'&&state.user)await loadWatchlist();
+      if(state.tab==='admin'&&state.isAdmin)await loadAdmin();
+    }
+    state.loading=false;render();
+  }catch(e){
+    state.loading=false;render();
+    toast(e.message||'Refresh failed',true);
+  }
+}
+
+function renderNav(){
+  const items=[['markets','◫','Markets'],['media','◉','Uganda Pulse'],['portfolio','◎','Portfolio'],['watchlist','★','Saved']];
+  $('#nav').innerHTML=items.map(([k,i,l])=>'<button class="navbtn '+(state.tab===k?'active':'')+'" data-tab="'+k+'"><b>'+i+'</b><span>'+l+'</span></button>').join('');
+}
+function render(){
+  renderNav();
+  $('#authBtn').textContent=state.user?(state.isAdmin?'Admin':'Profile'):'Sign in';
+  const inviteBtn=$('#inviteBtn');
+  if(inviteBtn)inviteBtn.classList.toggle('hidden',!state.user);
+  const merchantQuick=$('#merchantQuickConnect');
+  if(merchantQuick)merchantQuick.classList.toggle('hidden',!(state.user&&state.isAdmin));
+  const balanceBtn=$('#balanceBtn');
+  if(balanceBtn){
+    if(state.user&&state.balance!=null){balanceBtn.classList.remove('hidden');balanceBtn.textContent=state.balanceMode==='cash'?ugx(state.balance):(Number(state.balance).toLocaleString('en-UG')+' credits')}
+    else balanceBtn.classList.add('hidden');
+  }
+  const notifBtn=$('#notifBtn');
+  if(notifBtn){
+    if(state.user){
+      notifBtn.classList.remove('hidden');
+      notifBtn.innerHTML='🔔'+(state.unreadNotifications?'<span class="notif-dot">'+Math.min(99,state.unreadNotifications)+'</span>':'');
+    }else notifBtn.classList.add('hidden');
+  }
+  if(state.loading){$('#view').innerHTML='<div class="loading">Refreshing…</div>';return}
+  if(state.tab==='markets')renderMarkets();
+  else if(state.tab==='media'||state.tab==='discover')renderMedia();
+  else if(state.tab==='portfolio')renderPortfolio();
+  else if(state.tab==='watchlist')renderWatchlist();
+  else if(state.tab==='notifications')renderNotifications();
+  else if(state.tab==='leaderboard')renderLeaderboard();
+  else if(state.tab==='admin')renderAdmin();
+}
+
+function statusHtml(){
+  const mode=state.status?.trading_mode||'forecast_credit';
+  const offline=state.status?.offline_cache||!state.online;
+  return '<div class="statusbar">'+
+    '<span class="statuschip '+(offline?'warn':'ok')+'">'+(offline?'Offline · last synced data':'Live market data')+'</span>'+
+    '<span class="statuschip '+(mode==='cash'?'ok':'warn')+'">'+(mode==='cash'?'Cash trading enabled':'Cash rails pending approval')+'</span>'+
+    '<span class="statuschip">'+(state.markets?.length||0)+' open markets</span>'+
+    '</div>';
+}
+function marketCard(m){
+  const y=Number(m.yes_probability||0), n=Number(m.no_probability||0);
+  return '<article class="card market-card" data-market="'+m.market_id+'">'+
+    '<div class="eyebrow"><span>'+esc(m.category)+'</span><span>'+dt(m.close_time)+'</span></div>'+
+    '<div class="market-top"><div class="market-title" style="margin-right:8px">'+esc(m.title)+'</div><div class="market-price">'+pct(y)+'</div></div>'+
+    '<div class="bar"><span style="width:'+Math.max(0,Math.min(100,y))+'%"></span></div>'+
+    '<div class="market-actions"><div class="market-mini y">YES · '+pct(y)+'</div><div class="market-mini n">NO · '+pct(n)+'</div></div>'+
+    '<div class="meta"><span>'+ugx(m.signal_liquidity_ugx)+' signal pool</span><span>'+(m.watched?'★ Saved':'Open →')+'</span></div>'+
+  '</article>';
+}
+function renderMarkets(){
+  const mode=state.status?.trading_mode||'forecast_credit';
+  $('#view').innerHTML=
+    '<section class="homehero">'+
+      '<div class="media-label">Uganda · live prediction intelligence</div>'+
+      '<h1>Uganda’s prediction markets, made simple.</h1>'+
+      '<p>Follow questions that matter here — prices, football, weather, business, campus, entertainment, technology and more. Read the evidence, then make your own prediction.</p>'+
+      '<div class="hero-kpis">'+
+        '<span class="hero-kpi">'+(state.online?'● Live':'○ Offline cache')+'</span>'+
+        '<span class="hero-kpi">'+(state.markets?.length||0)+' open markets</span>'+
+        '<span class="hero-kpi">'+(mode==='cash'?'Cash mode':'Forecast credits')+'</span>'+
+      '</div>'+
+    '</section>'+
+    (!state.user?'<div class="card" style="margin-bottom:14px"><div class="section-title" style="margin-top:0"><h2>Start in 3 steps</h2><button class="btn small primary" id="homeSignIn">Sign in</button></div><div class="media-grid"><div class="media-card"><div class="media-label">1 · Pick</div><h3>Open a market</h3><p>Choose a question you understand.</p></div><div class="media-card"><div class="media-label">2 · Decide</div><h3>YES or NO</h3><p>Read the evidence, then choose your view.</p></div><div class="media-card"><div class="media-label">3 · Predict</div><h3>Use practice credits</h3><p>New accounts start with 50,000 practice credits. They are not withdrawable cash.</p></div></div></div>':'')+
+    '<div class="searchrow"><input class="input" id="searchInput" value="'+esc(state.search)+'" placeholder="Search markets"><button class="btn primary" id="searchBtn">Search</button></div>'+
+    '<div class="chips"><button class="chip '+(!state.category?'active':'')+'" data-category="">All</button>'+state.categories.map(c=>'<button class="chip '+(state.category===c.category_key?'active':'')+'" data-category="'+esc(c.category_key)+'">'+esc(c.label)+'</button>').join('')+'</div>'+
+    '<div class="section-title"><h2>Open markets</h2><div><button class="btn small ghost" data-tab="media">Uganda Pulse</button></div></div>'+
+    (state.markets.length?'<div class="grid">'+state.markets.map(marketCard).join('')+'</div>':'<div class="empty">No markets match your filters.</div>')+
+    '<div class="card" style="margin-top:16px"><div class="auth-note">Predict UG public beta · practice credits are not cash.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn small ghost" id="homePrivacy">Privacy</button><button class="btn small ghost" id="homeTerms">Terms</button><button class="btn small ghost" id="homeSupport">Support</button></div></div>';
+  if($('#homeSignIn'))$('#homeSignIn').onclick=showAuth;
+  if($('#homePrivacy'))$('#homePrivacy').onclick=()=>openHosted('/privacy.html');
+  if($('#homeTerms'))$('#homeTerms').onclick=()=>openHosted('/terms.html');
+  if($('#homeSupport'))$('#homeSupport').onclick=()=>openHosted('/support.html');
+  if($('#searchBtn'))$('#searchBtn').onclick=async()=>{state.search=$('#searchInput').value.trim();await loadMarkets();render()};
+  if($('#searchInput'))$('#searchInput').onkeydown=e=>{if(e.key==='Enter')$('#searchBtn').click()};
+}
+async function openMarket(id,{updateUrl=true}={}){
+  const key='market:'+id;
+  let page=null;
+  try{
+    page=await rpc('market_page',{p_market_id:id});
+    page.__offline_cache=false;
+    if(state.user&&state.online){
+      try{
+        const {data:user}=await supabase.auth.getUser();
+        const uid=user.user?.id;
+        const {data:ex}=await supabase.from('watchlist').select('id').eq('user_id',uid).eq('market_id',id).maybeSingle();
+        page.__watched=!!ex;
+      }catch{page.__watched=false}
+    }else page.__watched=false;
+    cacheWrite(key,page);
+  }catch(e){
+    const cached=cacheRead(key);
+    if(!cached){toast(e.message||'Could not open market',true);return}
+    page={...(cached.value||{}),__offline_cache:true,__offline_saved_at:cached.saved_at};
+    toast('Offline: showing last synced market ('+cachedAgeLabel(cached)+')');
+  }
+  state.market=page;
+  if(updateUrl&&linkedMarketId()!==id)setMarketUrl(id);
+  drawMarket();
+  if(state.online&&!isClosed(page.market))startMarketRealtime(id);else stopMarketRealtime();
+}
+function historySvg(d){
+  const outs=d?.outcomes||[];const yes=outs.find(o=>String(o.label).toUpperCase()==='YES');if(!yes)return '<div class="empty">No chart data.</div>';
+  const pts=(d.history||[]).filter(x=>x.outcome_id===yes.id).map(x=>Number(x.display_probability));
+  if(pts.length<2)return '<div class="empty">Probability history will appear as trades arrive.</div>';
+  const w=600,h=135,p=8;const min=0,max=100;
+  const xy=pts.map((v,i)=>[(i/(pts.length-1))*(w-p*2)+p,h-p-((v-min)/(max-min))*(h-p*2)]);
+  const path=xy.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ');
+  return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none"><path d="'+path+'" fill="none" stroke="#33d69f" stroke-width="3" vector-effect="non-scaling-stroke"/><line x1="0" y1="'+h/2+'" x2="'+w+'" y2="'+h/2+'" stroke="#203957" stroke-dasharray="5 5"/></svg>';
+}
+
+async function showAdvancedBuy(m,outcome){
+  if(!state.online){toast('Offline: reconnect before placing an order.',true);return}
+  if(!state.user){showAuth();return}
+  if(!outcome?.id){toast('Outcome unavailable',true);return}
+  try{
+    const book=await rpc('secondary_orderbook',{p_market_id:m.id,p_outcome_id:outcome.id});
+    const bestBid=book?.bids?.[0];
+    const bestAsk=book?.asks?.[0];
+    const box=$('#advancedBook');
+    if(box){
+      box.innerHTML=
+        '<div class="quote-row"><span>Selected</span><b>'+esc(outcome.label)+'</b></div>'+
+        '<div class="quote-row"><span>Best buyer</span><b>'+(bestBid?ugx(bestBid.price_per_1000_ugx)+' / 1,000':'None yet')+'</b></div>'+
+        '<div class="quote-row"><span>Best seller</span><b>'+(bestAsk?ugx(bestAsk.price_per_1000_ugx)+' / 1,000':'None yet')+'</b></div>'+
+        '<div class="quote-row"><span>Recent trades</span><b>'+Number(book?.recent_fills?.length||0)+'</b></div>';
+    }
+
+    if(!confirm('Advanced '+outcome.label+' trading\n\nThe order book is shown below. Place a limit BUY order?'))return;
+
+    const qty=Number(prompt('How much '+outcome.label+' position do you want? Use 1,000 steps.','5000')||0);
+    if(qty<1000||qty%1000!==0){
+      toast('Use 1,000-unit steps',true);
+      return;
+    }
+
+    const suggested=bestAsk?.price_per_1000_ugx||bestBid?.price_per_1000_ugx||'';
+    const price=Number(prompt(
+      'Maximum price for each 1,000 of position.'+
+      (bestAsk?' Best seller asks '+ugx(bestAsk.price_per_1000_ugx)+'.':''),
+      String(suggested)
+    )||0);
+    if(price<=0)return;
+
+    const reserve=Math.ceil(qty*price/1000);
+    if(!confirm('Reserve up to '+ugx(reserve)+' for this advanced order?'))return;
+
+    const result=await rpc('place_secondary_order',{
+      p_market_id:m.id,
+      p_outcome_id:outcome.id,
+      p_side:'buy',
+      p_quantity_stake_ugx:qty,
+      p_price_per_1000_ugx:price,
+      p_idempotency_key:'web-limit-buy-'+crypto.randomUUID(),
+      p_source_position_id:null
+    });
+
+    const order=result?.result?.order||{};
+    toast(order.status==='filled'?'Advanced order filled':'Advanced order placed');
+    if(box){
+      const fresh=await rpc('secondary_orderbook',{p_market_id:m.id,p_outcome_id:outcome.id});
+      const bid=fresh?.bids?.[0],ask=fresh?.asks?.[0];
+      box.innerHTML=
+        '<div class="quote-row"><span>Best buyer</span><b>'+(bid?ugx(bid.price_per_1000_ugx)+' / 1,000':'None')+'</b></div>'+
+        '<div class="quote-row"><span>Best seller</span><b>'+(ask?ugx(ask.price_per_1000_ugx)+' / 1,000':'None')+'</b></div>'+
+        '<div class="quote-row"><span>Your order</span><b>'+esc(order.status||'placed')+'</b></div>';
+    }
+  }catch(e){
+    toast(e.message||'Advanced order failed',true);
+  }
+}
+
+function drawMarket(){
+  const d=state.market,m=d?.market;if(!m)return;
+  const offlineDetail=!!d.__offline_cache||!state.online;
+  const liveLabel=!offlineDetail&&state.realtimeMarketId===m.id?(state.realtimeStatus==='live'?' · Live':state.realtimeStatus==='reconnecting'?' · Reconnecting':state.realtimeStatus==='connecting'?' · Connecting':''):'';
+  const outs=d.outcomes||[],yes=outs.find(o=>String(o.label).toUpperCase()==='YES'),no=outs.find(o=>String(o.label).toUpperCase()==='NO');
+  const proposal=d.resolution?.latest_proposal||{};
+  const proposalOutcome=outs.find(o=>o.id===proposal.proposed_outcome_id);
+  const proposalOpenChallenges=Number(proposal.open_challenges_count||0);
+  const proposalChallengeOpen=!!proposal.challenge_open;
+  const proposalReviewReady=proposal.status==='proposed'&&!proposalChallengeOpen&&proposalOpenChallenges===0;
+  const resolutionPanel=proposal?.id
+    ?'<div class="section-title"><h2>Resolution review</h2><span class="statuschip">'+esc(proposal.status||'proposed')+'</span></div>'+
+      '<div class="card">'+
+        '<div class="quote-row"><span>Proposed result</span><b>'+esc(proposal.proposal_type==='void'?'VOID':(proposalOutcome?.label||'Outcome'))+'</b></div>'+
+        '<div class="quote-row"><span>Evidence sources</span><b>'+Number(proposal.evidence_count||0)+'</b></div>'+
+        (Number(proposal.challenge_window_seconds||0)>0
+          ?'<div class="quote-row"><span>Challenge deadline</span><b>'+dt(proposal.challenge_until)+'</b></div>'+
+           '<div class="quote-row"><span>Challenges</span><b>'+Number(proposal.challenge_count||0)+' total · '+proposalOpenChallenges+' open</b></div>'
+          :'<p class="auth-note">Forecast-credit proposal · no cash challenge delay required.</p>')+
+        (proposalChallengeOpen
+          ?'<p class="auth-note">Settlement is under review. Cash settlement is blocked until this window closes and all challenges are resolved.</p>'
+          :'')+
+        (proposal.can_challenge
+          ?(offlineDetail
+            ?'<p class="auth-note">Offline: reconnect before challenging this resolution.</p>'
+            :'<button class="btn danger" style="width:100%;margin-top:8px" id="challengeResolutionBtn">Challenge resolution</button>')
+          :'')+
+      '</div>'
+    :'';
+  const intel=d.intelligence||{};
+  const intelNews=intel.related_news||[];
+  const intelCreators=intel.creator_media_signals||[];
+  const intelExternal=intel.external_market_signals||[];
+  const intelEvidence=intel.official_evidence||[];
+  const intelligencePanel=
+    '<div class="section-title"><h2>Live intelligence</h2><span class="statuschip">Sources, not advice</span></div>'+
+    '<div class="card">'+
+      '<p class="auth-note" style="margin-top:0">'+esc(intel.note||'Live sources are context only.')+'</p>'+
+      (intelEvidence.length?'<h3 style="font-size:.95rem">Official evidence</h3><div class="timeline">'+intelEvidence.slice(0,5).map(x=>
+        '<a class="item" href="'+esc(x.source_url||'#')+'" target="_blank" rel="noopener" style="display:block;text-decoration:none"><b>'+esc(x.source_name||'Official source')+'</b><br><small>'+esc(x.evidence_note||'Evidence')+' · '+dt(x.captured_at)+'</small></a>'
+      ).join('')+'</div>':'')+
+      (intelNews.length?'<h3 style="font-size:.95rem;margin-top:14px">Related news</h3><div class="timeline">'+intelNews.slice(0,6).map(x=>
+        '<a class="item" href="'+esc(x.url||'#')+'" target="_blank" rel="noopener" style="display:block;text-decoration:none"><b>'+esc(short(x.title))+'</b><br><small>'+esc(x.domain||'source')+' · '+dt(x.published_at||x.discovered_at)+'</small></a>'
+      ).join('')+'</div>':'')+
+      (intelCreators.length?'<h3 style="font-size:.95rem;margin-top:14px">Creator & media mentions</h3><div class="timeline">'+intelCreators.slice(0,5).map(x=>
+        '<a class="item" href="'+esc(x.url||'#')+'" target="_blank" rel="noopener" style="display:block;text-decoration:none"><b>'+esc(x.creator||x.platform)+'</b> · '+esc(x.platform)+'<br><span>'+esc(short(x.preview))+'</span><br><small>'+dt(x.published_at)+'</small></a>'
+      ).join('')+'</div>':'')+
+      (intelExternal.length?'<h3 style="font-size:.95rem;margin-top:14px">External market prices</h3><div class="timeline">'+intelExternal.slice(0,5).map(x=>
+        '<a class="item" href="'+esc(x.source_url||'#')+'" target="_blank" rel="noopener" style="display:block;text-decoration:none"><b>'+esc(x.provider)+'</b>: '+esc(short(x.title))+'<br><span>YES market price: '+(x.yes_probability==null?'—':Number(x.yes_probability).toFixed(1)+'%')+'</span><br><small>Attributed external market signal · '+dt(x.last_seen_at)+'</small></a>'
+      ).join('')+'</div>':'')+
+      (!intelEvidence.length&&!intelNews.length&&!intelCreators.length&&!intelExternal.length?'<div class="empty">No closely related live sources found yet.</div>':'')+
+    '</div>';
+  const adminPanel=state.isAdmin?(state.online?'<div class="item" style="margin-top:10px"><b>Admin lifecycle</b><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px">'+
+    '<button class="btn small" id="adminStatusBtn">Set status</button>'+
+    '<button class="btn small" id="adminEvidenceBtn">Add evidence</button>'+
+    '<button class="btn small" id="adminClarifyBtn">Clarify rules</button>'+
+    '<button class="btn small" id="adminProposeBtn">Propose result</button>'+
+    '<button class="btn small" id="adminReviewBtn" '+(proposalReviewReady?'':'disabled')+'>'+(proposalReviewReady?'Approve proposal':'Approval waiting')+'</button>'+
+    '<button class="btn small" id="adminChallengesBtn" '+(proposalOpenChallenges>0?'':'disabled')+'>Challenges ('+proposalOpenChallenges+')</button>'+
+    '<button class="btn small" id="adminPreviewBtn">Preview settle</button>'+
+    '<button class="btn small primary" id="adminSettleBtn">Settle</button>'+
+    '<button class="btn small danger" id="adminVoidBtn">Void</button>'+
+  '</div><small>Proposal: '+esc(proposal.status||'none')+' · Evidence '+Number(proposal.evidence_count||0)+' · Open challenges '+proposalOpenChallenges+(proposalChallengeOpen?' · Window closes '+dt(proposal.challenge_until):'')+'</small></div>':'<div class="item" style="margin-top:10px"><b>Admin lifecycle</b><br><small>Offline read-only mode · reconnect to change market state.</small></div>'):'';
+  $('#overlay').innerHTML='<div class="modal"><div class="sheet full"><button class="btn small ghost" id="shareMarket" style="float:right;margin-right:8px">Share</button><button class="close" id="closeMarket">✕</button>'+
+    '<div class="eyebrow"><span>'+esc(m.category)+'</span><span>'+esc(m.status)+'</span></div><h2 class="detail-title">'+esc(m.title)+'</h2><div class="detail-sub">Closes '+dt(m.close_time)+' · '+esc(d.trading_mode||'forecast_credit')+liveLabel+(offlineDetail?' · Offline read-only'+(d.__offline_saved_at?' · synced '+cachedAgeLabel({saved_at:d.__offline_saved_at}):''):'')+'</div>'+
+    '<div class="detail-grid"><div>'+
+      '<div class="card"><div class="section-title"><h2>Probability</h2><span class="statuschip">'+(yes?pct(yes.display_probability):'—')+' YES</span></div>'+historySvg(d)+'</div>'+
+      '<div class="card" style="margin-top:12px"><h3>Resolution rule</h3><p>'+esc(m.resolution_rule||'No rule provided')+'</p><div class="meta"><span>'+esc(m.source_name||'Source not attached')+'</span>'+(m.source_url?'<a href="'+esc(m.source_url)+'" target="_blank" rel="noopener">Open source ↗</a>':'')+'</div></div>'+
+      ((d.resolution?.clarifications||[]).length?'<div class="section-title"><h2>Clarifications</h2></div><div class="timeline">'+d.resolution.clarifications.map(c=>'<div class="item">'+esc(c.clarification_text)+'<br><small>'+dt(c.created_at)+'</small></div>').join('')+'</div>':'')+
+      resolutionPanel+
+      intelligencePanel+
+      '<div class="section-title"><h2>Recent activity</h2></div><div class="timeline">'+((d.activity||[]).length?d.activity.slice(0,15).map(a=>'<div class="item"><b>'+esc(a.outcome_label)+'</b> · '+ugx(a.stake_ugx)+'<br><small>'+dt(a.created_at)+'</small></div>').join(''):'<div class="empty">No activity yet.</div>')+'</div>'+
+    '</div><aside><div class="card tradebox"><h3>Make your prediction</h3><p class="auth-note" style="margin-top:-4px">Choose YES or NO, then enter the amount.</p><div class="outcome-btns"><button class="outcome-btn y" data-outcome="'+(yes?.id||'')+'" data-label="YES">YES '+(yes?pct(yes.display_probability):'')+'</button><button class="outcome-btn n" data-outcome="'+(no?.id||'')+'" data-label="NO">NO '+(no?pct(no.display_probability):'')+'</button></div>'+
+      '<label class="auth-note">Prediction amount</label><input class="input" id="stakeInput" type="number" min="100" step="100" value="5000"><div class="quick-stakes"><button class="quick-stake" data-stake="1000">1K</button><button class="quick-stake" data-stake="5000">5K</button><button class="quick-stake" data-stake="10000">10K</button></div><div id="quoteBox" class="quote"><div class="quote-row"><span>Estimated payout</span><b>Choose YES or NO</b></div></div>'+
+      '<button class="btn primary" style="width:100%" id="placeBtn" disabled>Confirm prediction</button>'+
+      '<button class="btn ghost" style="width:100%;margin-top:8px" id="watchBtn">'+(d.__watched?'★ Watching':'☆ Save this market')+'</button>'+
+      '<details style="margin-top:10px"><summary class="auth-note" style="cursor:pointer">Advanced trading</summary>'+
+      '<p class="auth-note">Optional. Beginners can ignore this. Advanced users can view buyers/sellers and set a limit price.</p>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn small" id="advYesBtn">YES orders</button><button class="btn small" id="advNoBtn">NO orders</button></div>'+
+      '<div id="advancedBook" class="quote" style="margin-top:8px"><div class="quote-row"><span>Order book</span><b>Choose YES or NO</b></div></div>'+
+      '</details>'+
+      (isClosed(m)?'<button class="btn ghost" style="width:100%;margin-top:8px" id="settleRequestBtn">Request settlement</button>':'')+
+      '<p class="auth-note">'+(state.status?.real_money_enabled?'Cash mode follows your eligibility.':'Cash deposits and withdrawals remain unavailable until approval. Forecast participation is active.')+'</p>'+
+      ((d.my_positions||[]).length?'<div class="item"><b>Your position</b><br>'+d.my_positions.map(p=>esc(p.outcome_label)+' · '+ugx(p.total_stake_ugx)+' · '+esc(p.position_status)).join('<br>')+'</div>':'')+
+      adminPanel+
+    '</div></aside></div></div></div>';
+  let chosen=null,quoteTimer=null;
+  const updateQuote=async()=>{
+    if(!chosen)return;
+    if(!state.online){
+      $('#quoteBox').innerHTML='<span class="auth-note">Offline read-only mode. Reconnect for a live quote.</span>';
+      $('#placeBtn').disabled=true;
+      return;
+    }
+    const stake=Number($('#stakeInput').value||0);if(stake<=0)return;
+    try{const q=await rpc('quote_prediction',{p_market_id:m.id,p_outcome_id:chosen.id,p_stake_ugx:stake});$('#quoteBox').innerHTML='<div class="quote-row"><span>Side</span><b>'+chosen.label+'</b></div><div class="quote-row"><span>Estimated payout</span><b>'+ugx(q.estimated_payout_ugx)+'</b></div><div class="quote-row"><span>Estimated profit</span><b>'+ugx(q.estimated_profit_ugx)+'</b></div><div class="quote-row"><span>Post-trade probability</span><b>'+q.post_trade_probability+'%</b></div>';$('#placeBtn').disabled=false}catch(e){$('#quoteBox').innerHTML='<span class="auth-note">'+esc(e.message)+'</span>';$('#placeBtn').disabled=true}
+  };
+  document.querySelectorAll('.outcome-btn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.outcome-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');chosen={id:b.dataset.outcome,label:b.dataset.label};updateQuote()});
+  $('#stakeInput').oninput=()=>{clearTimeout(quoteTimer);quoteTimer=setTimeout(updateQuote,280)};
+  document.querySelectorAll('[data-stake]').forEach(b=>b.onclick=()=>{$('#stakeInput').value=b.dataset.stake;updateQuote()});
+  $('#placeBtn').onclick=async()=>{if(!state.online){toast('Offline: reconnect before placing a prediction.',true);return}if(!state.user){showAuth();return}if(!chosen)return;try{$('#placeBtn').disabled=true;const key='web-'+crypto.randomUUID();await rpc('place_prediction',{p_market_id:m.id,p_outcome_id:chosen.id,p_stake_ugx:Number($('#stakeInput').value),p_idempotency_key:key});await loadBalance();toast('Prediction placed');state.market=await rpc('market_page',{p_market_id:m.id});drawMarket();await loadMarkets()}catch(e){toast(e.message||'Trade failed',true);$('#placeBtn').disabled=false}};
+  if($('#advYesBtn'))$('#advYesBtn').onclick=()=>showAdvancedBuy(m,yes);
+  if($('#advNoBtn'))$('#advNoBtn').onclick=()=>showAdvancedBuy(m,no);
+  $('#watchBtn').onclick=async()=>{if(!state.online){toast('Offline: reconnect before changing your watchlist.',true);return}if(!state.user){showAuth();return}try{const {data:user}=await supabase.auth.getUser();const uid=user.user?.id;const {data:ex}=await supabase.from('watchlist').select('id').eq('user_id',uid).eq('market_id',m.id).maybeSingle();if(ex)await supabase.from('watchlist').delete().eq('id',ex.id);else await supabase.from('watchlist').insert({user_id:uid,market_id:m.id});toast(ex?'Removed from watchlist':'Added to watchlist');const page=await rpc('market_page',{p_market_id:m.id});page.__watched=!ex;state.market=page;drawMarket()}catch(e){toast(e.message,true)}};
+  if($('#settleRequestBtn'))$('#settleRequestBtn').onclick=async()=>{if(!state.online){toast('Offline: reconnect before requesting settlement.',true);return}if(!state.user){showAuth();return}try{await rpc('request_market_settlement',{p_market_id:m.id,p_suggested_outcome_id:null,p_note:'User requested settlement review from market page.'});toast('Settlement request submitted')}catch(e){toast(e.message,true)}};
+  if($('#challengeResolutionBtn'))$('#challengeResolutionBtn').onclick=async()=>{
+    if(!state.online){toast('Offline: reconnect before challenging a resolution.',true);return}
+    if(!state.user){showAuth();return}
+    const note=(prompt('Why should this proposed resolution be reviewed again?','')||'').trim();
+    if(note.length<5){toast('Please give a short reason for the challenge.',true);return}
+    try{
+      await rpc('challenge_market_resolution',{p_proposal_id:proposal.id,p_note:note});
+      toast('Resolution challenge submitted');
+      const page=await rpc('market_page',{p_market_id:m.id});
+      page.__watched=d.__watched;
+      state.market=page;
+      drawMarket();
+    }catch(e){toast(e.message||'Could not submit challenge',true)}
+  };
+  if(state.isAdmin){
+    const reload=async()=>{const page=await rpc('market_page',{p_market_id:m.id});page.__watched=d.__watched;state.market=page;await loadMarkets();drawMarket()};
+    if($('#adminStatusBtn'))$('#adminStatusBtn').onclick=async()=>{const s=(prompt('Status: open, suspended, closed','closed')||'').trim().toLowerCase();if(!s)return;try{await rpc('set_market_status',{p_market_id:m.id,p_status:s});toast('Market status updated');await reload()}catch(e){toast(e.message,true)}};
+    if($('#adminEvidenceBtn'))$('#adminEvidenceBtn').onclick=async()=>{const url=(prompt('Evidence source URL',m.source_url||'')||'').trim();if(!url)return;const name=(prompt('Source name',m.source_name||'Primary source')||'Primary source').trim();const note=(prompt('Evidence note','Evidence supporting resolution review')||'').trim();if(!note)return;try{await rpc('admin_add_market_evidence',{p_market_id:m.id,p_source_name:name,p_source_url:url,p_evidence_note:note,p_captured_at:new Date().toISOString()});toast('Evidence added');await reload()}catch(e){toast(e.message,true)}};
+    if($('#adminClarifyBtn'))$('#adminClarifyBtn').onclick=async()=>{const txt=(prompt('Clarification (does not rewrite frozen rules)','')||'').trim();if(!txt)return;const url=(prompt('Optional source URL','')||'').trim();try{await rpc('admin_publish_market_clarification',{p_market_id:m.id,p_clarification_text:txt,p_source_url:url||null});toast('Clarification published');await reload()}catch(e){toast(e.message,true)}};
+    if($('#adminProposeBtn'))$('#adminProposeBtn').onclick=async()=>{const side=(prompt('Propose YES, NO, or VOID','YES')||'').trim().toUpperCase();if(!['YES','NO','VOID'].includes(side))return;const rationale=(prompt('Resolution rationale','Evidence-backed resolution proposal')||'').trim();if(rationale.length<10){toast('Rationale must be at least 10 characters',true);return}const type=side==='VOID'?'void':'resolve';const outcome=side==='YES'?yes?.id:side==='NO'?no?.id:null;try{await rpc('admin_propose_market_resolution',{p_market_id:m.id,p_proposal_type:type,p_proposed_outcome_id:outcome||null,p_rationale:rationale});toast('Resolution proposed');await reload()}catch(e){toast(e.message,true)}};
+    if($('#adminReviewBtn'))$('#adminReviewBtn').onclick=async()=>{const p=d.resolution?.latest_proposal;if(!p?.id){toast('No proposal to review',true);return}if(!confirm('Approve this resolution proposal?'))return;try{await rpc('admin_review_market_resolution',{p_proposal_id:p.id,p_decision:'approved',p_review_note:'Approved from Predict UG Ops web'});toast('Proposal approved');await reload()}catch(e){toast(e.message,true)}};
+    if($('#adminChallengesBtn'))$('#adminChallengesBtn').onclick=async()=>{
+      try{
+        const result=await rpc('admin_resolution_challenges',{p_proposal_id:proposal.id});
+        const open=(result?.challenges||[]).filter(x=>x.status==='open');
+        if(!open.length){toast('No open challenges');return}
+        const ch=open[0];
+        const decision=(prompt('Challenge: '+String(ch.note||'').slice(0,500)+'\n\nType DISMISS or UPHOLD','DISMISS')||'').trim().toUpperCase();
+        if(!['DISMISS','UPHOLD'].includes(decision))return;
+        const review=(prompt('Review note','Reviewed against the published rule and evidence')||'').trim();
+        await rpc('admin_review_resolution_challenge',{p_challenge_id:ch.id,p_decision:decision==='UPHOLD'?'uphold':'dismiss',p_review_note:review});
+        toast(decision==='UPHOLD'?'Challenge upheld; proposal rejected':'Challenge dismissed');
+        await reload();
+      }catch(e){toast(e.message||'Challenge review failed',true)}
+    };
+    if($('#adminPreviewBtn'))$('#adminPreviewBtn').onclick=async()=>{const side=(prompt('Preview YES or NO settlement','YES')||'').trim().toUpperCase();const oid=side==='NO'?no?.id:yes?.id;if(!oid)return;try{const q=await rpc('preview_settlement',{p_market_id:m.id,p_resolved_outcome_id:oid});alert('Settlement preview\n\n'+JSON.stringify(q,null,2))}catch(e){toast(e.message,true)}};
+    if($('#adminSettleBtn'))$('#adminSettleBtn').onclick=async()=>{const side=(prompt('Settle as YES or NO','YES')||'').trim().toUpperCase();const oid=side==='NO'?no?.id:side==='YES'?yes?.id:null;if(!oid)return;const note=(prompt('Settlement note','Resolved using reviewed evidence')||'').trim();if(!confirm('Finalize this market as '+side+'?'))return;try{await rpc('settle_market',{p_market_id:m.id,p_resolved_outcome_id:oid,p_resolution_note:note||null});toast('Market settled');await reload()}catch(e){toast(e.message,true)}};
+    if($('#adminVoidBtn'))$('#adminVoidBtn').onclick=async()=>{const note=(prompt('Reason for voiding market','Market cannot be resolved under the published rule')||'').trim();if(!confirm('Void this market and refund eligible positions?'))return;try{await rpc('void_market',{p_market_id:m.id,p_resolution_note:note||null});toast('Market voided');await reload()}catch(e){toast(e.message,true)}};
+  }
+  $('#shareMarket').onclick=()=>shareMarketLink(m.id,m.title);
+  $('#closeMarket').onclick=()=>{stopMarketRealtime();$('#overlay').innerHTML='';state.market=null;setMarketUrl(null,true)};
+}
+async function loadDiscover(){
+  let b;
+  try{
+    b=await rpc('discover_bundle');
+    cacheWrite('discover',b);
+  }catch(e){
+    const cached=cacheRead('discover');
+    if(!cached)throw e;
+    b=cached.value||{};
+    toast('Offline: showing last synced intelligence ('+cachedAgeLabel(cached)+')');
+  }
+  state.trends=b?.trends||[];
+  state.stories=b?.stories||[];
+  state.creators=b?.creators||[];
+  state.externalSignals=b?.external_signals||[];
+  state.weatherSignals=b?.weather||[];
+  state.statementSignals=b?.public_statements||[];
+  state.officialData=b?.official_data||[];
+}
+
+function renderMedia(){
+  const latestStories=(state.stories||[]).slice(0,9);
+  const creators=(state.creators||[]).slice(0,6);
+  const weather=(state.weatherSignals||[]).slice(0,6);
+  const official=(state.officialData||[]).slice(0,5);
+  const global=(state.externalSignals||[]).slice(0,6);
+  $('#view').innerHTML=
+    '<section class="homehero">'+
+      '<div class="media-label">Uganda Pulse</div>'+
+      '<h1>What is moving Uganda right now?</h1>'+
+      '<p>Ugandan media, creators, official statistics, weather, sports and market signals — with global prediction markets used as learning and context inputs.</p>'+
+      '<div class="hero-kpis"><span class="hero-kpi">'+(state.online?'● Internet connected':'○ Offline cache')+'</span><span class="hero-kpi">'+latestStories.length+' story clusters</span><span class="hero-kpi">'+creators.length+' creator signals</span></div>'+
+    '</section>'+
+    '<div class="section-title"><h2>Trending stories</h2><span class="statuschip">Backend intelligence active</span></div>'+
+    (latestStories.length?'<div class="media-grid">'+latestStories.map(s=>
+      '<div class="media-card"><div class="media-label">'+esc(s.category||'News')+'</div><h3>'+esc(s.label)+'</h3><p>'+Number(s.article_count||0)+' articles · '+Number(s.distinct_source_count||0)+' sources</p>'+
+      (s.sample_articles?.length?'<div class="source-row">'+s.sample_articles.slice(0,2).map(a=>'<a class="source-pill" href="'+esc(a.url)+'" target="_blank" rel="noopener">'+esc(short(a.title))+' ↗</a>').join('')+'</div>':'')+
+      '</div>'
+    ).join('')+'</div>':'<div class="empty">News agents are refreshing.</div>')+
+    '<div class="section-title"><h2>Creators & media voices</h2></div>'+
+    (creators.length?'<div class="media-grid">'+creators.map(x=>
+      '<div class="media-card"><div class="media-label">'+esc(x.creator_type||'Creator')+'</div><h3>'+esc(x.display_name)+'</h3><p>'+Number(x.mention_count||0)+' recent mentions · '+Number(x.source_count||0)+' sources</p><div class="source-row"><span class="source-pill">'+esc(x.confidence||'')+' confidence</span><span class="source-pill">trend '+Number(x.latest_trend_score||0).toFixed(0)+'</span></div></div>'
+    ).join('')+'</div>':'<div class="empty">Creator signals are warming up.</div>')+
+    '<div class="section-title"><h2>Weather</h2></div>'+
+    (weather.length?'<div class="media-grid">'+weather.map(w=>
+      '<div class="media-card"><div class="media-label">'+esc(w.region||'Uganda')+'</div><h3>'+esc(w.label||w.location_key)+'</h3><p>'+esc(String(w.forecast_date||''))+' · Rain '+Number(w.precipitation_probability_max||0).toFixed(0)+'% · '+Number(w.max_temperature_c||0).toFixed(1)+'°C max</p></div>'
+    ).join('')+'</div>':'<div class="empty">Weather agent is refreshing.</div>')+
+    '<div class="section-title"><h2>Official data</h2></div>'+
+    (official.length?'<div class="timeline">'+official.map(x=>
+      '<a class="item" href="'+esc(x.source_url||'#')+'" target="_blank" rel="noopener" style="display:block;text-decoration:none"><b>'+esc(x.source_name)+'</b><br><span>'+esc(x.summary||'Official structured update')+'</span><br><small>'+dt(x.observed_at)+' · Source ↗</small></a>'
+    ).join('')+'</div>':'<div class="empty">Official-data agent is refreshing.</div>')+
+    '<div class="section-title"><h2>Global prediction signals</h2><span class="statuschip">External observations</span></div>'+
+    (global.length?'<div class="grid">'+global.map(x=>
+      '<a class="card market-card" href="'+esc(x.source_url||'#')+'" target="_blank" rel="noopener" style="text-decoration:none"><div class="eyebrow"><span>'+esc(x.provider)+'</span><span>'+esc(x.category)+'</span></div><div class="market-title">'+esc(x.title)+'</div><div class="market-top"><span class="auth-note">YES market price</span><div class="market-price">'+(x.yes_probability==null?'—':Number(x.yes_probability).toFixed(0)+'%')+'</div></div><div class="meta"><span>24h volume '+Number(x.volume_24h||0).toLocaleString()+'</span><span>Source ↗</span></div></a>'
+    ).join('')+'</div>':'<div class="empty">Global-market agent is refreshing.</div>');
+}
+
+function renderDiscover(){renderMedia()}
+
+async function loadPortfolio(){
+  if(!state.user)return;
+  const [p,s,o]=await Promise.all([
+    rpc('my_portfolio'),
+    rpc('secondary_sellable_positions'),
+    rpc('my_secondary_orders',{p_limit:100})
+  ]);
+  state.portfolio=p||{};
+  state.portfolio.secondaryPositions=s?.positions||[];
+  state.portfolio.secondaryOrders=o?.orders||[];
+}
+
+async function cashOutSimple(pos){
+  if(!state.online){toast('Offline: reconnect before exiting a position.',true);return}
+  try{
+    const max=Number(pos.sellable_stake_ugx||0);
+    if(max<1000){toast('Nothing is available to exit',true);return}
+    const q=await rpc('secondary_cashout_quote',{
+      p_source_position_id:pos.position_id,
+      p_quantity_stake_ugx:max
+    });
+    const fill=Number(q.fillable_stake_ugx||0);
+    const proceeds=Number(q.estimated_cashout_ugx||0);
+
+    if(fill<1000){
+      toast('No buyer is ready right now. Use Advanced offer if you want to set your own price.',true);
+      return;
+    }
+
+    const action=q.mode==='cash'?'Cash Out':'Exit Prediction';
+    const partial=fill<max
+      ?'A buyer can take '+ugx(fill)+' of your '+ugx(max)+' position right now.'
+      :'Your full available position can be taken right now.';
+    const receive=q.mode==='cash'
+      ?'You receive about '+ugx(proceeds)+'.'
+      :'You receive about '+ugx(proceeds)+' prediction credits.';
+
+    if(!confirm(action+'\n\n'+partial+'\n'+receive+'\n\nContinue?'))return;
+
+    const result=await rpc('cash_out_position_now',{
+      p_source_position_id:pos.position_id,
+      p_quantity_stake_ugx:fill,
+      p_idempotency_key:'web-cashout-'+crypto.randomUUID()
+    });
+
+    toast((q.mode==='cash'?'Cash out':'Exit')+' completed: '+ugx(result.proceeds_ugx||0));
+    await loadPortfolio();
+    render();
+  }catch(e){
+    toast(e.message||'Could not exit prediction',true);
+  }
+}
+
+async function showAdvancedSell(pos){
+  if(!state.online){toast('Offline: reconnect before creating an offer.',true);return}
+  try{
+    const book=await rpc('secondary_orderbook',{
+      p_market_id:pos.market_id,
+      p_outcome_id:pos.outcome_id
+    });
+    const bestBid=book?.bids?.[0];
+    const max=Number(pos.sellable_stake_ugx||0);
+
+    const qty=Number(prompt(
+      'How much of this '+pos.outcome_label+' prediction do you want to offer? Maximum '+ugx(max)+'. Use 1,000 steps.',
+      String(max||1000)
+    )||0);
+    if(qty<1000||qty%1000!==0||qty>max){
+      toast('Choose an available amount in 1,000-unit steps',true);
+      return;
+    }
+
+    const price=Number(prompt(
+      'Set your price for each 1,000 of position.'+
+      (bestBid?' Best buyer currently offers '+ugx(bestBid.price_per_1000_ugx)+'.':' No buyer is waiting right now.'),
+      String(bestBid?.price_per_1000_ugx||'')
+    )||0);
+    if(price<=0)return;
+
+    if(!confirm('Offer '+ugx(qty)+' of your '+pos.outcome_label+' prediction at '+ugx(price)+' per 1,000?'))return;
+
+    const result=await rpc('place_secondary_order',{
+      p_market_id:pos.market_id,
+      p_outcome_id:pos.outcome_id,
+      p_side:'sell',
+      p_quantity_stake_ugx:qty,
+      p_price_per_1000_ugx:price,
+      p_idempotency_key:'web-limit-sell-'+crypto.randomUUID(),
+      p_source_position_id:pos.position_id
+    });
+
+    const order=result?.result?.order||{};
+    toast(order.status==='filled'?'Prediction sold':'Advanced offer placed');
+    await loadPortfolio();
+    render();
+  }catch(e){
+    toast(e.message||'Could not create advanced offer',true);
+  }
+}
+
+
+function integrityCanonical(value){
+  if(value===null||typeof value!=='object')return JSON.stringify(value);
+  if(Array.isArray(value))return '['+value.map(integrityCanonical).join(',')+']';
+  return '{'+Object.keys(value).sort().map(k=>JSON.stringify(k)+':'+integrityCanonical(value[k])).join(',')+'}';
+}
+function integrityBase64Url(bytes){
+  let binary='';for(const b of bytes)binary+=String.fromCharCode(b);
+  return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/g,'');
+}
+const __integrityCallbacks=new Map();
+window.__predictUgIntegrityResult=(callbackId,token,error)=>{
+  const entry=__integrityCallbacks.get(String(callbackId||''));
+  if(!entry)return;
+  __integrityCallbacks.delete(String(callbackId||''));
+  clearTimeout(entry.timer);
+  entry.resolve({token:token||null,error:error||null});
+};
+async function paymentIntegrityProof(action,payload){
+  const material={action,...payload};
+  const digest=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(integrityCanonical(material))));
+  const request_hash=integrityBase64Url(digest);
+  const bridge=window.PredictUGIntegrity;
+  if(!bridge||typeof bridge.isConfigured!=='function'||!bridge.isConfigured())return {request_hash};
+  try{
+    for(let i=0;i<8&&!bridge.isReady();i++){bridge.prepare();await new Promise(r=>setTimeout(r,350))}
+    if(!bridge.isReady())return {request_hash};
+    const callbackId='pi-'+crypto.randomUUID();
+    const result=await new Promise(resolve=>{
+      const timer=setTimeout(()=>{__integrityCallbacks.delete(callbackId);resolve({token:null,error:'timeout'})},10000);
+      __integrityCallbacks.set(callbackId,{resolve,timer});
+      bridge.requestToken(request_hash,callbackId);
+    });
+    return result?.token?{request_hash,integrity_token:result.token}:{request_hash};
+  }catch(e){
+    reportClientError(e.message||'Play Integrity bridge failed',e.stack||'',{kind:'play_integrity'});
+    return {request_hash};
+  }
+}
+async function paymentApi(action,payload={}){
+  if(!state.online)throw new Error('Offline: reconnect before starting or changing a payment.');
+  if(!state.session?.access_token)throw new Error('Sign in first');
+  const integrity=await paymentIntegrityProof(action,payload);
+  const res=await fetch(SUPABASE_URL+'/functions/v1/predict-ug-payments',{
+    method:'POST',
+    headers:{'content-type':'application/json','authorization':'Bearer '+state.session.access_token},
+    body:JSON.stringify({action,...payload,...integrity}),
+    signal:rpcTimeoutSignal(20000)
+  });
+  const data=await res.json();
+  if(!res.ok)throw new Error(data.error||'Payment request failed');
+  return data;
+}
+
+async function startManualDepositFallback(amount,phone,network){
+  const manual=await paymentApi('deposit_start',{
+    amount_ugx:amount,
+    network,
+    phone,
+    idempotency_key:'merchant-deposit-'+crypto.randomUUID()
+  });
+
+  alert(
+    network+' MERCHANT PAYMENT\n\n'+
+    'Merchant code: '+manual.merchant_code+'\n'+
+    'Amount: UGX '+Number(manual.amount_ugx).toLocaleString()+'\n\n'+
+    'Pay the exact amount, then enter the real Mobile Money transaction ID.'
+  );
+
+  const tx=(prompt('Paste the '+network+' transaction ID after paying','')||'').trim();
+  if(tx){
+    await paymentApi('deposit_reference',{
+      payment_intent_id:manual.payment_intent_id,
+      transaction_reference:tx
+    });
+    toast('Deposit submitted. Predict UG will verify it against the merchant transaction.');
+  }else{
+    toast('Merchant deposit created. Submit the transaction ID after payment.');
+  }
+  return manual;
+}
+
+async function startManualWithdrawalFallback(amount,phone,network){
+  const manual=await paymentApi('withdrawal_start',{
+    amount_ugx:amount,
+    network,
+    phone,
+    idempotency_key:'merchant-withdraw-'+crypto.randomUUID()
+  });
+  toast(network+' payout queued. Funds stay locked until the merchant payout is verified.');
+  return manual;
+}
+
+function previewLockedMoneyFlow(kind){
+  const amount=Number(prompt((kind==='deposit'?'Deposit':'Withdraw')+' test amount (UGX)','10000')||0);
+  if(amount<=0)return;
+  const network=((prompt('Test network: MTN or AIRTEL','MTN')||'').trim().toUpperCase());
+  if(!['MTN','AIRTEL'].includes(network)){toast('Choose MTN or AIRTEL',true);return}
+  alert(
+    'TEST PREVIEW ONLY\n\n'+
+    (kind==='deposit'?'Deposit':'Withdrawal')+': UGX '+amount.toLocaleString()+'\n'+
+    'Network: '+network+'\n\n'+
+    'The payment software path is installed, merchant ingestion is available, and the customer action can be previewed.\n\n'+
+    'No real money moved. Live transfers remain gated by provider approval and the backend cash-launch controls.'
+  );
+}
+
+function askCashNetwork(){
+  const network=((prompt('Mobile Money network: MTN or AIRTEL','MTN')||'').trim().toUpperCase());
+  if(!network)return null;
+  if(!['MTN','AIRTEL'].includes(network)){toast('Choose MTN or AIRTEL',true);return null}
+  return network;
+}
+function askCashPhone(){
+  const phone=(prompt('Mobile Money phone number','07')||'').trim();
+  if(!phone)return null;
+  const digits=phone.replace(/[^0-9+]/g,'');
+  if(digits.length<9||digits.length>13){toast('Enter a valid Uganda Mobile Money number',true);return null}
+  return phone;
+}
+function askCashAmount(kind){
+  const amount=Number(prompt((kind==='deposit'?'Deposit':'Withdraw')+' amount (UGX)','10000')||0);
+  if(!Number.isSafeInteger(amount)||amount<1000){toast('Enter an amount of at least UGX 1,000',true);return null}
+  return amount;
+}
+async function runCashDepositFlow(){
+  if(!state.online){toast('Offline: reconnect before depositing.',true);return}
+  const amount=askCashAmount('deposit'); if(!amount)return;
+  const network=askCashNetwork(); if(!network)return;
+  const phone=askCashPhone(); if(!phone)return;
+  if(!confirm('Deposit '+ugx(amount)+' using '+network+' Mobile Money from '+phone+'?'))return;
+  try{
+    await startManualDepositFallback(amount,phone,network);
+    await loadPortfolio(); await loadBalance(); render();
+  }catch(e){toast(e.message||'Deposit could not be started',true)}
+}
+async function runCashWithdrawalFlow(){
+  if(!state.online){toast('Offline: reconnect before withdrawing.',true);return}
+  const amount=askCashAmount('withdrawal'); if(!amount)return;
+  const network=askCashNetwork(); if(!network)return;
+  const phone=askCashPhone(); if(!phone)return;
+  if(!confirm('Withdraw '+ugx(amount)+' to '+network+' Mobile Money number '+phone+'?'))return;
+  try{
+    await startManualWithdrawalFallback(amount,phone,network);
+    await loadPortfolio(); await loadBalance(); render();
+  }catch(e){toast(e.message||'Withdrawal could not be started',true)}
+}
+
+function renderPortfolio(){
+  if(!state.user){
+    $('#view').innerHTML='<section class="hero"><h1>Portfolio</h1><p>Sign in to see your balance, predictions and results.</p></section><button class="btn primary" id="signInNow">Sign in</button>';
+    $('#signInNow').onclick=showAuth;
+    return;
+  }
+  const p=state.portfolio;
+  if(!p){$('#view').innerHTML='<div class="loading">Loading your portfolio…</div>';loadPortfolio().then(render);return}
+  const history=p.positions||[];
+  const active=(p.secondaryPositions||[]).filter(x=>Number(x.sellable_stake_ugx||0)>0);
+  const cashMode=p.trading_mode==='cash';
+  const statusOf=x=>String(x.position_status||'open').toLowerCase();
+  const isOpen=x=>['open','active','pending'].includes(statusOf(x));
+  const openHistory=history.filter(isOpen);
+  const settled=history.filter(x=>!isOpen(x));
+  const won=settled.filter(x=>['won','win','settled_won'].includes(statusOf(x))).length;
+  const lost=settled.filter(x=>['lost','loss','settled_lost'].includes(statusOf(x))).length;
+  const balance=cashMode?Number(p.cash_wallet?.available_ugx||0):Number(p.profile?.forecast_credit_balance_ugx||0);
+  const chip=x=>{
+    const s=statusOf(x);let cls='open',label='OPEN';
+    if(['won','win','settled_won'].includes(s)){cls='won';label='WON'}
+    else if(['lost','loss','settled_lost'].includes(s)){cls='lost';label='LOST'}
+    else if(['void','voided','refunded'].includes(s)){cls='void';label='VOID'}
+    else if(!isOpen(x)){cls='closed';label=s.toUpperCase()}
+    return '<span class="result-chip '+cls+'">'+esc(label)+'</span>';
+  };
+  $('#view').innerHTML=
+    '<section class="homehero"><div class="media-label">Your forecasting account</div><h1>Portfolio</h1><p>Your balance, open predictions and settled results in one place.</p>'+
+    '<div class="hero-kpis"><span class="hero-kpi">'+(cashMode?ugx(balance):balance.toLocaleString('en-UG')+' practice credits')+'</span><span class="hero-kpi">'+openHistory.length+' open</span><span class="hero-kpi">'+won+' won · '+lost+' lost</span></div></section>'+
+    (!cashMode?'<div class="statusbar"><span class="statuschip warn">Practice credits only · not withdrawable cash</span></div>':'')+
+    '<div class="section-title"><h2>Open predictions</h2><button class="btn small ghost" id="findMarketBtn">Find a market</button></div>'+
+    (openHistory.length?'<div class="timeline">'+openHistory.map(x=>'<button class="item" data-open-market="'+esc(x.market_id)+'" style="width:100%;text-align:left;color:inherit"><div class="eyebrow"><span>'+esc(x.outcome_label)+' · '+ugx(x.total_stake_ugx)+'</span>'+chip(x)+'</div><b style="display:block;margin:7px 0">'+esc(x.market_title)+'</b><small>'+dt(x.last_trade_at)+'</small></button>').join('')+'</div>':'<div class="empty">No open predictions. Pick a market and choose YES or NO.</div>')+
+    (active.length?'<div class="section-title"><h2>Exit early</h2></div><div class="timeline">'+active.map(x=>'<div class="item"><b>'+esc(x.market_title)+'</b><br><span>'+esc(x.outcome_label)+' · '+ugx(x.stake_ugx)+'</span><br><small>'+ugx(x.sellable_stake_ugx)+' can be exited</small><br><button class="btn small primary" style="margin-top:8px" data-cashout="'+x.position_id+'">'+(cashMode?'Cash out':'Exit prediction')+'</button></div>').join('')+'</div>':'')+
+    '<div class="section-title"><h2>Results</h2></div>'+
+    (settled.length?'<div class="timeline">'+settled.map(x=>'<button class="item" data-open-market="'+esc(x.market_id)+'" style="width:100%;text-align:left;color:inherit"><div class="eyebrow"><span>'+esc(x.outcome_label)+' · '+ugx(x.total_stake_ugx)+'</span>'+chip(x)+'</div><b style="display:block;margin:7px 0">'+esc(x.market_title)+'</b><small>'+dt(x.last_trade_at)+'</small></button>').join('')+'</div>':'<div class="empty">Settled results will appear here.</div>')+
+    (cashMode?'<div class="card" style="margin-top:18px"><div class="section-title" style="margin-top:0"><h2>Wallet</h2><small style="color:var(--muted)">MTN & Airtel Money</small></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn primary" id="cashDepositBtn">Deposit</button><button class="btn" id="cashWithdrawBtn">Withdraw</button></div><p class="auth-note">Deposits are credited only after the backend verifies the Mobile Money transaction. Withdrawals remain locked until payout completion is confirmed.</p></div>':'<div class="card" style="margin-top:18px"><b>Real-money wallet is not active</b><p class="auth-note">Predict UG is currently using practice credits while live-money launch gates remain off.</p>'+(state.isAdmin?'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn small" id="previewDepositBtn">Preview deposit</button><button class="btn small" id="previewWithdrawBtn">Preview withdrawal</button></div>':'')+'</div>');
+  if($('#findMarketBtn'))$('#findMarketBtn').onclick=()=>{state.tab='markets';render()};
+  if($('#cashDepositBtn'))$('#cashDepositBtn').onclick=runCashDepositFlow;
+  if($('#cashWithdrawBtn'))$('#cashWithdrawBtn').onclick=runCashWithdrawalFlow;
+  if($('#previewDepositBtn'))$('#previewDepositBtn').onclick=()=>previewLockedMoneyFlow('deposit');
+  if($('#previewWithdrawBtn'))$('#previewWithdrawBtn').onclick=()=>previewLockedMoneyFlow('withdrawal');
+  document.querySelectorAll('[data-open-market]').forEach(b=>b.onclick=()=>openMarket(b.dataset.openMarket));
+  document.querySelectorAll('[data-cashout]').forEach(b=>b.onclick=()=>{const x=active.find(p=>p.position_id===b.dataset.cashout);if(x)cashOutSimple(x)});
+}
+async function loadWatchlist(){
+  if(!state.user)return;
+  const {data,error}=await supabase.from('watchlist').select('market_id,created_at').order('created_at',{ascending:false});if(error)throw error;
+  const ids=(data||[]).map(x=>x.market_id);const all=await rpc('market_feed',{p_category:null,p_search:null,p_limit:100});state.watchlist=(all||[]).filter(x=>ids.includes(x.market_id))
+}
+function renderWatchlist(){
+  if(!state.user){$('#view').innerHTML='<section class="hero"><h1>Watchlist</h1><p>Sign in to save markets you care about.</p></section><button class="btn primary" id="watchSignIn">Sign in</button>';$('#watchSignIn').onclick=showAuth;return}
+  if(!state.watchlist.length){$('#view').innerHTML='<section class="hero"><h1>Watchlist</h1><p>Your saved markets.</p></section><div class="empty">No saved open markets yet.</div>';loadWatchlist().then(()=>{if(state.watchlist.length)render()});return}
+  $('#view').innerHTML='<section class="hero"><h1>Watchlist</h1><p>Your saved markets.</p></section><div class="grid">'+state.watchlist.map(marketCard).join('')+'</div>';
+}
+async function loadNotifications(){if(!state.user)return;const {data,error}=await supabase.from('notifications').select('*').order('created_at',{ascending:false}).limit(100);if(error)throw error;state.notifications=data||[]}
+function renderNotifications(){
+  if(!state.user){$('#view').innerHTML='<section class="hero"><h1>Notifications</h1><p>Sign in to view notifications.</p></section>';return}
+  if(!state.notifications.length){$('#view').innerHTML='<section class="hero"><h1>Notifications</h1></section><div class="empty">No notifications.</div>';loadNotifications().then(()=>{if(state.notifications.length)render()});return}
+  $('#view').innerHTML='<section class="hero"><h1>Notifications</h1><p>Market and account updates.</p></section><button class="btn small ghost" id="readAll">Mark all read</button><div class="timeline" style="margin-top:12px">'+state.notifications.map(n=>'<div class="item" data-notif="'+n.id+'" style="'+(!n.is_read?'border-color:#315c6b':'')+'"><b>'+esc(n.title)+'</b><br>'+esc(n.body)+'<br><small>'+dt(n.created_at)+'</small></div>').join('')+'</div>';
+  $('#readAll').onclick=async()=>{try{await rpc('mark_all_notifications_read');await loadNotifications();await loadUnreadNotifications();render();toast('Notifications marked read')}catch(e){toast(e.message,true)}};
+}
+async function loadLeaderboard(){state.leaderboard=await rpc('forecasting_leaderboard',{p_limit:50})||[]}
+function renderLeaderboard(){
+  if(!state.leaderboard.length){$('#view').innerHTML='<section class="hero"><h1>Leaderboard</h1><p>Forecasting reputation will appear as users build a verified record.</p></section><div class="empty">No ranked forecasters yet.</div>';loadLeaderboard().then(()=>{if(state.leaderboard.length)render()});return}
+  $('#view').innerHTML='<section class="hero"><h1>Leaderboard</h1><p>Forecasting performance, not follower count.</p></section><div class="timeline">'+state.leaderboard.map((x,i)=>'<div class="item"><b>#'+(i+1)+' '+esc(x.display_name||'Predictor')+'</b><br><small>'+Object.entries(x).filter(([k])=>k!=='display_name').slice(0,4).map(([k,v])=>esc(k)+': '+esc(v)).join(' · ')+'</small></div>').join('')+'</div>';
+}
+async function loadAdmin(){
+  if(!state.isAdmin)return;
+  const [a,c,m,e,d,support,errors,recovery,aiProviders,autonomy,mtnStatus]=await Promise.all([
+    rpc('admin_ops_dashboard'),
+    rpc('ceo_dashboard',{p_days:30}),
+    rpc('admin_manual_momo_queue',{p_limit:100}),
+    rpc('admin_merchant_momo_events',{p_limit:50}),
+    rpc('admin_list_merchant_ingest_devices'),
+    rpc('admin_support_requests',{p_limit:50}),
+    rpc('admin_client_error_reports',{p_limit:50}),
+    rpc('admin_recovery_status'),
+    rpc('admin_ai_provider_status'),
+    rpc('admin_autonomy_status'),
+    rpc('admin_mtn_momo_status')
+  ]);
+  state.admin=a;
+  state.ceo=c;
+  state.manualMomo=m||[];
+  state.merchantEvents=e||[];
+  state.merchantDevices=d||[];
+  state.supportRequests=support||[];
+  state.clientErrors=errors||[];
+  state.recoveryStatus=recovery||{};
+  state.aiProviders=aiProviders||[];
+  state.autonomy=autonomy||{};
+  state.mtnStatus=mtnStatus||{};
+}
+function renderAdmin(){
+  if(!state.isAdmin){$('#view').innerHTML='<div class="empty">Admin access required.</div>';return}
+  if(!state.admin){$('#view').innerHTML='<div class="loading">Loading admin control room…</div>';loadAdmin().then(render);return}
+  const a=state.admin,r=a.production_readiness||{},b=a.build_completion||{},c=state.ceo||{};
+  $('#view').innerHTML='<section class="hero"><h1>Predict UG Ops</h1><p>Core product, agents, settlement and launch controls.</p></section>'+
+    '<div class="statgrid"><div class="stat"><small>Build done</small><b>'+Number(b.done||0)+'</b></div><div class="stat"><small>Readiness</small><b>'+Number(r.readiness_score||0)+'/100</b></div><div class="stat"><small>E2E</small><b>'+esc(a.latest_e2e?.status||'—')+'</b></div><div class="stat"><small>Recovery</small><b>'+esc(state.recoveryStatus?.status||'—')+'</b></div></div>'+
+    '<div class="section-title"><h2>Autonomy status</h2></div>'+
+    '<div class="card">'+
+      '<div class="statgrid">'+
+        '<div class="stat"><small>Mode</small><b>'+esc(state.autonomy?.operating_mode||'—')+'</b></div>'+
+        '<div class="stat"><small>ChatGPT dependency</small><b>'+(state.autonomy?.chatgpt_dependency?'YES':'NO')+'</b></div>'+
+        '<div class="stat"><small>Supervisor</small><b>'+esc(state.autonomy?.supervisor?.status||'—')+'</b></div>'+
+        '<div class="stat"><small>Agent jobs</small><b>'+Number(state.autonomy?.active_agent_jobs||0)+'</b></div>'+
+      '</div>'+
+      '<p class="auth-note" style="margin-top:10px">Orchestrator '+(state.autonomy?.orchestrator?.recent?'recent ✓':'stale')+
+        ' · Native compiler '+esc(state.autonomy?.orchestrator?.native_compiler?.engine||'—')+
+        ' · External AI required now '+(state.autonomy?.internet?.external_ai_required_now?'YES':'NO')+
+        ' · AI queue '+Number(state.autonomy?.internet?.eligible_ai_batch_size||0)+
+        ' · Cash launch '+(state.autonomy?.production?.ready_for_cash_launch?'READY':'BLOCKED')+
+      '</p>'+
+    '</div>'+
+    '<div class="section-title"><h2>Launch blockers</h2></div><div class="timeline">'+((r.blockers||[]).length?r.blockers.map(x=>'<div class="item">'+esc(x)+'</div>').join(''):'<div class="item">No blockers.</div>')+'</div>'+    '<details style="margin-top:14px"><summary class="section-title" style="cursor:pointer"><h2 style="display:inline">Recovery readiness</h2></summary>'+
+      '<div class="card"><div class="meta"><span>Status</span><b>'+esc(state.recoveryStatus?.status||'unknown')+'</b></div>'+
+      '<div class="meta"><span>Last snapshot</span><b>'+esc(state.recoveryStatus?.checked_at?dt(state.recoveryStatus.checked_at):'current')+'</b></div>'+
+      '<small>'+esc(JSON.stringify(state.recoveryStatus?.snapshot||{}).slice(0,700))+'</small></div></details>'+
+    '<div class="section-title"><h2>Create market</h2></div><div class="card"><input class="input" id="admTitle" placeholder="Market title"><div style="height:8px"></div><select class="input" id="admCat">'+state.categories.map(x=>'<option value="'+esc(x.category_key)+'">'+esc(x.label)+'</option>').join('')+'</select><div style="height:8px"></div><input class="input" id="admClose" type="datetime-local"><div style="height:8px"></div><textarea class="input" id="admRule" rows="3" placeholder="Clear resolution rule"></textarea><div style="height:8px"></div><input class="input" id="admSource" placeholder="Source URL (required for politics)"><div style="height:8px"></div><button class="btn primary" id="admCreate">Create open YES/NO market</button></div>'+
+    '<div class="section-title"><h2>AI market providers</h2></div>'+
+    '<div class="card">'+
+      '<p class="auth-note">Predict UG tries OpenAI first, then configured fallbacks. Keys are stored in Supabase Vault and are never displayed after saving.</p>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 12px">'+
+        '<button class="btn primary" id="quickAiSetup">⚡ Quick AI Setup</button>'+
+      '</div>'+
+      '<p class="auth-note">Copy a fresh Groq or OpenRouter key, return here, then tap Quick AI Setup. Predict UG will detect, save, test and activate it automatically.</p>'+
+      '<div class="timeline">'+((state.aiProviders||[]).length
+        ?state.aiProviders.map(p=>
+          '<div class="item"><b>'+esc(p.display_name||p.provider)+'</b><br>'+
+          '<small>'+esc(p.model||'')+' · '+(p.configured&&p.account_configured?'configured':'not configured')+' · '+(p.enabled?'enabled':'disabled')+
+          (p.cooldown_until&&new Date(p.cooldown_until)>new Date()?' · cooldown until '+dt(p.cooldown_until):'')+
+          (Number(p.consecutive_failures||0)>0?' · failures '+Number(p.consecutive_failures||0):'')+
+          '</small>'+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px">'+
+            '<a class="btn small" href="'+esc(aiProviderSetupUrl(p.provider))+'" target="_blank" rel="noopener">Get API key</a>'+
+            '<button class="btn small primary" data-ai-configure="'+esc(p.provider)+'">Configure / replace key</button>'+
+            (p.configured?'<button class="btn small" data-ai-test="'+esc(p.provider)+'">Test provider</button>':'')+
+            (p.configured?'<button class="btn small danger" data-ai-clear="'+esc(p.provider)+'">Remove key</button>':'')+
+          '</div></div>'
+        ).join('')
+        :'<div class="empty">No fallback AI providers found.</div>')+
+      '</div>'+
+      '<p class="auth-note" style="margin-top:10px">Recommended order: Gemini → OpenRouter Free → Groq → Cloudflare Workers AI. The deterministic Market Factory continues if every LLM is unavailable.</p>'+
+    '</div>'+
+    '<div class="section-title"><h2>MTN MoMo API</h2></div>'+
+    '<div class="card">'+
+      '<p class="auth-note">Secure MTN setup for both Collections (deposits) and Disbursements (withdrawals). All four values are stored in Supabase Vault and never written into the APK or repository.</p>'+
+      '<div class="meta"><span>Collections / deposits</span><b>'+(state.mtnStatus?.collections_configured?'configured ✓':'not configured')+'</b></div>'+
+      '<div class="meta"><span>Disbursements / withdrawals</span><b>'+(state.mtnStatus?.disbursements_configured?'configured ✓':'not configured')+'</b></div>'+
+      '<div class="meta"><span>API user + API key</span><b>'+(state.mtnStatus?.api_user_present&&state.mtnStatus?.api_key_present?'configured ✓':'not configured')+'</b></div>'+
+      '<div class="meta"><span>Environment</span><b>'+esc(state.mtnStatus?.environment||'sandbox')+'</b></div>'+
+      '<div class="meta"><span>MTN status</span><b>'+esc(state.mtnStatus?.integration_status||'waiting for credentials')+'</b></div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
+        '<button class="btn small primary" id="mtnApiSetup">'+(state.mtnStatus?.configured?'Replace all MTN credentials':'Configure MTN credentials')+'</button>'+
+        '<button class="btn small" id="mtnApiTest" '+(state.mtnStatus?.configured?'':'disabled')+'>Test Collections + Disbursements</button>'+
+        '<button class="btn small primary" id="mtnSandboxE2E" '+(state.mtnStatus?.configured?'':'disabled')+'>Run MTN sandbox E2E</button>'+
+        (state.mtnStatus?.configured?'<button class="btn small danger" id="mtnApiClear">Remove credentials</button>':'')+
+      '</div>'+
+      '<p class="auth-note" style="margin-top:10px">Sandbox credentials can be tested safely, but real-money deposits and withdrawals remain off until MTN production approval, licensing and payout configuration are cleared.</p>'+
+    '</div>'+
+    '<div class="section-title"><h2>MTN Uganda production readiness</h2></div>'+
+    '<div class="card">'+
+      '<p class="auth-note">Keep sandbox working while you complete MTN Go-Live. Production credentials are stored separately and cannot enable live money by themselves.</p>'+
+      '<div class="meta"><span>Production credentials</span><b>'+(state.mtnStatus?.production_configured?'configured ✓':'waiting for MTN onboarding')+'</b></div>'+
+      '<div class="meta"><span>Uganda target</span><b>'+esc(state.mtnStatus?.production_target_environment||'mtnuganda')+'</b></div>'+
+      '<div class="meta"><span>Currency</span><b>'+esc(state.mtnStatus?.production_currency||'UGX')+'</b></div>'+
+      '<div class="meta"><span>HTTPS production base URL</span><b>'+(state.mtnStatus?.production_base_url_present?'configured ✓':'waiting')+'</b></div>'+
+      '<div class="meta"><span>Contract transferType</span><b>'+(state.mtnStatus?.production_transfer_type_present?'configured ✓':'add if MTN assigns one')+'</b></div>'+
+      '<div class="meta"><span>Live activation</span><b>LOCKED</b></div>'+
+      '<div class="timeline" style="margin-top:12px">'+
+        '<div class="item"><b>1. MTN Go-Live / Uganda</b><br><small>Select Uganda, package and Collections + Disbursements products.</small></div>'+
+        '<div class="item"><b>2. Business KYC + signed contract</b><br><small>Submit the business-owner and company documents requested by MTN.</small></div>'+
+        '<div class="item"><b>3. Partner Portal credentials</b><br><small>Create production API user/key and use the production Collections and Disbursements subscription keys.</small></div>'+
+        '<div class="item"><b>4. Callback + network</b><br><small>Register Predict UG HTTPS callback host and provide MTN any originating public IP they require.</small></div>'+
+        '<div class="item"><b>5. Production token test</b><br><small>Predict UG tests authentication only. No production transaction is sent.</small></div>'+
+      '</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
+        '<a class="btn small" href="https://momoapi.mtn.com/" target="_blank" rel="noopener">Open MTN Go-Live portal</a>'+
+        '<button class="btn small primary" id="mtnProdSetup">'+(state.mtnStatus?.production_configured?'Replace production credentials':'Configure production credentials')+'</button>'+
+        '<button class="btn small" id="mtnProdTest" '+(state.mtnStatus?.production_configured?'':'disabled')+'>Test production tokens</button>'+
+        (state.mtnStatus?.production_configured?'<button class="btn small danger" id="mtnProdClear">Remove production credentials</button>':'')+
+      '</div>'+
+      '<p class="auth-note" style="margin-top:10px">Even after a successful token test, Predict UG keeps deposits, withdrawals and market staking disabled until licensing and provider approval are explicitly cleared.</p>'+
+    '</div>'+
+    '<div class="section-title"><h2>Merchant phone automation</h2></div>'+
+    '<div class="card">'+
+      '<p class="auth-note">Use this same Android phone as the merchant verifier. Predict UG keeps the merchant codes on the server; the phone only forwards matching MTN/Airtel transaction SMS. Use Nomad Gateway in SMS-only mode — do not enable call or notification forwarding.</p>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+        '<button class="btn primary small" id="connectMerchantPhone">Connect this phone (MTN + Airtel)</button>'+
+        '<button class="btn small" id="pairMtnDevice">Separate MTN phone</button>'+
+        '<button class="btn small" id="pairAirtelDevice">Separate Airtel phone</button>'+
+        '<button class="btn small ghost" id="pairWebhookDevice">Advanced: Nomad Gateway</button>'+
+      '</div>'+
+      '<div class="timeline" style="margin-top:12px">'+((state.merchantDevices||[]).length
+        ?state.merchantDevices.map(d=>
+          '<div class="item"><b>'+esc(d.label)+'</b><br>'+
+          '<small>'+esc(d.network_scope)+' · '+(d.enabled?'paired':'revoked')+' · '+Number(d.event_count||0)+' forwarded'+
+          (d.last_event_at?' · last '+dt(d.last_event_at):'')+'</small>'+
+          (d.enabled?'<br><button class="btn small danger" style="margin-top:8px" data-revoke-device="'+d.device_id+'">Revoke phone</button>':'')+
+          '</div>'
+        ).join('')
+        :'<div class="empty">No merchant phones paired yet.</div>')+
+      '</div>'+
+    '</div>'+    '<div class="section-title"><h2>Manual MoMo queue</h2></div>'+
+    '<div class="admin-list">'+((state.manualMomo||[]).length
+      ?state.manualMomo.map(x=>
+        '<div class="item"><b>'+esc(x.network)+' '+esc(x.direction.toUpperCase())+' · '+ugx(x.amount_ugx)+'</b><br>'+
+        '<small>'+esc(x.customer_phone)+' · '+esc(x.review_status)+' · '+dt(x.created_at)+'</small>'+
+        (x.merchant_code?'<br><small>Merchant code: '+esc(x.merchant_code)+'</small>':'')+
+        (x.user_transaction_reference?'<br><small>User transaction: '+esc(x.user_transaction_reference)+'</small>':'')+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px">'+
+          (x.direction==='deposit'
+            ?'<button class="btn small primary" data-manual-confirm-deposit="'+x.payment_intent_id+'" data-ref="'+esc(x.user_transaction_reference||'')+'">Confirm deposit</button>'
+            :'<button class="btn small primary" data-manual-complete-payout="'+x.payment_intent_id+'">Mark payout sent</button>')+
+          '<button class="btn small danger" data-manual-reject="'+x.payment_intent_id+'">Reject</button>'+
+        '</div></div>'
+      ).join('')
+      :'<div class="empty">No manual MoMo payments waiting.</div>')+
+    '</div>'+
+    '<details style="margin-top:18px"><summary class="section-title" style="cursor:pointer"><h2 style="display:inline">Merchant SMS reconciliation</h2></summary>'+
+      '<p class="auth-note">Transaction messages are parsed automatically. Only unmatched or ambiguous events need human review.</p>'+
+      '<div class="timeline">'+((state.merchantEvents||[]).length
+        ?state.merchantEvents.slice(0,20).map(x=>
+          '<div class="item"><b>'+esc(x.network)+' '+esc(x.direction)+' · '+ugx(x.amount_ugx||0)+'</b><br>'+
+          '<small>'+esc(x.transaction_reference||'No reference')+' · '+esc(x.parse_status)+' · confidence '+Math.round(Number(x.parse_confidence||0)*100)+'%</small>'+
+          (x.reconciliation_note?'<br><small>'+esc(x.reconciliation_note)+'</small>':'')+
+          '</div>'
+        ).join('')
+        :'<div class="empty">No merchant transaction events yet.</div>')+
+      '</div>'+
+    '</details>'+    '<div class="section-title"><h2>User support</h2></div>'+
+    '<div class="admin-list">'+((state.supportRequests||[]).length
+      ?state.supportRequests.map(x=>
+        '<div class="item"><b>'+esc(x.category)+' · '+esc(x.status)+'</b><br>'+
+        '<small>'+dt(x.created_at)+(x.contact_phone?' · '+esc(x.contact_phone):'')+'</small>'+
+        '<p style="margin:8px 0">'+esc(x.message)+'</p>'+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+          (x.status!=='resolved'?'<button class="btn small" data-support-status="'+x.id+'" data-next-status="resolved">Resolve</button>':'')+
+          (x.status!=='closed'?'<button class="btn small ghost" data-support-status="'+x.id+'" data-next-status="closed">Close</button>':'')+
+        '</div></div>'
+      ).join('')
+      :'<div class="empty">No support requests.</div>')+
+    '</div>'+
+    '<details style="margin-top:18px"><summary class="section-title" style="cursor:pointer"><h2 style="display:inline">Client errors & crashes</h2></summary>'+
+      '<div class="timeline">'+((state.clientErrors||[]).length
+        ?state.clientErrors.map(x=>
+          '<div class="item"><b>'+esc(x.source)+' · '+esc(x.app_version||'unknown')+'</b><br>'+
+          '<small>'+dt(x.created_at)+'</small><br>'+
+          '<span>'+esc(x.message)+'</span>'+
+          (x.context?'<br><small>'+esc(JSON.stringify(x.context).slice(0,220))+'</small>':'')+
+          '</div>'
+        ).join('')
+        :'<div class="empty">No client error reports.</div>')+
+      '</div>'+
+    '</details>'+
+    '<div class="section-title"><h2>Agent findings</h2></div><div class="admin-list">'+((a.open_agent_findings||[]).length?a.open_agent_findings.slice(0,20).map(x=>'<div class="item"><b>'+esc(x.summary)+'</b><br><small>'+esc(x.agent_key)+' · '+esc(x.severity)+' · '+dt(x.created_at)+'</small></div>').join(''):'<div class="empty">No open findings.</div>')+'</div>'+
+    '<div class="section-title"><h2>CEO snapshot</h2></div><div class="card"><div class="meta"><span>Users</span><b>'+Number(c.totals?.users||0)+'</b></div><div class="meta"><span>Open markets</span><b>'+Number(c.totals?.open_markets||0)+'</b></div><div class="meta"><span>News items</span><b>'+Number(c.totals?.news_items||0)+'</b></div><div class="meta"><span>Revenue</span><b>'+ugx(c.totals?.platform_revenue_ugx||0)+'</b></div></div>';
+  $('#admCreate').onclick=async()=>{try{const title=$('#admTitle').value.trim(),cat=$('#admCat').value,close=$('#admClose').value,rule=$('#admRule').value.trim(),source=$('#admSource').value.trim();if(!title||!close||!rule)throw new Error('Title, close time and rule are required');await rpc('create_market',{p_title:title,p_category:cat,p_description:'',p_close_time:new Date(close).toISOString(),p_resolution_rule:rule,p_outcomes:[{label:'YES',seed_liquidity_ugx:50000},{label:'NO',seed_liquidity_ugx:50000}],p_source_name:source?'Primary source':null,p_source_url:source||null,p_platform_share_bps:900});toast('Market created');await loadMarkets();await loadAdmin();render()}catch(e){toast(e.message,true)}};
+
+
+  const connectAiKey=async(rawKey)=>{
+    const key=String(rawKey||'').trim();
+    let provider='';
+    if(key.startsWith('gsk_'))provider='groq';
+    else if(key.startsWith('sk-or-v1-'))provider='openrouter';
+    else if(key.startsWith('AIza'))provider='gemini';
+    if(!provider)throw new Error('Could not recognize this API key. Use Groq, OpenRouter or Gemini.');
+    const p=(state.aiProviders||[]).find(x=>x.provider===provider)||{};
+    await rpc('admin_set_ai_provider',{
+      p_provider:provider,
+      p_api_key:key,
+      p_model:p.model||null,
+      p_account_id:null,
+      p_enabled:true
+    });
+    const token=state.session?.access_token;
+    if(!token)throw new Error('Sign in again');
+    const res=await fetch(SUPABASE_URL+'/functions/v1/market-intelligence-agent',{
+      method:'POST',
+      headers:{'content-type':'application/json','authorization':'Bearer '+token},
+      body:JSON.stringify({action:'test_provider',provider})
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||!data.ok)throw new Error(String(data.error||'Provider saved but connection test failed'));
+    return {provider,model:data.model||p.model||'',ok:true};
+  };
+
+  const openQuickAiSetup=()=>{
+    $('#overlay').innerHTML=
+      `<div class='modal'><div class='sheet' style='max-width:520px'>
+        <button class='close' id='quickAiClose'>✕</button>
+        <h2>⚡ Quick AI Setup</h2>
+        <p class='auth-note'>Copy a fresh Groq or OpenRouter API key. One tap will detect the provider, save it securely in Vault, test it and activate it.</p>
+        <div class='auth-wrap'>
+          <button class='btn primary' id='quickAiClipboard'>Connect key from clipboard</button>
+          <div class='auth-note'>or paste it manually:</div>
+          <input class='input' id='quickAiKey' type='password' autocomplete='off' placeholder='Groq gsk_… or OpenRouter sk-or-v1-…'>
+          <button class='btn' id='quickAiManual'>Connect pasted key</button>
+          <div id='quickAiStatus' class='auth-note'></div>
+        </div>
+      </div></div>`;
+
+    $('#quickAiClose').onclick=()=>$('#overlay').innerHTML='';
+
+    const run=async(key)=>{
+      const status=$('#quickAiStatus');
+      const clip=$('#quickAiClipboard'),manual=$('#quickAiManual');
+      clip.disabled=true;manual.disabled=true;
+      status.textContent='Detecting provider, saving securely and testing…';
+      try{
+        const result=await connectAiKey(key);
+        status.textContent=(result.provider||'AI')+' connected ✓';
+        toast((result.provider||'AI')+' AI connected ✓');
+        await loadAdmin();
+        setTimeout(()=>{if($('#overlay'))$('#overlay').innerHTML='';render()},500);
+      }catch(e){
+        status.textContent=e.message||'Could not connect provider';
+        toast(e.message||'Could not connect provider',true);
+        clip.disabled=false;manual.disabled=false;
+      }
+    };
+
+    $('#quickAiClipboard').onclick=async()=>{
+      try{
+        if(!navigator.clipboard?.readText)throw new Error('Clipboard access is unavailable. Paste the key below instead.');
+        const key=await navigator.clipboard.readText();
+        if(!String(key||'').trim())throw new Error('Clipboard is empty. Copy the API key first.');
+        await run(key);
+      }catch(e){
+        const status=$('#quickAiStatus');
+        status.textContent=e.message||'Could not read clipboard';
+      }
+    };
+    $('#quickAiManual').onclick=()=>run($('#quickAiKey').value);
+  };
+
+  if($('#quickAiSetup'))$('#quickAiSetup').onclick=openQuickAiSetup;
+
+  const configureAiProvider=async(provider)=>{
+    const p=(state.aiProviders||[]).find(x=>x.provider===provider)||{};
+    $('#overlay').innerHTML=
+      `<div class='modal'><div class='sheet' style='max-width:520px'>
+        <button class='close' id='aiProviderClose'>✕</button>
+        <h2>${esc(p.display_name||provider)}</h2>
+        <p class='auth-note'>The key is sent over HTTPS to an admin-only RPC and stored in Supabase Vault. It will not be shown again.</p>
+        <div class='auth-wrap'>
+          <input class='input' id='aiProviderKey' type='password' autocomplete='off' placeholder='API key'>
+          ${provider==='cloudflare'?"<input class='input' id='aiProviderAccount' autocomplete='off' placeholder='Cloudflare account ID'>":''}
+          <input class='input' id='aiProviderModel' autocomplete='off' placeholder='Model' value='${esc(p.model||'')}'>
+          <button class='btn primary' id='aiProviderSave'>Save provider</button>
+          <div id='aiProviderStatus' class='auth-note'></div>
+        </div>
+      </div></div>`;
+    $('#aiProviderClose').onclick=()=>$('#overlay').innerHTML='';
+    $('#aiProviderSave').onclick=async()=>{
+      const btn=$('#aiProviderSave'),status=$('#aiProviderStatus');
+      const key=String($('#aiProviderKey').value||'').trim();
+      const model=String($('#aiProviderModel').value||'').trim();
+      const account=provider==='cloudflare'?String($('#aiProviderAccount').value||'').trim():null;
+      if(key.length<8){status.textContent='Enter a valid API key.';return}
+      if(provider==='cloudflare'&&!account){status.textContent='Cloudflare account ID is required.';return}
+      btn.disabled=true;status.textContent='Saving securely…';
+      try{
+        await rpc('admin_set_ai_provider',{
+          p_provider:provider,
+          p_api_key:key,
+          p_model:model||null,
+          p_account_id:account,
+          p_enabled:true
+        });
+        status.textContent='Saved ✓';
+        toast((p.display_name||provider)+' connected');
+        $('#overlay').innerHTML='';
+        await loadAdmin();
+        render();
+      }catch(e){
+        status.textContent=e.message||'Could not save provider';
+        toast(e.message||'Could not save provider',true);
+      }finally{if($('#aiProviderSave'))$('#aiProviderSave').disabled=false}
+    };
+  };
+
+  document.querySelectorAll('[data-ai-configure]').forEach(btn=>{
+    btn.onclick=()=>configureAiProvider(btn.dataset.aiConfigure);
+  });
+
+  document.querySelectorAll('[data-ai-test]').forEach(btn=>{
+    btn.onclick=async()=>{
+      const provider=btn.dataset.aiTest;
+      const original=btn.textContent;
+      btn.disabled=true;btn.textContent='Testing…';
+      try{
+        const token=state.session?.access_token;
+        if(!token)throw new Error('Sign in again');
+        const res=await fetch(SUPABASE_URL+'/functions/v1/market-intelligence-agent',{
+          method:'POST',
+          headers:{
+            'content-type':'application/json',
+            'authorization':'Bearer '+token
+          },
+          body:JSON.stringify({action:'test_provider',provider})
+        });
+        const data=await res.json().catch(()=>({}));
+        if(!res.ok||!data.ok)throw new Error(data.error||'Provider test failed');
+        toast((data.provider||provider)+' connected ✓');
+      }catch(e){
+        toast(e.message||'Provider test failed',true);
+      }finally{
+        btn.disabled=false;btn.textContent=original;
+      }
+    };
+  });
+  document.querySelectorAll('[data-ai-clear]').forEach(btn=>{
+    btn.onclick=async()=>{
+      const provider=btn.dataset.aiClear;
+      if(!confirm('Remove this AI provider key from Predict UG Vault?'))return;
+      try{
+        await rpc('admin_clear_ai_provider',{p_provider:provider});
+        toast('AI provider removed');
+        await loadAdmin();
+        render();
+      }catch(e){toast(e.message||'Could not remove provider',true)}
+    };
+  });
+
+  const openMtnApiSetup=()=>{
+    $('#overlay').innerHTML=
+      `<div class='modal'><div class='sheet' style='max-width:560px'>
+        <button class='close' id='mtnSetupClose'>✕</button>
+        <h2>MTN MoMo API credentials</h2>
+        <p class='auth-note'>Enter all four MTN values. The API user and API key are shared, while Collections and Disbursements each use their own Primary subscription key.</p>
+        <div class='auth-wrap'>
+          <label class='auth-note'>predict_mtn_api_user</label>
+          <input class='input' id='mtnApiUser' autocomplete='off' placeholder='API user UUID'>
+          <label class='auth-note'>predict_mtn_api_key</label>
+          <input class='input' id='mtnApiKey' type='password' autocomplete='off' placeholder='API key'>
+          <label class='auth-note'>predict_mtn_collection_subscription_key</label>
+          <input class='input' id='mtnCollectionKey' type='password' autocomplete='off' placeholder='Primary Collections subscription key'>
+          <label class='auth-note'>predict_mtn_disbursement_subscription_key</label>
+          <input class='input' id='mtnDisbursementKey' type='password' autocomplete='off' placeholder='Primary Disbursements subscription key'>
+          <button class='btn primary' id='mtnSetupSave'>Save all 4 securely & test both products</button>
+          <div id='mtnSetupStatus' class='auth-note'></div>
+        </div>
+      </div></div>`;
+    $('#mtnSetupClose').onclick=()=>$('#overlay').innerHTML='';
+    $('#mtnSetupSave').onclick=async()=>{
+      const btn=$('#mtnSetupSave'),status=$('#mtnSetupStatus');
+      const apiUser=String($('#mtnApiUser').value||'').trim();
+      const apiKey=String($('#mtnApiKey').value||'').trim();
+      const collectionKey=String($('#mtnCollectionKey').value||'').trim();
+      const disbursementKey=String($('#mtnDisbursementKey').value||'').trim();
+      if(apiUser.length<8||apiKey.length<8||collectionKey.length<8||disbursementKey.length<8){
+        status.textContent='Enter all four MTN credentials.';
+        return;
+      }
+      btn.disabled=true;status.textContent='Saving all 4 values to Vault and testing Collections + Disbursements…';
+      try{
+        await rpc('admin_set_mtn_momo_credentials',{
+          p_collection_subscription_key:collectionKey,
+          p_disbursement_subscription_key:disbursementKey,
+          p_api_user:apiUser,
+          p_api_key:apiKey,
+          p_environment:'sandbox',
+          p_base_url:null,
+          p_target_environment:null
+        });
+        const token=state.session?.access_token;
+        if(!token)throw new Error('Sign in again');
+        const res=await fetch(SUPABASE_URL+'/functions/v1/payment-router?action=mtn-credential-test',{
+          method:'POST',
+          headers:{'content-type':'application/json','authorization':'Bearer '+token},
+          body:'{}'
+        });
+        const data=await res.json().catch(()=>({}));
+        if(!res.ok||!data.ok)throw new Error(data.error||'MTN credential test failed');
+        const collectionsOk=!!data.collections?.token_obtained;
+        const disbursementsOk=!!data.disbursements?.token_obtained;
+        status.textContent='Collections '+(collectionsOk?'✓':'✕')+' · Disbursements '+(disbursementsOk?'✓':'✕');
+        toast(collectionsOk&&disbursementsOk?'MTN Collections + Disbursements connected ✓':'MTN test incomplete',!(collectionsOk&&disbursementsOk));
+        $('#mtnApiUser').value='';$('#mtnApiKey').value='';$('#mtnCollectionKey').value='';$('#mtnDisbursementKey').value='';
+        await loadAdmin();
+        setTimeout(()=>{if($('#overlay'))$('#overlay').innerHTML='';render()},650);
+      }catch(e){
+        status.textContent=e.message||'Could not connect MTN';
+        toast(e.message||'Could not connect MTN',true);
+        btn.disabled=false;
+      }
+    };
+  };
+  if($('#mtnApiSetup'))$('#mtnApiSetup').onclick=openMtnApiSetup;
+  if($('#mtnApiTest'))$('#mtnApiTest').onclick=async()=>{
+    const btn=$('#mtnApiTest'),original=btn.textContent;
+    btn.disabled=true;btn.textContent='Testing both…';
+    try{
+      const token=state.session?.access_token;if(!token)throw new Error('Sign in again');
+      const res=await fetch(SUPABASE_URL+'/functions/v1/payment-router?action=mtn-credential-test',{
+        method:'POST',
+        headers:{'content-type':'application/json','authorization':'Bearer '+token},
+        body:'{}'
+      });
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok||!data.ok)throw new Error(data.error||'MTN credential test failed');
+      toast('MTN Collections ✓ · Disbursements ✓');
+    }catch(e){toast(e.message||'MTN credential test failed',true)}
+    finally{btn.disabled=false;btn.textContent=original}
+  };
+  if($('#mtnSandboxE2E'))$('#mtnSandboxE2E').onclick=async()=>{
+    const btn=$('#mtnSandboxE2E'),original=btn.textContent;
+    btn.disabled=true;btn.textContent='Running MTN sandbox…';
+    try{
+      const token=state.session?.access_token;if(!token)throw new Error('Sign in again');
+      const res=await fetch(SUPABASE_URL+'/functions/v1/payment-router?action=mtn-sandbox-e2e-test',{
+        method:'POST',
+        headers:{'content-type':'application/json','authorization':'Bearer '+token},
+        body:'{}'
+      });
+      const data=await res.json().catch(()=>({}));
+      const collection=data.collection||{};
+      const disbursement=data.disbursement||{};
+      const line=(label,x)=>
+        '<div class="card" style="margin-top:10px"><div class="meta"><span>'+label+'</span><b>'+(x.ok?'PASS ✓':'CHECK')+'</b></div>'+
+        '<div class="meta"><span>POST</span><b>'+esc(String(x.post_status??'—'))+'</b></div>'+
+        '<div class="meta"><span>Status GET</span><b>'+esc(String(x.status_http??'—'))+'</b></div>'+
+        '<div class="meta"><span>MTN status</span><b>'+esc(String(x.transaction_status||'—'))+'</b></div>'+
+        (x.error?'<p class="auth-note">'+esc(x.error)+'</p>':'')+
+        (x.reason?'<p class="auth-note">'+esc(x.reason)+'</p>':'')+
+        '</div>';
+      $('#overlay').innerHTML=
+        '<div class="modal"><div class="sheet" style="max-width:560px">'+
+          '<button class="close" id="mtnSandboxClose">✕</button>'+
+          '<h2>MTN sandbox E2E result</h2>'+
+          '<p class="auth-note">This diagnostic uses MTN sandbox only. Predict UG wallet effect: none.</p>'+
+          line('Collections / RequestToPay',collection)+
+          line('Disbursements / Transfer',disbursement)+
+          '<p class="auth-note" style="margin-top:12px">Environment: '+esc(String(data.environment||'sandbox'))+' · Live money: off</p>'+
+        '</div></div>';
+      $('#mtnSandboxClose').onclick=()=>$('#overlay').innerHTML='';
+      if(!res.ok&&res.status!==207)throw new Error(data.error||'MTN sandbox test failed');
+      toast(data.ok?'MTN sandbox E2E passed ✓':'MTN sandbox test returned a provider check');
+    }catch(e){
+      toast(e.message||'MTN sandbox test failed',true);
+    }finally{
+      if(btn){btn.disabled=false;btn.textContent=original}
+    }
+  };
+  const openMtnProdSetup=()=>{
+    $('#overlay').innerHTML=
+      `<div class='modal'><div class='sheet' style='max-width:580px'>
+        <button class='close' id='mtnProdClose'>✕</button>
+        <h2>MTN Uganda production credentials</h2>
+        <p class='auth-note'>Use values issued through MTN production onboarding / Partner Portal. Do not reuse the sandbox API user or API key unless MTN explicitly tells you to.</p>
+        <div class='auth-wrap'>
+          <label class='auth-note'>Production API user</label>
+          <input class='input' id='mtnProdApiUser' autocomplete='off' placeholder='Production API user'>
+          <label class='auth-note'>Production API key</label>
+          <input class='input' id='mtnProdApiKey' type='password' autocomplete='off' placeholder='Production API key'>
+          <label class='auth-note'>Production Collections subscription key</label>
+          <input class='input' id='mtnProdCollectionKey' type='password' autocomplete='off' placeholder='Primary production Collections key'>
+          <label class='auth-note'>Production Disbursements subscription key</label>
+          <input class='input' id='mtnProdDisbursementKey' type='password' autocomplete='off' placeholder='Primary production Disbursements key'>
+          <label class='auth-note'>Production base URL from MTN onboarding</label>
+          <input class='input' id='mtnProdBaseUrl' autocomplete='off' placeholder='https://...'>
+          <label class='auth-note'>Production transferType from contract (optional until MTN assigns it)</label>
+          <input class='input' id='mtnProdTransferType' autocomplete='off' placeholder='e.g. CUSTOM_PAYMENT only if MTN confirms'>
+          <button class='btn primary' id='mtnProdSave'>Save production credentials securely</button>
+          <div id='mtnProdStatus' class='auth-note'></div>
+        </div>
+      </div></div>`;
+    $('#mtnProdClose').onclick=()=>$('#overlay').innerHTML='';
+    $('#mtnProdSave').onclick=async()=>{
+      const btn=$('#mtnProdSave'),status=$('#mtnProdStatus');
+      const apiUser=String($('#mtnProdApiUser').value||'').trim();
+      const apiKey=String($('#mtnProdApiKey').value||'').trim();
+      const collectionKey=String($('#mtnProdCollectionKey').value||'').trim();
+      const disbursementKey=String($('#mtnProdDisbursementKey').value||'').trim();
+      const baseUrl=String($('#mtnProdBaseUrl').value||'').trim();
+      const transferType=String($('#mtnProdTransferType').value||'').trim();
+      if(apiUser.length<8||apiKey.length<8||collectionKey.length<8||disbursementKey.length<8||!/^https:\/\//i.test(baseUrl)){
+        status.textContent='Enter all four production credentials and the HTTPS production base URL supplied by MTN.';
+        return;
+      }
+      btn.disabled=true;status.textContent='Saving production credentials to Vault…';
+      try{
+        await rpc('admin_set_mtn_momo_production_credentials',{
+          p_collection_subscription_key:collectionKey,
+          p_disbursement_subscription_key:disbursementKey,
+          p_api_user:apiUser,
+          p_api_key:apiKey,
+          p_base_url:baseUrl,
+          p_transfer_type:transferType||null
+        });
+        status.textContent='Saved ✓. Live money remains locked.';
+        toast('MTN production credentials stored securely ✓');
+        $('#mtnProdApiUser').value='';$('#mtnProdApiKey').value='';$('#mtnProdCollectionKey').value='';$('#mtnProdDisbursementKey').value='';
+        await loadAdmin();
+        setTimeout(()=>{if($('#overlay'))$('#overlay').innerHTML='';render()},650);
+      }catch(e){
+        status.textContent=e.message||'Could not save production credentials';
+        toast(e.message||'Could not save production credentials',true);
+        btn.disabled=false;
+      }
+    };
+  };
+  if($('#mtnProdSetup'))$('#mtnProdSetup').onclick=openMtnProdSetup;
+  if($('#mtnProdTest'))$('#mtnProdTest').onclick=async()=>{
+    const btn=$('#mtnProdTest'),original=btn.textContent;
+    btn.disabled=true;btn.textContent='Testing production tokens…';
+    try{
+      const token=state.session?.access_token;if(!token)throw new Error('Sign in again');
+      const res=await fetch(SUPABASE_URL+'/functions/v1/payment-router?action=mtn-production-credential-test',{
+        method:'POST',
+        headers:{'content-type':'application/json','authorization':'Bearer '+token},
+        body:'{}'
+      });
+      const data=await res.json().catch(()=>({}));
+      const cOk=!!data.collections?.ok,dOk=!!data.disbursements?.ok;
+      if(!res.ok&&res.status!==207)throw new Error(data.error||'Production token test failed');
+      toast(cOk&&dOk?'MTN production Collections + Disbursements tokens ✓':'MTN production token test needs attention',!(cOk&&dOk));
+      $('#overlay').innerHTML=
+        '<div class="modal"><div class="sheet" style="max-width:560px">'+
+          '<button class="close" id="mtnProdResultClose">✕</button>'+
+          '<h2>MTN production token test</h2>'+
+          '<div class="meta"><span>Collections</span><b>'+(cOk?'PASS ✓':'CHECK')+'</b></div>'+
+          '<div class="meta"><span>Disbursements</span><b>'+(dOk?'PASS ✓':'CHECK')+'</b></div>'+
+          '<div class="meta"><span>Target</span><b>mtnuganda</b></div>'+
+          '<div class="meta"><span>Currency</span><b>UGX</b></div>'+
+          '<div class="meta"><span>Production transaction sent</span><b>NO</b></div>'+
+          (data.collections?.error?'<p class="auth-note">Collections: '+esc(data.collections.error)+'</p>':'')+
+          (data.disbursements?.error?'<p class="auth-note">Disbursements: '+esc(data.disbursements.error)+'</p>':'')+
+        '</div></div>';
+      $('#mtnProdResultClose').onclick=()=>$('#overlay').innerHTML='';
+    }catch(e){toast(e.message||'Production token test failed',true)}
+    finally{if(btn){btn.disabled=false;btn.textContent=original}}
+  };
+  if($('#mtnProdClear'))$('#mtnProdClear').onclick=async()=>{
+    if(!confirm('Remove MTN production credentials from Predict UG Vault? Sandbox credentials will remain.'))return;
+    try{await rpc('admin_clear_mtn_momo_production_credentials');toast('MTN production credentials removed');await loadAdmin();render()}
+    catch(e){toast(e.message||'Could not remove production credentials',true)}
+  };
+
+  if($('#mtnApiClear'))$('#mtnApiClear').onclick=async()=>{
+    if(!confirm('Remove all four MTN API credentials from Predict UG Vault?'))return;
+    try{await rpc('admin_clear_mtn_momo_credentials');toast('MTN credentials removed');await loadAdmin();render()}
+    catch(e){toast(e.message||'Could not remove MTN credentials',true)}
+  };
+
+  const pairMerchantDevice=async(network)=>{
+    try{
+      const label=(prompt('Name this '+network+' merchant phone',network+' merchant phone')||'').trim();
+      if(!label)return;
+      const pairing=await rpc('admin_create_merchant_pairing_code',{
+        p_label:label,
+        p_network_scope:network
+      });
+      const connectUri=pairing.connect_uri||('predictug://merchant-connect?code='+encodeURIComponent(pairing.pairing_code));
+      alert(
+        'PAIR '+network+' MERCHANT PHONE\n\n'+
+        'Predict UG will now open the private Merchant app and securely connect this phone for '+network+'.\n\n'+
+        'The one-time pairing expires in 10 minutes. If the Merchant app does not open, install/update the Merchant APK and tap Pair again.'
+      );
+      await loadAdmin();
+      render();
+      location.href=connectUri;
+    }catch(e){toast(e.message||'Could not create pairing code',true)}
+  };
+
+  if($('#connectMerchantPhone'))$('#connectMerchantPhone').onclick=quickConnectMerchantPhone;
+
+  if($('#pairMtnDevice'))$('#pairMtnDevice').onclick=()=>pairMerchantDevice('MTN');
+  if($('#pairAirtelDevice'))$('#pairAirtelDevice').onclick=()=>pairMerchantDevice('AIRTEL');
+
+  if($('#pairWebhookDevice'))$('#pairWebhookDevice').onclick=async()=>{
+    try{
+      const label=(prompt('Name this Android merchant phone','My merchant phone')||'').trim();
+      if(!label)return;
+      const pairing=await rpc('admin_pair_merchant_ingest_device',{p_label:label,p_network_scope:'BOTH'});
+      const installUrl='https://github.com/we-digital/android-nomad-gateway/releases';
+      const config=[
+        'USE THIS PHONE AS THE PREDICT UG MERCHANT VERIFIER',
+        '',
+        'Merchant codes stay on the Predict UG server. Do not type them into Nomad Gateway.',
+        '',
+        '1. Install Nomad Gateway:',
+        installUrl,
+        '',
+        '2. Android permissions:',
+        '• Allow SMS access needed for incoming SMS forwarding.',
+        '• Allow notifications if Android asks so the listener can show its active status.',
+        '• Set battery/background use to Unrestricted / allow background activity.',
+        '• Allow Auto-start / start in background if your phone offers that switch.',
+        '• Do NOT enable call-log forwarding or notification-content forwarding.',
+        '',
+        '3. In Nomad Gateway create TWO SMS rules:',
+        '• MTN rule: sender must exactly match the MTN/MoMo sender name or number shown in your Messages app.',
+        '• Airtel rule: sender must exactly match the Airtel Money sender name or number shown in your Messages app.',
+        'Never use * as the sender filter on a personal phone.',
+        '',
+        '4. For both rules use this webhook URL:',
+        pairing.ingest_url,
+        '',
+        '5. Add these custom headers:',
+        'x-device-id: '+pairing.device_id,
+        'x-device-token: '+pairing.device_token,
+        '',
+        '6. Before enabling live forwarding, use Nomad Gateway Test with:',
+        '{"type":"pairing_test","network":"MTN"}',
+        'A successful test should return HTTP 200.',
+        '',
+        '7. Then use this live JSON body:',
+        '{"message":"%text%","sender":"%from%","received_at":"%receivedStamp%"}',
+        '',
+        '8. Keep HTTPS certificate checking enabled. Nomad Gateway retries failed deliveries automatically.',
+        '',
+        '9. When the rule is active and permissions are granted, Nomad Gateway should show its listening status. Send no test money just to test forwarding — use the built-in Test button first.',
+        '',
+        'SECURITY: the device token is shown once. Do not paste it into chats, screenshots, GitHub, or public notes. If this phone is lost, revoke it immediately from Predict UG Admin.'
+      ].join('\n');
+      prompt('Copy this one-time setup securely, then configure Nomad Gateway on this phone.',config);
+      toast('Phone credentials created. Finish Android permissions and run the built-in pairing test.');
+      await loadAdmin();render();
+    }catch(e){toast(e.message||'Could not create merchant phone credentials',true)}
+  };
+
+  document.querySelectorAll('[data-support-status]').forEach(btn=>{
+    btn.onclick=async()=>{
+      try{
+        await rpc('admin_set_support_request_status',{
+          p_id:btn.dataset.supportStatus,
+          p_status:btn.dataset.nextStatus
+        });
+        toast('Support request updated');
+        await loadAdmin();
+        render();
+      }catch(e){toast(e.message||'Could not update support request',true)}
+    };
+  });
+
+  document.querySelectorAll('[data-revoke-device]').forEach(btn=>{
+    btn.onclick=async()=>{
+      if(!confirm('Revoke this merchant phone? It will immediately stop being able to forward transactions.'))return;
+      try{
+        await rpc('admin_revoke_merchant_ingest_device',{
+          p_device_id:btn.dataset.revokeDevice
+        });
+        toast('Merchant phone revoked');
+        await loadAdmin();
+        render();
+      }catch(e){toast(e.message||'Could not revoke phone',true)}
+    };
+  });
+
+  document.querySelectorAll('[data-manual-confirm-deposit]').forEach(btn=>{
+    btn.onclick=async()=>{
+      try{
+        const ref=(prompt('Verified merchant transaction ID',btn.dataset.ref||'')||'').trim();
+        if(!ref)return;
+        await rpc('admin_confirm_manual_momo_deposit',{
+          p_payment_intent_id:btn.dataset.manualConfirmDeposit,
+          p_verified_transaction_reference:ref,
+          p_note:'Confirmed from Predict UG admin queue'
+        });
+        toast('Deposit credited');
+        await loadAdmin();
+        render();
+      }catch(e){toast(e.message||'Could not confirm deposit',true)}
+    };
+  });
+
+  document.querySelectorAll('[data-manual-complete-payout]').forEach(btn=>{
+    btn.onclick=async()=>{
+      try{
+        const ref=(prompt('Outgoing MoMo transaction ID after sending payout','')||'').trim();
+        if(!ref)return;
+        await rpc('admin_complete_manual_momo_payout',{
+          p_payment_intent_id:btn.dataset.manualCompletePayout,
+          p_payout_transaction_reference:ref,
+          p_note:'Payout recorded from Predict UG admin queue'
+        });
+        toast('Payout completed');
+        await loadAdmin();
+        render();
+      }catch(e){toast(e.message||'Could not complete payout',true)}
+    };
+  });
+
+  document.querySelectorAll('[data-manual-reject]').forEach(btn=>{
+    btn.onclick=async()=>{
+      try{
+        const reason=(prompt('Reason for rejection','Could not verify transaction')||'').trim();
+        if(!reason)return;
+        await rpc('admin_reject_manual_momo',{
+          p_payment_intent_id:btn.dataset.manualReject,
+          p_reason:reason
+        });
+        toast('Manual payment rejected');
+        await loadAdmin();
+        render();
+      }catch(e){toast(e.message||'Could not reject payment',true)}
+    };
+  });
+}
+function passwordLooksStrong(password){
+  return typeof password==='string'&&password.length>=8&&password.length<=128;
+}
+
+function normalizePhone(value){
+  let s=String(value||'').trim().replace(/[\s()-]/g,'');
+  if(s.startsWith('00'))s='+'+s.slice(2);
+  if(/^0\d{9}$/.test(s))s='+256'+s.slice(1);
+  else if(/^256\d{9}$/.test(s))s='+'+s;
+  return /^\+[1-9]\d{7,14}$/.test(s)?s:'';
+}
+function authIdentifier(value){
+  const phone=normalizePhone(value);
+  return phone?{type:'phone',value:phone}:null;
+}
+function userIdentifier(user){
+  const phone=normalizePhone(user?.user_metadata?.phone_login||user?.phone||'');
+  return phone?{type:'phone',value:phone}:null;
+}
+async function phonePasswordRequest(phone,password,action='signin'){
+  const res=await fetch(SUPABASE_URL+'/functions/v1/secure-signup',{
+    method:'POST',
+    headers:{'content-type':'application/json'},
+    body:JSON.stringify({phone,password,action})
+  });
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok)throw new Error(data.error||'Authentication failed');
+  return data;
+}
+async function applyReturnedSession(data){
+  if(!data?.session?.access_token||!data?.session?.refresh_token)throw new Error('Could not start your session');
+  const {error}=await supabase.auth.setSession({
+    access_token:data.session.access_token,
+    refresh_token:data.session.refresh_token
+  });
+  if(error)throw error;
+}
+
+function showPasswordReset(recoveryMode=false){
+  $('#overlay').innerHTML=
+    '<div class="modal"><div class="sheet" style="max-width:480px">'+
+      '<button class="close" id="resetClose">✕</button>'+
+      '<h2>Change password</h2>'+
+      '<p class="auth-note">Choose any password you want.</p>'+
+      '<div class="auth-wrap">'+
+        (!recoveryMode?'<input class="input" id="currentPassword" type="password" autocomplete="current-password" placeholder="Current password">':'')+
+        '<input class="input" id="newPassword" type="password" autocomplete="new-password" placeholder="New password">'+
+        '<input class="input" id="confirmPassword" type="password" autocomplete="new-password" placeholder="Confirm new password">'+
+        '<button class="btn primary" id="saveNewPassword">Save new password</button>'+
+      '</div>'+
+    '</div></div>';
+
+  $('#resetClose').onclick=()=>$('#overlay').innerHTML='';
+  $('#saveNewPassword').onclick=async()=>{
+    if(!state.online){toast('Offline: reconnect before changing your password.',true);return}
+    const password=$('#newPassword').value;
+    const confirmPassword=$('#confirmPassword').value;
+    if(password!==confirmPassword){toast('Passwords do not match',true);return}
+    if(!passwordLooksStrong(password)){
+      toast('Use at least 8 characters for a new password.',true);
+      return;
+    }
+
+    $('#saveNewPassword').disabled=true;
+    try{
+      const user=state.user||(await supabase.auth.getUser()).data?.user;
+      const identifier=userIdentifier(user);
+      if(!identifier)throw new Error('Your phone account could not be verified');
+
+      if(!recoveryMode){
+        const currentPassword=$('#currentPassword')?.value||'';
+        if(!currentPassword)throw new Error('Enter your current password');
+        await phonePasswordRequest(identifier.value,currentPassword,'signin');
+      }
+
+      const checkRes=await fetch(SUPABASE_URL+'/functions/v1/secure-signup',{
+        method:'POST',
+        headers:{'content-type':'application/json'},
+        body:JSON.stringify({phone:identifier.value,password,dry_run:true})
+      });
+      const checkData=await checkRes.json();
+      if(!checkRes.ok){
+        const extra=Array.isArray(checkData.reasons)&&checkData.reasons.length?' '+checkData.reasons.join('. '):'';
+        throw new Error((checkData.error||'Password security check failed')+extra);
+      }
+
+      const {error}=await supabase.auth.updateUser({password});
+      if(error)throw error;
+      $('#overlay').innerHTML='';
+      toast('Password updated');
+      await loadSession();
+      render();
+    }catch(e){
+      toast(e.message||'Could not update password',true);
+    }finally{
+      if($('#saveNewPassword'))$('#saveNewPassword').disabled=false;
+    }
+  };
+}
+
+async function forceAppUpdate(){
+  try{localStorage.setItem('predict_ug_android_last_refresh',String(Date.now()));}catch{}
+  location.reload();
+}
+async function runAppCheck(){
+  const out=[];
+  try{
+    const r=await fetch(INSTALL_ORIGIN+'?health=1&t='+Date.now(),{cache:'no-store'});
+    const h=await r.json();
+    out.push(h?.ok?'Backend: online':'Backend: problem');
+  }catch{out.push('Backend: offline')}
+  try{
+    const s=await supabase.auth.getSession();
+    out.push(s.data?.session?'Session: signed in':'Session: signed out');
+  }catch{out.push('Session: check failed')}
+  out.push('App: Android 0.7.36 · bundled frontend');
+  return out.join(' · ');
+}
+
+function showAuth(){
+  const referralPrefill=pendingReferralCode();
+  $('#overlay').innerHTML=
+    '<div class="modal"><div class="sheet" style="max-width:480px">'+
+      '<button class="close" id="authClose">✕</button>'+
+      '<h2>Welcome to Predict UG</h2>'+
+      '<p class="auth-note">Enter your phone number and the password for this account.</p>'+
+      '<div class="auth-wrap">'+
+        '<input class="input" id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Phone number">'+
+        '<input class="input" id="password" type="password" autocomplete="current-password" placeholder="Password">'+
+        '<input class="input" id="referralCode" inputmode="text" autocomplete="off" maxlength="10" placeholder="Referral code (optional)" value="'+esc(referralPrefill)+'">'+
+        '<button class="btn primary" id="continueAuth">Continue</button>'+
+        '<div id="authStatus" class="auth-note" style="min-height:22px"></div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
+          '<button class="btn small" id="authCheck">Check app</button>'+
+          '<button class="btn small ghost" id="authUpdate">Update app</button>'+
+        '</div>'+
+      '</div>'+
+      '<p class="auth-note">New phone numbers are created automatically. Existing accounts must use the same password they were created with.</p>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn small ghost" id="authPrivacy">Privacy</button><button class="btn small ghost" id="authTerms">Terms</button><button class="btn small ghost" id="authDeleteInfo">Delete account</button></div>'+
+    '</div></div>';
+
+  $('#authClose').onclick=()=>$('#overlay').innerHTML='';
+  $('#authPrivacy').onclick=()=>openHosted('/privacy.html');
+  $('#authTerms').onclick=()=>openHosted('/terms.html');
+  $('#authDeleteInfo').onclick=()=>openHosted('/account-deletion.html');
+  $('#authUpdate').onclick=forceAppUpdate;
+  $('#authCheck').onclick=async()=>{
+    const el=$('#authStatus');
+    if(el)el.textContent='Checking…';
+    const result=await runAppCheck();
+    if(el)el.textContent=result;
+  };
+  $('#continueAuth').onclick=async()=>{
+    const status=$('#authStatus');
+    if(!state.online){if(status)status.textContent='Offline: cached markets are available, but sign-in requires internet.';return}
+    try{
+      const identifier=authIdentifier($('#phone').value);
+      const password=$('#password').value;
+      const referralCode=normalizeReferralCode($('#referralCode')?.value||'');
+      if($('#referralCode')?.value&&!referralCode)throw new Error('Referral code must be 10 letters/numbers');
+      if(referralCode)rememberReferralCode(referralCode);
+      if(!identifier)throw new Error('Enter a valid phone number');
+      if(!password)throw new Error('Enter a password');
+      $('#continueAuth').disabled=true;
+      if(status)status.textContent='Signing you in…';
+      const data=await phonePasswordRequest(identifier.value,password,'continue');
+      await applyReturnedSession(data);
+      await loadSession();
+      if(!state.user)throw new Error('Login reached the server but the phone did not keep the session. Tap Update app and try once more.');
+      $('#overlay').innerHTML='';
+      render();
+      await ensureLegalAcceptance();
+      if(data.created){
+        const referral=await claimReferralForNewAccount(referralCode);
+        await loadBalance();
+        toast(referral?.claimed?'Account created · referral recorded · 50,000 practice credits ready':'Account created · 50,000 practice credits ready');
+      }else{
+        await loadBalance();
+        toast('Signed in');
+      }
+    }catch(e){
+      const msg=e.message||'Could not continue';
+      if(status)status.textContent=msg;
+      toast(msg,true);
+    }finally{
+      if($('#continueAuth'))$('#continueAuth').disabled=false;
+    }
+  };
+}
+
+async function showResponsiblePlay(){
+  if(!state.user){showAuth();return}
+  try{
+    const c=await rpc('my_responsible_play_controls')||{};
+    const line=(label,used,limit)=>{
+      const u=Number(used||0),l=limit==null?null:Number(limit);
+      return '<div class="quote-row"><span>'+label+'</span><b>'+ugx(u)+(l!=null?' / '+ugx(l):' / no limit')+'</b></div>';
+    };
+    $('#overlay').innerHTML=
+      '<div class="modal"><div class="sheet" style="max-width:520px">'+
+        '<button class="close" id="responsibleClose">✕</button>'+
+        '<h2>Responsible use & limits</h2>'+
+        '<p class="auth-note">Set personal cash limits before any real-money launch. Limits can be reduced immediately but cannot be increased or removed in-app.</p>'+
+        '<div class="card" style="margin:10px 0">'+
+          line('Staked today',c.daily_staked_ugx,c.daily_stake_limit_ugx)+
+          line('Staked this week',c.weekly_staked_ugx,c.weekly_stake_limit_ugx)+
+          line('Staked this month',c.monthly_staked_ugx,c.monthly_stake_limit_ugx)+
+          line('Deposits today',c.daily_deposits_ugx,c.daily_deposit_limit_ugx)+
+          line('Deposits this month',c.monthly_deposits_ugx,c.monthly_deposit_limit_ugx)+
+          line('Losses this month',c.monthly_losses_ugx,c.monthly_loss_limit_ugx)+
+        '</div>'+
+        '<div class="auth-wrap">'+
+          '<input class="input" id="dailyLimit" inputmode="numeric" placeholder="Daily stake limit (UGX)" value="'+esc(c.daily_stake_limit_ugx||'')+'">'+
+          '<input class="input" id="weeklyLimit" inputmode="numeric" placeholder="Weekly stake limit (UGX)" value="'+esc(c.weekly_stake_limit_ugx||'')+'">'+
+          '<input class="input" id="monthlyLimit" inputmode="numeric" placeholder="Monthly stake limit (UGX)" value="'+esc(c.monthly_stake_limit_ugx||'')+'">'+
+          '<input class="input" id="dailyDepositLimit" inputmode="numeric" placeholder="Daily deposit cap (UGX)" value="'+esc(c.daily_deposit_limit_ugx||'')+'">'+
+          '<input class="input" id="monthlyDepositLimit" inputmode="numeric" placeholder="Monthly deposit cap (UGX)" value="'+esc(c.monthly_deposit_limit_ugx||'')+'">'+
+          '<input class="input" id="monthlyLossLimit" inputmode="numeric" placeholder="Monthly loss limit (UGX)" value="'+esc(c.monthly_loss_limit_ugx||'')+'">'+
+          '<select class="input" id="coolingHours"><option value="">No new cooling-off period</option><option value="24">24 hours</option><option value="72">3 days</option><option value="168">7 days</option><option value="720">30 days</option></select>'+
+          '<label class="auth-note"><input type="checkbox" id="selfExclude"> Self-exclude this account from cash participation</label>'+
+          '<button class="btn primary" id="saveResponsible">Save safety controls</button>'+
+          '<div id="responsibleStatus" class="auth-note">'+(c.self_excluded?'Self-exclusion is active. ':'')+(c.cooling_off_until?'Cooling-off until '+esc(dt(c.cooling_off_until))+'.':'')+'</div>'+
+        '</div>'+
+      '</div></div>';
+    $('#responsibleClose').onclick=()=>$('#overlay').innerHTML='';
+    $('#saveResponsible').onclick=async()=>{
+      const num=id=>{const v=String($('#'+id).value||'').trim();if(!v)return null;const n=Number(v);if(!Number.isFinite(n)||n<1000)throw new Error('Limits must be at least UGX 1,000');return Math.floor(n)};
+      const selfExclude=$('#selfExclude').checked;
+      if(selfExclude&&!confirm('Self-exclusion cannot be removed in the app. Continue?'))return;
+      const btn=$('#saveResponsible');btn.disabled=true;
+      try{
+        const result=await rpc('set_responsible_play_controls',{
+          p_daily_stake_limit_ugx:num('dailyLimit'),
+          p_weekly_stake_limit_ugx:num('weeklyLimit'),
+          p_monthly_stake_limit_ugx:num('monthlyLimit'),
+          p_daily_deposit_limit_ugx:num('dailyDepositLimit'),
+          p_monthly_deposit_limit_ugx:num('monthlyDepositLimit'),
+          p_monthly_loss_limit_ugx:num('monthlyLossLimit'),
+          p_cooling_off_hours:$('#coolingHours').value?Number($('#coolingHours').value):null,
+          p_self_exclude:selfExclude
+        });
+        $('#responsibleStatus').textContent='Saved ✓ '+(result?.self_excluded?'Self-exclusion active.':'');
+        toast('Responsible-use controls saved');
+      }catch(e){
+        $('#responsibleStatus').textContent=e.message||'Could not save controls';
+        toast(e.message||'Could not save controls',true);
+      }finally{btn.disabled=false}
+    };
+  }catch(e){toast(e.message||'Could not load responsible-use controls',true)}
+}
+function showDeleteAccount(){
+  if(!state.user){showAuth();return}
+  $('#overlay').innerHTML='<div class="modal"><div class="sheet" style="max-width:500px"><button class="close" id="deleteClose">✕</button><h2>Delete account</h2><p>This removes account access and deletes or anonymizes personal data. Limited pseudonymous transaction, settlement, fraud-prevention or audit records may be retained where necessary.</p><p class="auth-note">This action is irreversible. Type <b>DELETE</b> to confirm.</p><input class="input" id="deleteConfirmText" autocomplete="off" placeholder="Type DELETE"><button class="btn danger" id="deleteConfirmBtn">Delete my Predict UG account</button><div id="deleteStatus" class="auth-note" style="min-height:24px"></div></div></div>';
+  $('#deleteClose').onclick=()=>$('#overlay').innerHTML='';
+  $('#deleteConfirmBtn').onclick=async()=>{
+    const status=$('#deleteStatus');if(!state.online){status.textContent='Offline: reconnect before deleting your account.';return}if(String($('#deleteConfirmText').value||'').trim()!=='DELETE'){status.textContent='Type DELETE exactly to continue.';return}
+    const btn=$('#deleteConfirmBtn');btn.disabled=true;
+    try{
+      const token=state.session?.access_token;if(!token)throw new Error('Sign in again before deleting your account');status.textContent='Deleting account…';
+      const res=await fetch(SUPABASE_URL+'/functions/v1/account-lifecycle',{method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+token},body:JSON.stringify({action:'delete',source:'in_app'})});
+      const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'Account deletion failed');
+      try{await supabase.auth.signOut({scope:'local'})}catch{}state.session=null;state.user=null;state.isAdmin=false;state.balance=null;state.portfolio=null;try{localStorage.clear()}catch{}
+      $('#overlay').innerHTML='<div class="modal"><div class="sheet" style="max-width:500px"><h2>Account deleted</h2><p>Your Predict UG account access has been removed. Personal data was deleted or anonymized according to the privacy policy.</p><button class="btn primary" id="deleteDone">Done</button></div></div>';$('#deleteDone').onclick=()=>location.reload();
+    }catch(e){status.textContent=e.message||'Could not delete account';toast(e.message||'Could not delete account',true);btn.disabled=false}
+  };
+}
+
+async function profileMenu(){
+  if(!state.user){showAuth();return}
+  const displayPhone=state.user?.user_metadata?.phone_login||state.user?.phone||'Phone account';
+  $('#overlay').innerHTML=
+    '<div class="modal"><div class="sheet" style="max-width:480px">'+
+      '<button class="close" id="profClose">✕</button>'+
+      '<h2>Account</h2>'+
+      '<p>'+esc(displayPhone)+'</p>'+
+      '<p class="auth-note">Predict UG · public beta '+esc(APP_BUILD)+'</p>'+
+      '<div id="profileStatus" class="auth-note" style="min-height:22px"></div>'+
+      '<div class="auth-wrap">'+
+        '<button class="btn" data-tab="notifications">Notifications</button>'+
+        '<button class="btn" data-tab="leaderboard">Leaderboard</button>'+
+        '<button class="btn" id="profileCheck">Check app</button>'+
+        '<button class="btn" id="profileUpdate">Update app</button>'+
+        '<button class="btn" id="profileResponsible">Responsible use & limits</button>'+
+        '<button class="btn" id="profilePrivacy">Privacy policy</button>'+
+        '<button class="btn" id="profileTerms">Terms of use</button>'+
+        '<button class="btn" id="profileSupport">Support</button>'+
+        (state.isAdmin?'<button class="btn" data-tab="admin">Admin / CEO</button>':'')+
+        '<button class="btn danger" id="profileDelete">Delete account</button>'+
+        '<button class="btn danger" id="signout">Sign out</button>'+
+      '</div>'+
+    '</div></div>';
+  $('#profClose').onclick=()=>$('#overlay').innerHTML='';
+  $('#profileUpdate').onclick=forceAppUpdate;
+  $('#profileResponsible').onclick=showResponsiblePlay;
+  $('#profilePrivacy').onclick=()=>openHosted('/privacy.html');
+  $('#profileTerms').onclick=()=>openHosted('/terms.html');
+  $('#profileSupport').onclick=()=>openHosted('/support.html');
+  $('#profileDelete').onclick=showDeleteAccount;
+  $('#profileCheck').onclick=async()=>{
+    const el=$('#profileStatus');
+    if(el)el.textContent='Checking…';
+    const result=await runAppCheck();
+    if(el)el.textContent=result;
+  };
+  $('#signout').onclick=async()=>{
+    await supabase.auth.signOut();
+    $('#overlay').innerHTML='';
+    await loadSession();
+    state.portfolio=null;
+    render();
+    toast('Signed out');
+  };
+}
+
+
+document.addEventListener('click',async e=>{
+  const t=e.target.closest('[data-tab],[data-market],[data-category]');
+  if(t?.dataset.tab){state.tab=t.dataset.tab;$('#overlay').innerHTML='';if(state.tab==='media'||state.tab==='discover')await loadDiscover();if(state.tab==='portfolio'&&state.user)await loadPortfolio();if(state.tab==='watchlist'&&state.user)await loadWatchlist();if(state.tab==='notifications'&&state.user)await loadNotifications();if(state.tab==='leaderboard')await loadLeaderboard();if(state.tab==='admin'&&state.isAdmin)await loadAdmin();render();window.scrollTo({top:0,behavior:'smooth'});return}
+  if(t?.dataset.market){openMarket(t.dataset.market);return}
+  if(t?.dataset.category!==undefined){state.category=t.dataset.category;await loadMarkets();render();return}
+});
+let deferredInstallPrompt=null;
+const INSTALL_ORIGIN='https://rnvyrlmrwhfauuskyhje.supabase.co/functions/v1/predict-ug-live';
+function isInstallOrigin(){return false}
+function isStandalone(){return window.matchMedia?.('(display-mode: standalone)')?.matches||navigator.standalone===true}
+function syncInstallButton(){
+  const btn=$('#installBtn');
+  if(btn)btn.classList.add('hidden');
+}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;syncInstallButton()});
+window.addEventListener('online',()=>{state.online=true;toast('Back online');refreshAll();if(state.market?.market?.id&&!isClosed(state.market.market))startMarketRealtime(state.market.market.id)});
+window.addEventListener('offline',()=>{state.online=false;stopMarketRealtime();toast('Offline: showing last synced data');render();if(state.market)drawMarket()});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&state.online&&state.market?.market?.id&&!isClosed(state.market.market)){refreshOpenMarketLive(state.market.market.id);if(state.realtimeStatus!=='live')startMarketRealtime(state.market.market.id)}});
+window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;syncInstallButton();toast('Predict UG installed')});
+$('#installBtn').onclick=()=>{};
+syncInstallButton();
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(regs=>Promise.all(regs.filter(r=>r.scope.includes('/functions/v1/predict-ug-web')).map(r=>r.unregister()))).catch(()=>{});
+  if(isInstallOrigin()){navigator.serviceWorker.register(INSTALL_ORIGIN+'?asset=sw&v=13',{scope:'/functions/v1/predict-ug-live',updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});}
+}
+if('caches' in window){
+  caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('predict-ug')).map(k=>caches.delete(k)))).catch(()=>{});
+}
+$('#authBtn').onclick=profileMenu;
+$('#inviteBtn').onclick=showInvite;
+$('#merchantQuickConnect').onclick=quickConnectMerchantPhone;
+$('#notifBtn').onclick=async()=>{state.tab='notifications';if(state.user)await loadNotifications();render()};
+$('#balanceBtn').onclick=async()=>{state.tab='portfolio';if(state.user)await loadPortfolio();render()};
+$('#refreshBtn').onclick=refreshAll;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){stopMarketRealtime();$('#overlay').innerHTML='';if(state.market){state.market=null;setMarketUrl(null,true)}}});
+window.addEventListener('popstate',async()=>{const id=linkedMarketId();if(id){await openMarket(id,{updateUrl:false})}else{stopMarketRealtime();$('#overlay').innerHTML='';state.market=null}});
+supabase.auth.onAuthStateChange((event,session)=>{
+  state.session=session||null;
+  state.user=session?.user||null;
+  state.isAdmin=false;
+  render();
+  if(state.user){setTimeout(async()=>{try{state.isAdmin=!!(await rpc('is_admin'));await Promise.all([loadBalance(),loadUnreadNotifications()]);render();await ensureLegalAcceptance()}catch{}},0);}else{state.balance=null;state.unreadNotifications=0;}
+});
+bootstrap().catch(e=>{reportClientError(e.message||'Bootstrap failed',e.stack||'',{kind:'bootstrap'});$('#view').innerHTML='<div class="empty">Predict UG could not load.<br><br>'+esc(e.message)+'</div>';});
+</script>
+</body></html>
