@@ -44,6 +44,9 @@ jobs:
       - name: Prepare bundled browser dependency
         run: node scripts/prepare-consumer-assets.mjs
 
+      - name: Verify release/update contract
+        run: node scripts/verify-android-release-contract.mjs
+
       - name: Guard public source boundary
         shell: bash
         run: |
