@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Public consumer snapshot for Predict UG Android 0.7.38; private backend source is excluded. -->
+  <!-- Public consumer snapshot for Predict UG Android 0.7.39; private backend source is excluded. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#071426"/>
@@ -141,8 +141,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.38';
-const APP_VERSION_CODE=45;
+const APP_BUILD='0.7.39';
+const APP_VERSION_CODE=46;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -368,7 +368,7 @@ function showMerchantPairingSheet(pairing,connectUri){
     '<div class="modal"><div class="sheet" style="max-width:480px">'+
       '<button class="close" id="merchantPairClose">✕</button>'+
       '<h2>Connect merchant phone</h2>'+
-      '<p class="auth-note">Predict UG Android 0.7.38 · bundled frontend</p>'+
+      '<p class="auth-note">Predict UG Android 0.7.39 · bundled frontend</p>'+
       '<div class="card" style="text-align:center;margin:14px 0">'+
         '<div class="media-label">Pairing code</div>'+
         '<div id="merchantPairCode" style="font-size:1.6rem;font-weight:900;letter-spacing:.14em;margin-top:8px">'+esc(code)+'</div>'+
@@ -1194,28 +1194,67 @@ function integrityBase64Url(bytes){
   return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/g,'');
 }
 const __integrityCallbacks=new Map();
-window.__predictUgIntegrityResult=(callbackId,token,error)=>{
-  const entry=__integrityCallbacks.get(String(callbackId||''));
-  if(!entry)return;
-  __integrityCallbacks.delete(String(callbackId||''));
-  clearTimeout(entry.timer);
-  entry.resolve({token:token||null,error:error||null});
-};
+let __integrityListenerInstalled=false;
+
+function integrityBridge(){
+  const bridge=window.PredictUGIntegrity;
+  if(!bridge||typeof bridge.postMessage!=='function')return null;
+  if(!__integrityListenerInstalled){
+    bridge.onmessage=event=>{
+      let data=null;
+      try{data=JSON.parse(String(event?.data||'{}'))}catch{return}
+      const callbackId=String(data?.callback_id||'');
+      const entry=__integrityCallbacks.get(callbackId);
+      if(!entry)return;
+      __integrityCallbacks.delete(callbackId);
+      clearTimeout(entry.timer);
+      entry.resolve(data||{});
+    };
+    __integrityListenerInstalled=true;
+  }
+  return bridge;
+}
+
+function integrityBridgeCall(action,payload={},timeoutMs=3500){
+  const bridge=integrityBridge();
+  if(!bridge)return Promise.resolve({configured:false,ready:false,error:'bridge_unavailable'});
+  const callbackId='pi-'+crypto.randomUUID();
+  return new Promise(resolve=>{
+    const timer=setTimeout(()=>{
+      __integrityCallbacks.delete(callbackId);
+      resolve({configured:false,ready:false,error:'timeout'});
+    },timeoutMs);
+    __integrityCallbacks.set(callbackId,{resolve,timer});
+    try{
+      bridge.postMessage(JSON.stringify({action,callback_id:callbackId,...payload}));
+    }catch(e){
+      clearTimeout(timer);
+      __integrityCallbacks.delete(callbackId);
+      resolve({configured:false,ready:false,error:'bridge_post_failed'});
+    }
+  });
+}
+
 async function paymentIntegrityProof(action,payload){
   const material={action,...payload};
   const digest=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(integrityCanonical(material))));
   const request_hash=integrityBase64Url(digest);
-  const bridge=window.PredictUGIntegrity;
-  if(!bridge||typeof bridge.isConfigured!=='function'||!bridge.isConfigured())return {request_hash};
+
   try{
-    for(let i=0;i<8&&!bridge.isReady();i++){bridge.prepare();await new Promise(r=>setTimeout(r,350))}
-    if(!bridge.isReady())return {request_hash};
-    const callbackId='pi-'+crypto.randomUUID();
-    const result=await new Promise(resolve=>{
-      const timer=setTimeout(()=>{__integrityCallbacks.delete(callbackId);resolve({token:null,error:'timeout'})},10000);
-      __integrityCallbacks.set(callbackId,{resolve,timer});
-      bridge.requestToken(request_hash,callbackId);
-    });
+    let status=await integrityBridgeCall('status',{},1800);
+    if(!status?.configured)return {request_hash};
+
+    if(!status?.ready){
+      await integrityBridgeCall('prepare',{},1800);
+      for(let i=0;i<8;i++){
+        await new Promise(r=>setTimeout(r,350));
+        status=await integrityBridgeCall('status',{},1800);
+        if(status?.ready)break;
+      }
+    }
+    if(!status?.ready)return {request_hash};
+
+    const result=await integrityBridgeCall('token',{request_hash},10000);
     return result?.token?{request_hash,integrity_token:result.token}:{request_hash};
   }catch(e){
     reportClientError(e.message||'Play Integrity bridge failed',e.stack||'',{kind:'play_integrity'});
