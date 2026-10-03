@@ -21,6 +21,6 @@
         <activity
             android:name=".MainActivity"
             android:alwaysRetainTaskState="true"
-            android:exported="false" />
+            android:exported="true" />
     </application>
 </manifest>
