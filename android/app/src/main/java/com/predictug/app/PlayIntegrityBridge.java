@@ -1,8 +1,8 @@
 package com.predictug.app;
 
 import android.app.Activity;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
+
+import androidx.webkit.JavaScriptReplyProxy;
 
 import com.google.android.play.core.integrity.IntegrityManagerFactory;
 import com.google.android.play.core.integrity.StandardIntegrityManager;
@@ -11,15 +11,13 @@ import org.json.JSONObject;
 
 public final class PlayIntegrityBridge {
     private final Activity activity;
-    private final WebView webView;
     private final long cloudProjectNumber;
     private final StandardIntegrityManager manager;
     private volatile StandardIntegrityManager.StandardIntegrityTokenProvider provider;
     private volatile boolean preparing;
 
-    PlayIntegrityBridge(Activity activity, WebView webView, long cloudProjectNumber) {
+    PlayIntegrityBridge(Activity activity, long cloudProjectNumber) {
         this.activity = activity;
-        this.webView = webView;
         this.cloudProjectNumber = cloudProjectNumber;
         this.manager = IntegrityManagerFactory.createStandard(activity.getApplicationContext());
         if (cloudProjectNumber > 0) {
@@ -27,35 +25,93 @@ public final class PlayIntegrityBridge {
         }
     }
 
-    @JavascriptInterface
-    public boolean isConfigured() {
-        return cloudProjectNumber > 0;
-    }
+    void handleMessage(String rawMessage, JavaScriptReplyProxy replyProxy) {
+        try {
+            JSONObject request = new JSONObject(rawMessage == null ? "{}" : rawMessage);
+            String action = request.optString("action", "");
+            String callbackId = request.optString("callback_id", "");
 
-    @JavascriptInterface
-    public boolean isReady() {
-        return provider != null;
-    }
-
-    @JavascriptInterface
-    public void prepare() {
-        if (cloudProjectNumber <= 0) {
-            return;
+            switch (action) {
+                case "status":
+                    deliver(
+                            replyProxy,
+                            callbackId,
+                            null,
+                            null,
+                            cloudProjectNumber > 0,
+                            provider != null,
+                            preparing
+                    );
+                    return;
+                case "prepare":
+                    if (cloudProjectNumber <= 0) {
+                        deliver(replyProxy, callbackId, null, "not_configured", false, false, false);
+                        return;
+                    }
+                    activity.runOnUiThread(() -> {
+                        prepareInternal();
+                        deliver(
+                                replyProxy,
+                                callbackId,
+                                null,
+                                null,
+                                true,
+                                provider != null,
+                                preparing
+                        );
+                    });
+                    return;
+                case "token":
+                    requestToken(
+                            request.optString("request_hash", ""),
+                            callbackId,
+                            replyProxy
+                    );
+                    return;
+                default:
+                    deliver(
+                            replyProxy,
+                            callbackId,
+                            null,
+                            "unsupported_action",
+                            cloudProjectNumber > 0,
+                            provider != null,
+                            preparing
+                    );
+            }
+        } catch (Exception error) {
+            deliver(
+                    replyProxy,
+                    "",
+                    null,
+                    "invalid_message",
+                    cloudProjectNumber > 0,
+                    provider != null,
+                    preparing
+            );
         }
-        activity.runOnUiThread(this::prepareInternal);
     }
 
-    @JavascriptInterface
-    public void requestToken(String requestHash, String callbackId) {
+    private void requestToken(
+            String requestHash,
+            String callbackId,
+            JavaScriptReplyProxy replyProxy
+    ) {
         final String hash = requestHash == null ? "" : requestHash.trim();
-        final String callback = callbackId == null ? "" : callbackId.trim();
-
         if (cloudProjectNumber <= 0) {
-            deliver(callback, null, "not_configured");
+            deliver(replyProxy, callbackId, null, "not_configured", false, false, false);
             return;
         }
         if (hash.isEmpty() || hash.length() > 500) {
-            deliver(callback, null, "invalid_request_hash");
+            deliver(
+                    replyProxy,
+                    callbackId,
+                    null,
+                    "invalid_request_hash",
+                    true,
+                    provider != null,
+                    preparing
+            );
             return;
         }
 
@@ -63,7 +119,15 @@ public final class PlayIntegrityBridge {
             StandardIntegrityManager.StandardIntegrityTokenProvider current = provider;
             if (current == null) {
                 prepareInternal();
-                deliver(callback, null, "provider_not_ready");
+                deliver(
+                        replyProxy,
+                        callbackId,
+                        null,
+                        "provider_not_ready",
+                        true,
+                        false,
+                        preparing
+                );
                 return;
             }
 
@@ -72,17 +136,25 @@ public final class PlayIntegrityBridge {
                             .setRequestHash(hash)
                             .build()
             ).addOnSuccessListener(response ->
-                    deliver(callback, response.token(), null)
+                    deliver(replyProxy, callbackId, response.token(), null, true, true, false)
             ).addOnFailureListener(error -> {
                 provider = null;
                 prepareInternal();
-                deliver(callback, null, "token_request_failed");
+                deliver(
+                        replyProxy,
+                        callbackId,
+                        null,
+                        "token_request_failed",
+                        true,
+                        false,
+                        preparing
+                );
             });
         });
     }
 
     private void prepareInternal() {
-        if (cloudProjectNumber <= 0 || preparing) {
+        if (cloudProjectNumber <= 0 || preparing || provider != null) {
             return;
         }
         preparing = true;
@@ -99,12 +171,32 @@ public final class PlayIntegrityBridge {
         });
     }
 
-    private void deliver(String callbackId, String token, String error) {
-        final String script =
-                "window.__predictUgIntegrityResult&&window.__predictUgIntegrityResult(" +
-                JSONObject.quote(callbackId) + "," +
-                (token == null ? "null" : JSONObject.quote(token)) + "," +
-                (error == null ? "null" : JSONObject.quote(error)) + ");";
-        webView.post(() -> webView.evaluateJavascript(script, null));
+    private void deliver(
+            JavaScriptReplyProxy replyProxy,
+            String callbackId,
+            String token,
+            String error,
+            boolean configured,
+            boolean ready,
+            boolean isPreparing
+    ) {
+        try {
+            JSONObject response = new JSONObject();
+            response.put("callback_id", callbackId == null ? "" : callbackId);
+            response.put("configured", configured);
+            response.put("ready", ready);
+            response.put("preparing", isPreparing);
+            if (token != null) response.put("token", token);
+            if (error != null) response.put("error", error);
+
+            String payload = response.toString();
+            activity.runOnUiThread(() -> {
+                try {
+                    replyProxy.postMessage(payload);
+                } catch (Exception ignored) {
+                }
+            });
+        } catch (Exception ignored) {
+        }
     }
 }
