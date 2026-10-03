@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: public-consumer-${{ github.ref }}
@@ -125,3 +125,58 @@ jobs:
             android/SHA256SUMS.txt
             android/SIGNING_CERT.txt
           retention-days: 14
+
+      - name: Publish verified beta APK branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="android/app/build/outputs/apk/consumer/debug/app-consumer-debug.apk"
+          AAB="android/app/build/outputs/bundle/consumerRelease/app-consumer-release.aab"
+          VERSION="$(grep -E "versionName '[^']+'" android/app/build.gradle | sed -E "s/.*versionName '([^']+)'.*/\1/")"
+          VERSION_CODE="$(grep -E 'versionCode [0-9]+' android/app/build.gradle | sed -E 's/.*versionCode ([0-9]+).*/\1/')"
+          APK_SHA="$(sha256sum "$APK" | awk '{print $1}')"
+          AAB_SHA="$(sha256sum "$AAB" | awk '{print $1}')"
+          APK_SIZE="$(stat -c '%s' "$APK")"
+          CERT_SHA="$(grep 'certificate SHA-256 digest:' android/SIGNING_CERT.txt | head -1 | awk '{print $NF}')"
+          export VERSION VERSION_CODE APK_SHA AAB_SHA APK_SIZE CERT_SHA
+
+          rm -rf /tmp/predict-ug-beta-release
+          mkdir -p /tmp/predict-ug-beta-release
+          cp "$APK" /tmp/predict-ug-beta-release/predict-ug.apk
+          cp "$AAB" /tmp/predict-ug-beta-release/predict-ug.aab
+          cp android/SHA256SUMS.txt /tmp/predict-ug-beta-release/SHA256SUMS.txt
+          cp android/SIGNING_CERT.txt /tmp/predict-ug-beta-release/SIGNING_CERT.txt
+
+          node -e '
+            const fs=require("fs");
+            const meta={
+              channel:"public-beta",
+              version:process.env.VERSION,
+              versionCode:Number(process.env.VERSION_CODE),
+              apkSha256:process.env.APK_SHA,
+              aabSha256:process.env.AAB_SHA,
+              apkSizeBytes:Number(process.env.APK_SIZE),
+              signingCertificateSha256:process.env.CERT_SHA,
+              signingIdentity:"Android Debug",
+              betaSigning:true,
+              sourceCommit:process.env.GITHUB_SHA,
+              sourceRunId:Number(process.env.GITHUB_RUN_ID),
+              productionMoneyEnabled:false
+            };
+            fs.writeFileSync("/tmp/predict-ug-beta-release/latest.json",JSON.stringify(meta,null,2)+"\n");
+          '
+      - name: Commit verified beta APK branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "predict-ug-ci"
+          git config user.email "actions@users.noreply.github.com"
+          git checkout --orphan public-beta-artifacts-work
+          git rm -rf . || true
+          git clean -fdx
+          cp /tmp/predict-ug-beta-release/* .
+          git add predict-ug.apk predict-ug.aab SHA256SUMS.txt SIGNING_CERT.txt latest.json
+          git commit -m "release: publish verified Predict UG beta from $GITHUB_SHA"
+          git push --force origin HEAD:public-beta-artifacts
