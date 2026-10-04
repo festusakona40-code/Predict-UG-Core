@@ -13,8 +13,8 @@ android {
         applicationId 'com.predictug.app'
         minSdk 23
         targetSdk 36
-        versionCode 47
-        versionName '0.7.41'
+        versionCode 48
+        versionName '0.7.42'
         buildConfigField "long", "PLAY_CLOUD_PROJECT_NUMBER", playCloudProjectNumber + "L"
     }
 
