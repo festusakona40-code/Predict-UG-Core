@@ -193,8 +193,12 @@ public class MainActivity extends ComponentActivity {
                 if (AppOriginPolicy.isInternal(uri.getScheme(), uri.getHost())) {
                     return false;
                 }
-                if (!request.isForMainFrame()) {
-                    return false;
+                if (AppOriginPolicy.shouldBlockUntrustedSubframe(
+                        uri.getScheme(),
+                        uri.getHost(),
+                        request.isForMainFrame()
+                )) {
+                    return true;
                 }
                 // Merchant pairing is handled by the separate private app.
                 // The consumer package must target the merchant applicationId,
