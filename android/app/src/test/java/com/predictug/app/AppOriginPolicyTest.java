@@ -16,6 +16,25 @@ public class AppOriginPolicyTest {
     }
 
     @Test
+    public void untrustedSubframesAreBlockedFromBridgeWebView() {
+        assertTrue(AppOriginPolicy.shouldBlockUntrustedSubframe(
+                "https", "example.com", false
+        ));
+        assertTrue(AppOriginPolicy.shouldBlockUntrustedSubframe(
+                "predictug", "merchant", false
+        ));
+        assertTrue(AppOriginPolicy.shouldBlockUntrustedSubframe(
+                "http", "appassets.androidplatform.net", false
+        ));
+        assertFalse(AppOriginPolicy.shouldBlockUntrustedSubframe(
+                "https", "appassets.androidplatform.net", false
+        ));
+        assertFalse(AppOriginPolicy.shouldBlockUntrustedSubframe(
+                "https", "example.com", true
+        ));
+    }
+
+    @Test
     public void merchantDeepLinkSchemeIsExplicit() {
         assertTrue(AppOriginPolicy.isMerchantScheme("predictug"));
         assertTrue(AppOriginPolicy.isMerchantScheme("PREDICTUG"));
