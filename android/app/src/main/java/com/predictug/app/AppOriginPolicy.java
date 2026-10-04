@@ -10,6 +10,14 @@ final class AppOriginPolicy {
                 && INTERNAL_HOST.equalsIgnoreCase(String.valueOf(host));
     }
 
+    static boolean shouldBlockUntrustedSubframe(
+            String scheme,
+            String host,
+            boolean isForMainFrame
+    ) {
+        return !isForMainFrame && !isInternal(scheme, host);
+    }
+
     static boolean isMerchantScheme(String scheme) {
         return "predictug".equalsIgnoreCase(String.valueOf(scheme));
     }
