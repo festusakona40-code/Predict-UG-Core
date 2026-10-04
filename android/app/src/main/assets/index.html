@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.43. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.44. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#071426"/>
@@ -132,8 +132,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.43';
-const APP_VERSION_CODE=49;
+const APP_BUILD='0.7.44';
+const APP_VERSION_CODE=50;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -306,6 +306,27 @@ function maybeShowFirstUseGuide(){
   return true;
 }
 
+function starterMarketCandidate(){
+  const rows=Array.isArray(state.markets)?state.markets:[];
+  const eligible=rows.filter(m=>m?.market_id&&!m?.external_benchmark&&!isPoliticalCategory(m?.category||m?.category_key));
+  return eligible.find(m=>/sport|football|soccer/i.test(String(m?.category||m?.category_key||'')+' '+String(m?.title||'')))
+    ||eligible[0]
+    ||rows.find(m=>m?.market_id&&!isPoliticalCategory(m?.category||m?.category_key))
+    ||null;
+}
+async function openStarterMarket(source='guide'){
+  const starter=starterMarketCandidate();
+  if(!starter){$('#overlay').innerHTML='';toast('No starter market is open right now. Try the market feed.');return false}
+  $('#overlay').innerHTML='';
+  trackBehavior('starter_market_opened',{
+    category:starter.category||starter.category_key||null,
+    marketId:starter.market_id,
+    metadata:{source,football:/sport|football|soccer/i.test(String(starter.category||starter.category_key||'')+' '+String(starter.title||''))}
+  });
+  await openMarket(starter.market_id);
+  return true;
+}
+
 function showHowItWorks(){
   trackBehavior('screen_view',{metadata:{screen:'how_it_works'}});
   $('#overlay').innerHTML=
@@ -318,10 +339,15 @@ function showHowItWorks(){
         '<div class="item"><b>3 · Practice first</b><br><small>The public beta uses practice credits unless your account explicitly shows approved cash mode. Practice credits cannot be withdrawn.</small></div>'+
         '<div class="item"><b>4 · Settlement is rule-based</b><br><small>Every market has a published resolution rule and source. Predict UG does not settle a market just because AI or users think an outcome happened.</small></div>'+
       '</div>'+
-      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.43 · bundled frontend</p></div>'+
-      '<div class="auth-wrap" style="margin-top:12px"><button class="btn primary" id="howDone">Got it — show me markets</button><button class="btn ghost" id="howFeedback">Something is confusing</button></div>'+
+      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.44 · bundled frontend</p></div>'+
+      '<div class="auth-wrap" style="margin-top:12px"><button class="btn primary" id="howStart">Try a starter market</button><button class="btn ghost" id="howDone">Browse all markets</button><button class="btn ghost" id="howFeedback">Something is confusing</button></div>'+
     '</div></div>';
   $('#howClose').onclick=$('#howDone').onclick=()=>$('#overlay').innerHTML='';
+  const starter=starterMarketCandidate();
+  if($('#howStart')){
+    $('#howStart').textContent=starter&&/sport|football|soccer/i.test(String(starter.category||starter.category_key||'')+' '+String(starter.title||''))?'Try a football market':'Try a starter market';
+    $('#howStart').onclick=()=>openStarterMarket('how_it_works');
+  }
   $('#howFeedback').onclick=()=>{trackBehavior('screen_view',{metadata:{screen:'support_from_how_it_works'}});openHosted('/support.html')};
 }
 let marketRealtimeChannel=null;
@@ -828,6 +854,8 @@ function marketCard(m){
 }
 function renderMarkets(){
   const mode=state.status?.trading_mode||'forecast_credit';
+  const starterMarket=starterMarketCandidate();
+  const starterIsFootball=!!starterMarket&&/sport|football|soccer/i.test(String(starterMarket.category||starterMarket.category_key||'')+' '+String(starterMarket.title||''));
   const localMarkets=(state.markets||[]).filter(m=>!m.external_benchmark);
   const globalMarkets=(state.markets||[]).filter(m=>m.external_benchmark);
   const ugTrends=(state.ugandaTrends||[]).slice(0,8);
@@ -846,7 +874,7 @@ function renderMarkets(){
         '<span class="hero-kpi">'+(mode==='cash'?'Cash mode':'Forecast credits')+'</span>'+
       '</div>'+
     '</section>'+
-    '<div class="card" style="margin-bottom:14px"><div class="section-title" style="margin-top:0"><h2>New here?</h2><button class="btn small primary" id="howItWorks">How Predict UG works</button></div><div class="media-grid"><div class="media-card"><div class="media-label">Understand</div><h3>YES / NO is the whole idea</h3><p>Open a question, read the rule, then choose what you think will happen.</p></div><div class="media-card"><div class="media-label">Know your return</div><h3>Odds explained before confirmation</h3><p>Your possible return and full downside are shown on the final prediction slip.</p></div><div class="media-card"><div class="media-label">Trust</div><h3>Published rule + source</h3><p>Markets resolve from the stated evidence source, with a review/challenge process — not from AI opinion.</p></div></div></div>'+
+    '<div class="card" style="margin-bottom:14px"><div class="section-title" style="margin-top:0"><h2>New here?</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small primary" id="starterMarketBtn">'+(starterIsFootball?'Try football first':'Try one market')+'</button><button class="btn small ghost" id="howItWorks">How Predict UG works</button></div></div><div class="media-grid"><div class="media-card"><div class="media-label">Understand</div><h3>YES / NO is the whole idea</h3><p>Open a question, read the rule, then choose what you think will happen.</p></div><div class="media-card"><div class="media-label">Know your return</div><h3>Odds explained before confirmation</h3><p>Your possible return and full downside are shown on the final prediction slip.</p></div><div class="media-card"><div class="media-label">Trust</div><h3>Published rule + source</h3><p>Markets resolve from the stated evidence source, with a review/challenge process — not from AI opinion.</p></div></div></div>'+
     '<div class="searchrow"><input class="input" id="searchInput" value="'+esc(state.search)+'" placeholder="Search markets"><button class="btn primary" id="searchBtn">Search</button></div>'+
     '<div class="chips"><button class="chip '+(!state.category?'active':'')+'" data-category="">All</button>'+state.categories.map(c=>'<button class="chip '+(state.category===c.category_key?'active':'')+'" data-category="'+esc(c.category_key)+'">'+esc(c.label)+'</button>').join('')+'</div>'+
     '<div class="section-title"><h2>Uganda now</h2><div><button class="btn small ghost" data-tab="media">Uganda Pulse</button></div></div>'+
@@ -861,6 +889,7 @@ function renderMarkets(){
     (!state.user?'<div class="card" style="margin-bottom:14px"><div class="section-title" style="margin-top:0"><h2>Start in 3 steps</h2><button class="btn small primary" id="homeSignIn">Sign in</button></div><div class="media-grid"><div class="media-card"><div class="media-label">1 · Pick</div><h3>Open a market</h3><p>Choose a question you understand.</p></div><div class="media-card"><div class="media-label">2 · Decide</div><h3>YES or NO</h3><p>Read the evidence, then choose your view.</p></div><div class="media-card"><div class="media-label">3 · Predict</div><h3>Use practice credits</h3><p>New accounts start with 50,000 practice credits. They are not withdrawable cash.</p></div></div></div>':'')+
     '<div class="card" style="margin-top:16px"><div class="auth-note">Predict UG public beta · practice credits are not cash.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn small primary" id="howItWorks">How it works</button><button class="btn small ghost" id="homePrivacy">Privacy</button><button class="btn small ghost" id="homeTerms">Terms</button><button class="btn small ghost" id="homeSupport">Support</button></div></div>';
   if($('#howItWorks'))$('#howItWorks').onclick=showHowItWorks;
+  if($('#starterMarketBtn'))$('#starterMarketBtn').onclick=()=>openStarterMarket('home_new_here');
   if($('#homeSignIn'))$('#homeSignIn').onclick=showAuth;
   if($('#homePrivacy'))$('#homePrivacy').onclick=()=>openHosted('/privacy.html');
   if($('#homeTerms'))$('#homeTerms').onclick=()=>openHosted('/terms.html');
