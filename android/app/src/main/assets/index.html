@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Public consumer snapshot for Predict UG Android 0.7.39; private backend source is excluded. -->
+  <!-- Bundled inside Predict UG Android v0.7.41. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#071426"/>
@@ -47,6 +47,7 @@
     .detail-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:14px;margin-top:16px}@media(max-width:800px){.detail-grid{grid-template-columns:1fr}.detail-grid>aside{order:-1}.tradebox{position:static}}
     .tradebox{position:sticky;top:0}.outcome-btns{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0}.outcome-btn{padding:13px;border-radius:13px;border:1px solid var(--line);background:var(--surface2);color:var(--text);font-weight:800}.outcome-btn.active.y{border-color:var(--green);color:#8cf2cd;background:rgba(51,214,159,.1)}.outcome-btn.active.n{border-color:var(--red);color:#ff9da2;background:rgba(255,107,114,.08)}
     .quote{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:13px;padding:11px;margin:10px 0;display:grid;gap:6px}.quote-row{display:flex;justify-content:space-between;color:var(--muted)}.quote-row b{color:var(--text)}
+    .risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:8px 0}.risk-card{border:1px solid var(--line);border-radius:14px;padding:12px;background:rgba(255,255,255,.025)}.risk-card.win{border-color:rgba(51,214,159,.28);background:rgba(51,214,159,.055)}.risk-card.loss{border-color:rgba(255,107,114,.28);background:rgba(255,107,114,.05)}.risk-card small{display:block;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em}.risk-number{font-size:1.18rem;font-weight:900;margin:6px 0 2px}.risk-card.win .risk-number{color:#8cf2cd}.risk-card.loss .risk-number{color:#ff9da2}.trade-formula{font-size:.78rem;color:var(--muted);line-height:1.45;border-top:1px solid var(--line);padding-top:8px;margin-top:4px}.review-hero{border:1px solid var(--line);border-radius:16px;padding:14px;background:rgba(255,255,255,.025);margin:12px 0}.review-side{display:inline-flex;align-items:center;border-radius:999px;padding:5px 9px;font-size:.76rem;font-weight:900;background:rgba(51,214,159,.1);color:#8cf2cd}.review-side.no{background:rgba(255,107,114,.08);color:#ff9da2}@media(max-width:520px){.risk-grid{grid-template-columns:1fr}}
     .tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}.tab{border:1px solid var(--line);background:transparent;color:var(--muted);padding:8px 10px;border-radius:10px}.tab.active{background:var(--surface2);color:var(--text)}
     .timeline{display:grid;gap:9px}.item{border:1px solid var(--line);border-radius:13px;padding:11px;background:rgba(255,255,255,.02)}.item small{color:var(--muted)}
     .spark{height:150px;width:100%;background:rgba(255,255,255,.018);border:1px solid var(--line);border-radius:13px;padding:6px}
@@ -97,18 +98,10 @@ window.__predictUgShowStartupFailure=function(message){
   if(!view)return;
   const box=document.createElement('div');
   box.className='empty';
-  const title=document.createElement('h2');
-  title.textContent='Predict UG startup problem';
-  const msg=document.createElement('p');
-  msg.textContent=String(message||'Startup timed out.').slice(0,280);
-  const retry=document.createElement('button');
-  retry.className='btn primary';
-  retry.textContent='Retry';
-  retry.onclick=function(){location.reload()};
-  const reset=document.createElement('button');
-  reset.className='btn ghost';
-  reset.style.marginLeft='8px';
-  reset.textContent='Reset saved session';
+  const title=document.createElement('h2');title.textContent='Predict UG startup problem';
+  const msg=document.createElement('p');msg.textContent=String(message||'Startup timed out.').slice(0,280);
+  const retry=document.createElement('button');retry.className='btn primary';retry.textContent='Retry';retry.onclick=function(){location.reload()};
+  const reset=document.createElement('button');reset.className='btn ghost';reset.style.marginLeft='8px';reset.textContent='Reset saved session';
   reset.onclick=function(){
     try{
       for(let i=localStorage.length-1;i>=0;i--){
@@ -119,16 +112,14 @@ window.__predictUgShowStartupFailure=function(message){
     }catch{}
     location.reload();
   };
-  box.append(title,msg,retry,reset);
-  view.replaceChildren(box);
+  box.append(title,msg,retry,reset);view.replaceChildren(box);
 };
 window.addEventListener('error',function(e){
-  const src=e && e.filename ? (' · '+String(e.filename).split('/').pop()+':'+(e.lineno||0)) : '';
-  window.__predictUgShowStartupFailure((e && e.message ? e.message : 'JavaScript startup error')+src);
+  const src=e&&e.filename?(' · '+String(e.filename).split('/').pop()+':'+(e.lineno||0)):'';
+  window.__predictUgShowStartupFailure((e&&e.message?e.message:'JavaScript startup error')+src);
 });
 window.addEventListener('unhandledrejection',function(e){
-  const r=e && e.reason;
-  window.__predictUgShowStartupFailure(r && r.message ? r.message : 'Startup request failed');
+  const r=e&&e.reason;window.__predictUgShowStartupFailure(r&&r.message?r.message:'Startup request failed');
 });
 window.__predictUgBootTimer=setTimeout(function(){
   window.__predictUgShowStartupFailure('Startup took too long. Retry, or reset the saved session if this started after an update.');
@@ -141,24 +132,19 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.39';
-const APP_VERSION_CODE=46;
+const APP_BUILD='0.7.41';
+const APP_VERSION_CODE=47;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
 let authListenerInstalled=false;
-
 function markBootReady(phase='ready'){
-  window.__predictUgBootPhase=phase;
-  window.__predictUgBootReady=true;
+  window.__predictUgBootPhase=phase;window.__predictUgBootReady=true;
   if(window.__predictUgBootTimer)clearTimeout(window.__predictUgBootTimer);
 }
 function promiseTimeout(promise,ms,label){
   let timer;
-  return Promise.race([
-    promise,
-    new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(label||'Request timed out')),ms)})
-  ]).finally(()=>clearTimeout(timer));
+  return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(label||'Request timed out')),ms)})]).finally(()=>clearTimeout(timer));
 }
 function clearStoredAuthSession(){
   try{
@@ -169,12 +155,13 @@ function clearStoredAuthSession(){
   }catch{}
 }
 
-const state={tab:'markets',session:null,user:null,isAdmin:false,status:null,categories:[],markets:[],category:'',search:'',market:null,portfolio:null,watchlist:[],notifications:[],leaderboard:[],trends:[],stories:[],creators:[],externalSignals:[],weatherSignals:[],statementSignals:[],officialData:[],admin:null,ceo:null,aiProviders:[],autonomy:null,loading:false,online:navigator.onLine,realtimeStatus:'idle',realtimeMarketId:null,balance:null,balanceMode:'forecast_credit',unreadNotifications:0};
+const state={tab:'markets',session:null,user:null,isAdmin:false,status:null,categories:[],markets:[],ugandaTrends:[],ugandaDemand:[],ugandaSocialRadar:[],ugandaConsumption:[],ugandaPulse:[],socialSourceStatus:null,digitalProfile:null,category:'',search:'',market:null,portfolio:null,watchlist:[],notifications:[],leaderboard:[],trends:[],stories:[],creators:[],externalSignals:[],weatherSignals:[],statementSignals:[],officialData:[],admin:null,ceo:null,aiProviders:[],autonomy:null,loading:false,online:navigator.onLine,realtimeStatus:'idle',realtimeMarketId:null,balance:null,balanceMode:'forecast_credit',unreadNotifications:0};
 
 const $=s=>document.querySelector(s);
 const esc=(s='')=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const ugx=n=>'UGX '+Number(n||0).toLocaleString('en-UG');
 const pct=n=>Number(n??0).toFixed(0)+'%';
+const oddsText=odds=>Number(odds||0)>1?Number(odds).toFixed(2):'—';
 const dt=s=>s?new Date(s).toLocaleString('en-UG',{dateStyle:'medium',timeStyle:'short'}):'—';
 const short=s=>String(s||'').length>150?String(s).slice(0,147)+'…':String(s||'');
 const isClosed=m=>m?.status!=='open'||new Date(m?.close_time)<new Date();
@@ -368,7 +355,7 @@ function showMerchantPairingSheet(pairing,connectUri){
     '<div class="modal"><div class="sheet" style="max-width:480px">'+
       '<button class="close" id="merchantPairClose">✕</button>'+
       '<h2>Connect merchant phone</h2>'+
-      '<p class="auth-note">Predict UG Android 0.7.39 · bundled frontend</p>'+
+      '<p class="auth-note">Predict UG Android 0.7.41 · bundled frontend</p>'+
       '<div class="card" style="text-align:center;margin:14px 0">'+
         '<div class="media-label">Pairing code</div>'+
         '<div id="merchantPairCode" style="font-size:1.6rem;font-weight:900;letter-spacing:.14em;margin-top:8px">'+esc(code)+'</div>'+
@@ -493,33 +480,24 @@ function aiProviderSetupUrl(provider){
 function cachedAgeLabel(entry){if(!entry?.saved_at)return '';const ms=Date.now()-new Date(entry.saved_at).getTime();if(ms<60000)return 'just now';if(ms<3600000)return Math.floor(ms/60000)+'m ago';return Math.floor(ms/3600000)+'h ago'}
 async function loadSession(){
   const {data}=await promiseTimeout(supabase.auth.getSession(),4500,'Session restore timed out');
-  state.session=data?.session||null;
-  state.user=data?.session?.user||null;
-  if(state.user){try{state.isAdmin=!!(await rpc('is_admin'))}catch{state.isAdmin=false}}
-  else state.isAdmin=false;
+  state.session=data?.session||null;state.user=data?.session?.user||null;
+  if(state.user){try{state.isAdmin=!!(await rpc('is_admin'))}catch{state.isAdmin=false}}else state.isAdmin=false;
 }
 async function restoreSessionAfterPublicRender(){
   try{
-    await loadSession();
-    authRestoreFailed=false;
+    await loadSession();authRestoreFailed=false;
     try{sessionStorage.removeItem('predictug_auth_recovery_once')}catch{}
     return true;
   }catch(e){
-    authRestoreFailed=true;
-    state.session=null;state.user=null;state.isAdmin=false;
+    authRestoreFailed=true;state.session=null;state.user=null;state.isAdmin=false;
     reportClientError(e.message||'Session restore timed out',e.stack||'',{kind:'session_restore_timeout'});
     let recovered=false;
     try{
       if(sessionStorage.getItem('predictug_auth_recovery_once')!=='1'){
-        sessionStorage.setItem('predictug_auth_recovery_once','1');
-        clearStoredAuthSession();
-        recovered=true;
+        sessionStorage.setItem('predictug_auth_recovery_once','1');clearStoredAuthSession();recovered=true;
       }
     }catch{}
-    if(recovered){
-      setTimeout(()=>location.reload(),80);
-      return false;
-    }
+    if(recovered){setTimeout(()=>location.reload(),80);return false}
     toast('Saved session could not be restored. Public markets are still available; sign in again.',true);
     return false;
   }
@@ -528,10 +506,7 @@ function installAuthListener(){
   if(authListenerInstalled||authRestoreFailed)return;
   authListenerInstalled=true;
   supabase.auth.onAuthStateChange((event,session)=>{
-    state.session=session||null;
-    state.user=session?.user||null;
-    state.isAdmin=false;
-    render();
+    state.session=session||null;state.user=session?.user||null;state.isAdmin=false;render();
     if(state.user){setTimeout(async()=>{try{state.isAdmin=!!(await rpc('is_admin'));await Promise.all([loadBalance(),loadUnreadNotifications()]);render();await ensureLegalAcceptance()}catch{}},0)}
     else{state.balance=null;state.unreadNotifications=0}
   });
@@ -627,6 +602,10 @@ async function loadPublicBootstrap(){
     state.status=b?.status||{};
     state.categories=b?.categories||[];
     state.markets=b?.markets||[];
+    state.ugandaTrends=b?.uganda_trends||[];
+    state.ugandaDemand=b?.uganda_demand||[];
+    state.ugandaSocialRadar=b?.uganda_social_radar||[];
+    state.ugandaConsumption=b?.uganda_consumption||[];
     cacheWrite(key,b);
   }catch(e){
     const cached=cacheRead(key);
@@ -635,28 +614,27 @@ async function loadPublicBootstrap(){
     state.status=b?.status||{};
     state.categories=b?.categories||[];
     state.markets=b?.markets||[];
+    state.ugandaTrends=b?.uganda_trends||[];
+    state.ugandaDemand=b?.uganda_demand||[];
+    state.ugandaSocialRadar=b?.uganda_social_radar||[];
+    state.ugandaConsumption=b?.uganda_consumption||[];
     state.status={...(state.status||{}),offline_cache:true,offline_saved_at:cached.saved_at};
   }
 }
 async function bootstrap(){
   window.__predictUgBootPhase='public-bootstrap';
   await loadPublicBootstrap();
-  state.loading=false;
-  render();
-  markBootReady('public-ready');
-  setTimeout(()=>checkForAppUpdate(false),600);
+  state.loading=false;render();markBootReady('public-ready');setTimeout(()=>checkForAppUpdate(false),600);
 
   window.__predictUgBootPhase='session-restore';
   const sessionOk=await restoreSessionAfterPublicRender();
   if(sessionOk){
-    installAuthListener();
-    render();
+    installAuthListener();render();
     if(state.user){
       Promise.all([loadBalance(),loadUnreadNotifications()]).then(render).catch(()=>{});
       setTimeout(()=>ensureLegalAcceptance(),0);
     }
   }
-
   loadDiscover().catch(()=>{});
   syncPaymentReturn();
   const linked=linkedMarketId();
@@ -665,7 +643,7 @@ async function bootstrap(){
 async function loadMarkets(){
   const key='feed:'+(state.category||'all')+':'+(state.search||'');
   try{
-    const rows=await rpc('market_feed',{p_category:state.category||null,p_search:state.search||null,p_limit:80})||[];
+    const rows=await rpc('uganda_sportsbook_market_feed',{p_category:state.category||null,p_search:state.search||null,p_limit:80,p_uganda_first:true})||[];
     state.markets=rows;
     cacheWrite(key,rows);
     if(state.status?.offline_cache){
@@ -746,32 +724,51 @@ function statusHtml(){
 }
 function marketCard(m){
   const y=Number(m.yes_probability||0), n=Number(m.no_probability||0);
+  const origin=String(m.market_origin||'');
+  const originLabel=String(m.trend_badge||'')||(origin==='uganda_creator'?'Uganda creator':origin==='external_benchmark'?'Global benchmark':'Uganda');
+  const displayTitle=String(m.title||'').replace(/^\[SHADOW\]\s*/i,'');
+  const trust=m.data_status==='verified'?'Verified resolution source':m.data_status==='source_attached'?'Source attached':'Market source';
+  const yesOdds=oddsText(m.yes_odds,y),noOdds=oddsText(m.no_odds,n);
   return '<article class="card market-card" data-market="'+m.market_id+'">'+
-    '<div class="eyebrow"><span>'+esc(m.category)+'</span><span>'+dt(m.close_time)+'</span></div>'+
-    '<div class="market-top"><div class="market-title" style="margin-right:8px">'+esc(m.title)+'</div><div class="market-price">'+pct(y)+'</div></div>'+
+    '<div class="eyebrow"><span>'+esc(m.category)+' · '+esc(originLabel)+'</span><span>'+dt(m.close_time)+'</span></div>'+
+    '<div class="market-top"><div class="market-title" style="margin-right:8px">'+esc(displayTitle)+'</div><div class="market-price">'+pct(y)+'<small style="display:block;font-size:.68rem;letter-spacing:.04em;color:var(--muted);font-weight:800">YES</small></div></div>'+
     '<div class="bar"><span style="width:'+Math.max(0,Math.min(100,y))+'%"></span></div>'+
-    '<div class="market-actions"><div class="market-mini y">YES · '+pct(y)+'</div><div class="market-mini n">NO · '+pct(n)+'</div></div>'+
-    '<div class="meta"><span>'+ugx(m.signal_liquidity_ugx)+' signal pool</span><span>'+(m.watched?'★ Saved':'Open →')+'</span></div>'+
+    '<div class="market-actions"><div class="market-mini y">YES '+pct(y)+' · '+yesOdds+' odds</div><div class="market-mini n">NO '+pct(n)+' · '+noOdds+' odds</div></div>'+
+    '<div class="meta"><span>✓ '+esc(trust)+' · '+esc(m.pricing_model==='fixed_odds_bookmaker_dynamic'?'fixed odds':'prediction market')+'</span><span>'+(m.watched?'★ Saved':'Open →')+'</span></div>'+
   '</article>';
 }
 function renderMarkets(){
   const mode=state.status?.trading_mode||'forecast_credit';
+  const localMarkets=(state.markets||[]).filter(m=>!m.external_benchmark);
+  const globalMarkets=(state.markets||[]).filter(m=>m.external_benchmark);
+  const ugTrends=(state.ugandaTrends||[]).slice(0,8);
+  const ugDemand=(state.ugandaDemand||[]).slice(0,6);
+  const social=(state.ugandaSocialRadar||[]).slice(0,6);
+  const consumption=(state.ugandaConsumption||[]).filter(x=>x.scope==='uganda_local_chart').slice(0,8);
+  const metricShort=n=>{n=Number(n||0);return n>=1000000?(n/1000000).toFixed(n>=10000000?1:2)+'M':n>=1000?(n/1000).toFixed(0)+'K':n.toLocaleString('en-UG')};
   $('#view').innerHTML=
     '<section class="homehero">'+
-      '<div class="media-label">Uganda · live prediction intelligence</div>'+
-      '<h1>Uganda’s prediction markets, made simple.</h1>'+
-      '<p>Follow questions that matter here — prices, football, weather, business, campus, entertainment, technology and more. Read the evidence, then make your own prediction.</p>'+
+      '<div class="media-label">Uganda · prediction markets</div>'+
+      '<h1>Predict what happens next.</h1>'+
+      '<p>Pick YES or NO. See the market probability, decimal odds, closing time and verified resolution source before you confirm.</p>'+
       '<div class="hero-kpis">'+
         '<span class="hero-kpi">'+(state.online?'● Live':'○ Offline cache')+'</span>'+
-        '<span class="hero-kpi">'+(state.markets?.length||0)+' open markets</span>'+
+        '<span class="hero-kpi">'+(state.markets?.length||0)+' featured markets</span>'+
         '<span class="hero-kpi">'+(mode==='cash'?'Cash mode':'Forecast credits')+'</span>'+
       '</div>'+
     '</section>'+
-    (!state.user?'<div class="card" style="margin-bottom:14px"><div class="section-title" style="margin-top:0"><h2>Start in 3 steps</h2><button class="btn small primary" id="homeSignIn">Sign in</button></div><div class="media-grid"><div class="media-card"><div class="media-label">1 · Pick</div><h3>Open a market</h3><p>Choose a question you understand.</p></div><div class="media-card"><div class="media-label">2 · Decide</div><h3>YES or NO</h3><p>Read the evidence, then choose your view.</p></div><div class="media-card"><div class="media-label">3 · Predict</div><h3>Use practice credits</h3><p>New accounts start with 50,000 practice credits. They are not withdrawable cash.</p></div></div></div>':'')+
     '<div class="searchrow"><input class="input" id="searchInput" value="'+esc(state.search)+'" placeholder="Search markets"><button class="btn primary" id="searchBtn">Search</button></div>'+
     '<div class="chips"><button class="chip '+(!state.category?'active':'')+'" data-category="">All</button>'+state.categories.map(c=>'<button class="chip '+(state.category===c.category_key?'active':'')+'" data-category="'+esc(c.category_key)+'">'+esc(c.label)+'</button>').join('')+'</div>'+
-    '<div class="section-title"><h2>Open markets</h2><div><button class="btn small ghost" data-tab="media">Uganda Pulse</button></div></div>'+
-    (state.markets.length?'<div class="grid">'+state.markets.map(marketCard).join('')+'</div>':'<div class="empty">No markets match your filters.</div>')+
+    '<div class="section-title"><h2>Uganda now</h2><div><button class="btn small ghost" data-tab="media">Uganda Pulse</button></div></div>'+
+    (localMarkets.length?'<div class="grid">'+localMarkets.map(marketCard).join('')+'</div>':'<div class="empty">No Uganda markets match your filters right now.</div>')+
+    (globalMarkets.length?'<div class="section-title"><h2>Global benchmarks</h2><small style="color:var(--muted)">Reference markets from the wider prediction world</small></div><div class="grid">'+globalMarkets.map(marketCard).join('')+'</div>':'')+
+    ((ugTrends.length||ugDemand.length)?'<div class="card" style="margin-bottom:14px"><div class="section-title" style="margin-top:0"><h2>Uganda Pulse</h2><button class="btn small ghost" data-tab="media">Open pulse</button></div>'+
+      (ugDemand.length?'<div class="chips" style="margin-bottom:10px">'+ugDemand.map(x=>'<span class="chip">'+esc(x.category)+' · '+Number(x.demand_score||0).toFixed(0)+'</span>').join('')+'</div>':'')+
+      (ugTrends.length?'<div class="media-grid">'+ugTrends.slice(0,6).map(x=>'<div class="media-card"><div class="media-label">'+esc(x.category||x.item_type)+' · '+esc(x.platform||'Uganda')+'</div><h3>'+esc(x.label)+'</h3><p>'+Number(x.signal_score||0).toFixed(0)+' signal · '+esc(x.confidence||'')+'</p>'+(x.why_hot?'<small>'+esc(x.why_hot)+'</small>':'')+'</div>').join('')+'</div>':'')+
+    '</div>':'')+
+    (consumption.length?'<div class="card" style="margin-bottom:14px"><div class="section-title" style="margin-top:0"><h2>What Uganda is listening to</h2><small style="color:var(--muted)">Local Apple Music + YouTube chart signals</small></div><div class="chips">'+consumption.map(x=>'<span class="chip">'+esc(String(x.platform||'').replaceAll('_',' ').toUpperCase())+' #'+Number(x.rank_position||0)+' · '+esc(x.subject)+(x.artist?' — '+esc(x.artist):'')+'</span>').join('')+'</div></div>':'')+
+    (social.length?'<div class="card" style="margin-bottom:14px"><div class="section-title" style="margin-top:0"><h2>TikTok + social radar</h2><small style="color:var(--muted)">Public reference signals · not settlement evidence</small></div><div class="chips">'+social.map(x=>'<span class="chip">'+esc(x.subject)+' · '+metricShort(x.metric_value)+' '+esc(x.metric_type)+(x.attention_score!=null?' · '+Number(x.attention_score).toFixed(0)+' attention':'')+'</span>').join('')+'</div></div>':'')+
+    (!state.user?'<div class="card" style="margin-bottom:14px"><div class="section-title" style="margin-top:0"><h2>Start in 3 steps</h2><button class="btn small primary" id="homeSignIn">Sign in</button></div><div class="media-grid"><div class="media-card"><div class="media-label">1 · Pick</div><h3>Open a market</h3><p>Choose a question you understand.</p></div><div class="media-card"><div class="media-label">2 · Decide</div><h3>YES or NO</h3><p>Read the evidence, then choose your view.</p></div><div class="media-card"><div class="media-label">3 · Predict</div><h3>Use practice credits</h3><p>New accounts start with 50,000 practice credits. They are not withdrawable cash.</p></div></div></div>':'')+
     '<div class="card" style="margin-top:16px"><div class="auth-note">Predict UG public beta · practice credits are not cash.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn small ghost" id="homePrivacy">Privacy</button><button class="btn small ghost" id="homeTerms">Terms</button><button class="btn small ghost" id="homeSupport">Support</button></div></div>';
   if($('#homeSignIn'))$('#homeSignIn').onclick=showAuth;
   if($('#homePrivacy'))$('#homePrivacy').onclick=()=>openHosted('/privacy.html');
@@ -949,22 +946,50 @@ function drawMarket(){
       resolutionPanel+
       intelligencePanel+
       '<div class="section-title"><h2>Recent activity</h2></div><div class="timeline">'+((d.activity||[]).length?d.activity.slice(0,15).map(a=>'<div class="item"><b>'+esc(a.outcome_label)+'</b> · '+ugx(a.stake_ugx)+'<br><small>'+dt(a.created_at)+'</small></div>').join(''):'<div class="empty">No activity yet.</div>')+'</div>'+
-    '</div><aside><div class="card tradebox"><h3>Make your prediction</h3><p class="auth-note" style="margin-top:-4px">Choose YES or NO, then enter the amount.</p><div class="outcome-btns"><button class="outcome-btn y" data-outcome="'+(yes?.id||'')+'" data-label="YES">YES '+(yes?pct(yes.display_probability):'')+'</button><button class="outcome-btn n" data-outcome="'+(no?.id||'')+'" data-label="NO">NO '+(no?pct(no.display_probability):'')+'</button></div>'+
-      '<label class="auth-note">Prediction amount</label><input class="input" id="stakeInput" type="number" min="100" step="100" value="5000"><div class="quick-stakes"><button class="quick-stake" data-stake="1000">1K</button><button class="quick-stake" data-stake="5000">5K</button><button class="quick-stake" data-stake="10000">10K</button></div><div id="quoteBox" class="quote"><div class="quote-row"><span>Estimated payout</span><b>Choose YES or NO</b></div></div>'+
-      '<button class="btn primary" style="width:100%" id="placeBtn" disabled>Confirm prediction</button>'+
+    '</div><aside><div class="card tradebox"><h3>Place your prediction</h3><p class="auth-note" style="margin-top:-4px">Choose YES or NO. The percentage is the market probability; decimal odds determine your potential payout. Predict UG shows maximum loss before confirmation.</p><div class="outcome-btns"><button class="outcome-btn y" data-outcome="'+(yes?.id||'')+'" data-label="YES">YES '+(yes?pct(yes.display_probability):'—')+' · '+(yes?oddsText(yes.offered_odds,yes.display_probability):'—')+'</button><button class="outcome-btn n" data-outcome="'+(no?.id||'')+'" data-label="NO">NO '+(no?pct(no.display_probability):'—')+' · '+(no?oddsText(no.offered_odds,no.display_probability):'—')+'</button></div>'+
+      '<label class="auth-note">Prediction amount</label><input class="input" id="stakeInput" type="number" min="100" step="100" value="5000"><div class="quick-stakes"><button class="quick-stake" data-stake="1000">1K</button><button class="quick-stake" data-stake="5000">5K</button><button class="quick-stake" data-stake="10000">10K</button></div><div id="quoteBox" class="quote"><div class="quote-row"><span>Risk & return</span><b>Choose YES or NO</b></div><div class="auth-note">Your full downside and estimated upside will appear here before you confirm.</div></div>'+
+      '<button class="btn primary" style="width:100%" id="placeBtn" disabled>Review risk & payout</button>'+
       '<button class="btn ghost" style="width:100%;margin-top:8px" id="watchBtn">'+(d.__watched?'★ Watching':'☆ Save this market')+'</button>'+
-      '<details style="margin-top:10px"><summary class="auth-note" style="cursor:pointer">Advanced trading</summary>'+
-      '<p class="auth-note">Optional. Beginners can ignore this. Advanced users can view buyers/sellers and set a limit price.</p>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn small" id="advYesBtn">YES orders</button><button class="btn small" id="advNoBtn">NO orders</button></div>'+
-      '<div id="advancedBook" class="quote" style="margin-top:8px"><div class="quote-row"><span>Order book</span><b>Choose YES or NO</b></div></div>'+
-      '</details>'+
+
       (isClosed(m)?'<button class="btn ghost" style="width:100%;margin-top:8px" id="settleRequestBtn">Request settlement</button>':'')+
       '<p class="auth-note">'+(state.status?.real_money_enabled?'Cash mode follows your eligibility.':'Cash deposits and withdrawals remain unavailable until approval. Forecast participation is active.')+'</p>'+
       ((d.my_positions||[]).length?'<div class="item"><b>Your position</b><br>'+d.my_positions.map(p=>esc(p.outcome_label)+' · '+ugx(p.total_stake_ugx)+' · '+esc(p.position_status)).join('<br>')+'</div>':'')+
       adminPanel+
     '</div></aside></div></div></div>';
-  let chosen=null,quoteTimer=null;
+  let chosen=null,quoteTimer=null,latestQuote=null;
+  const quoteValue=(q,n)=>q?.mode==='cash'?ugx(n):Number(n||0).toLocaleString('en-UG')+' credits';
+  const renderQuote=(q)=>{
+    latestQuote=q;
+    const net=Number(q.if_correct_net_profit_ugx??q.estimated_profit_ugx??0);
+    const margin=Number(q.base_margin_pct??q.platform_margin_pct??q.platform_fee_pct??0);
+    const odds=Number(q.decimal_odds??q.accepted_odds_if_placed_now??0);
+    const fair=Number(q.fair_probability_pct??q.post_trade_probability??0);
+    const offered=Number(q.offered_probability_pct||0);
+    const maxStake=Number(q.max_accepted_stake_ugx||0);
+    const bookOpen=q.book_open!==false;
+    const acceptable=q.bet_acceptable!==false;
+    const source=String(q.fair_probability_source||'live market signal').replaceAll('_',' ');
+    const returnText=quoteValue(q,q.if_correct_return_ugx??q.estimated_payout_ugx);
+    const lossText=quoteValue(q,q.if_wrong_loss_ugx??q.stake_ugx);
+    const profitText=(net>=0?'+':'')+quoteValue(q,net);
+    $('#quoteBox').innerHTML=
+      '<div class=\"quote-row\"><span>You chose</span><b>'+esc(chosen.label)+' @ '+odds.toFixed(2)+'</b></div>'+
+      '<div class=\"risk-grid\"><div class=\"risk-card win\"><small>If you are right</small><div class=\"risk-number\">'+esc(returnText)+'</div><div class=\"auth-note\">fixed potential return</div></div>'+
+      '<div class=\"risk-card loss\"><small>If you are wrong</small><div class=\"risk-number\">− '+esc(lossText)+'</div><div class=\"auth-note\">full stake lost · return 0</div></div></div>'+
+      '<div class=\"quote-row\"><span>Potential profit</span><b>'+esc(profitText)+'</b></div>'+
+      '<div class=\"quote-row\"><span>Decimal odds</span><b>'+odds.toFixed(2)+'</b></div>'+
+      '<div class=\"quote-row\"><span>Fair probability</span><b>'+fair.toFixed(2)+'%</b></div>'+
+      '<div class=\"quote-row\"><span>Odds probability</span><b>'+offered.toFixed(2)+'%</b></div>'+
+      '<div class=\"quote-row\"><span>Base margin</span><b>'+margin.toFixed(0)+'% built into odds</b></div>'+
+      '<div class=\"quote-row\"><span>Pricing signal</span><b>'+esc(source)+'</b></div>'+
+      (maxStake>0?'<div class=\"quote-row\"><span>Maximum accepted now</span><b>'+esc(quoteValue(q,maxStake))+'</b></div>':'')+
+      (!bookOpen?'<div class=\"auth-note\" style=\"margin-top:8px;color:var(--amber)\">This market is temporarily unavailable for new predictions.</div>':'')+
+      (bookOpen&&!acceptable?'<div class=\"auth-note\" style=\"margin-top:8px;color:var(--amber)\">Your amount is above the current risk limit. Reduce the stake to '+esc(quoteValue(q,maxStake))+'.</div>':'')+
+      '<div class=\"trade-formula\">Dynamic fixed odds: probability + category margin + current payout exposure set the price. Once accepted, your odds are locked. Winning return = stake × accepted odds. Losing return = 0. No extra settlement fee.</div>';
+    $('#placeBtn').disabled=!(bookOpen&&acceptable);
+  };
   const updateQuote=async()=>{
+    latestQuote=null;
     if(!chosen)return;
     if(!state.online){
       $('#quoteBox').innerHTML='<span class="auth-note">Offline read-only mode. Reconnect for a live quote.</span>';
@@ -972,14 +997,78 @@ function drawMarket(){
       return;
     }
     const stake=Number($('#stakeInput').value||0);if(stake<=0)return;
-    try{const q=await rpc('quote_prediction',{p_market_id:m.id,p_outcome_id:chosen.id,p_stake_ugx:stake});$('#quoteBox').innerHTML='<div class="quote-row"><span>Side</span><b>'+chosen.label+'</b></div><div class="quote-row"><span>Estimated payout</span><b>'+ugx(q.estimated_payout_ugx)+'</b></div><div class="quote-row"><span>Estimated profit</span><b>'+ugx(q.estimated_profit_ugx)+'</b></div><div class="quote-row"><span>Post-trade probability</span><b>'+q.post_trade_probability+'%</b></div>';$('#placeBtn').disabled=false}catch(e){$('#quoteBox').innerHTML='<span class="auth-note">'+esc(e.message)+'</span>';$('#placeBtn').disabled=true}
+    try{
+      const q=await rpc('quote_prediction',{p_market_id:m.id,p_outcome_id:chosen.id,p_stake_ugx:stake});
+      renderQuote(q);
+    }catch(e){
+      $('#quoteBox').innerHTML='<span class="auth-note">'+esc(e.message)+'</span>';
+      $('#placeBtn').disabled=true;
+    }
+  };
+  const submitPrediction=async(q,stake)=>{
+    const confirmBtn=$('#reviewPlaceConfirm');
+    try{
+      if(confirmBtn){confirmBtn.disabled=true;confirmBtn.textContent='Placing…'}
+      const key='web-'+crypto.randomUUID();
+      await rpc('place_prediction',{p_market_id:m.id,p_outcome_id:chosen.id,p_stake_ugx:stake,p_idempotency_key:key});
+      const review=$('#tradeReviewOverlay');if(review)review.remove();
+      await loadBalance();
+      toast('Prediction placed');
+      state.market=await rpc('market_page',{p_market_id:m.id});
+      drawMarket();
+      await loadMarkets();
+    }catch(e){
+      toast(e.message||'Trade failed',true);
+      if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent='Place prediction'}
+      if($('#placeBtn'))$('#placeBtn').disabled=false;
+    }
+  };
+  const reviewPrediction=async()=>{
+    if(!state.online){toast('Offline: reconnect before placing a prediction.',true);return}
+    if(!state.user){showAuth();return}
+    if(!chosen)return;
+    const stake=Number($('#stakeInput').value||0);if(stake<=0)return;
+    try{
+      $('#placeBtn').disabled=true;$('#placeBtn').textContent='Refreshing odds…';
+      const q=await rpc('quote_prediction',{p_market_id:m.id,p_outcome_id:chosen.id,p_stake_ugx:stake});
+      renderQuote(q);
+      $('#placeBtn').textContent='Review risk & payout';
+      if(q.book_open===false||q.bet_acceptable===false){
+        const max=Number(q.max_accepted_stake_ugx||0);
+        toast(q.book_open===false?'Market temporarily unavailable':('Maximum accepted stake is '+quoteValue(q,max)),true);
+        return;
+      }
+      const old=$('#tradeReviewOverlay');if(old)old.remove();
+      const margin=Number(q.platform_margin_pct??q.platform_fee_pct??9);
+      const odds=Number(q.decimal_odds??0);
+      const net=Number(q.if_correct_net_profit_ugx??q.estimated_profit_ugx??0);
+      const cash=q.mode==='cash';
+      const amount=x=>quoteValue(q,x);
+      document.body.insertAdjacentHTML('beforeend',
+        '<div id=\"tradeReviewOverlay\" class=\"modal\" style=\"z-index:90\"><div class=\"sheet\" style=\"max-width:520px\">'+
+          '<button class=\"close\" id=\"reviewTradeClose\">✕</button>'+
+          '<div class=\"media-label\">Final bet slip</div><h2>Check your odds and risk</h2>'+
+          '<div class=\"review-hero\"><span class=\"review-side '+(chosen.label==='NO'?'no':'')+'\">'+esc(chosen.label)+' @ '+odds.toFixed(2)+'</span><h3 style=\"margin:10px 0 4px\">'+esc(m.title)+'</h3><div class=\"auth-note\">Stake: '+esc(amount(stake))+'</div></div>'+
+          '<div class=\"risk-grid\"><div class=\"risk-card win\"><small>If correct</small><div class=\"risk-number\">'+esc(amount(q.if_correct_return_ugx??q.estimated_payout_ugx))+'</div><div class=\"auth-note\">return · profit '+esc((net>=0?'+':'')+amount(net))+'</div></div>'+
+          '<div class=\"risk-card loss\"><small>If wrong</small><div class=\"risk-number\">− '+esc(amount(q.if_wrong_loss_ugx??stake))+'</div><div class=\"auth-note\">return 0</div></div></div>'+
+          '<div class=\"quote\"><div class=\"quote-row\"><span>Accepted odds</span><b>'+odds.toFixed(2)+'</b></div><div class=\"quote-row\"><span>Predict UG margin</span><b>'+margin.toFixed(0)+'% built into odds</b></div><div class=\"quote-row\"><span>Extra settlement fee</span><b>None</b></div><div class=\"quote-row\"><span>Price type</span><b>Fixed once accepted</b></div></div>'+
+          '<p class=\"auth-note\">Your accepted odds are locked on this ticket. Predict UG may move later odds automatically as probabilities and market exposure change, but your existing ticket does not change.</p>'+
+          (cash?'<label class=\"auth-note\" style=\"display:flex;gap:8px;align-items:flex-start;margin:12px 0\"><input type=\"checkbox\" id=\"reviewRiskAck\"> <span>I understand I can lose the full '+esc(amount(stake))+' stake if this prediction is wrong.</span></label>':'')+
+          '<div class=\"auth-wrap\"><button class=\"btn primary\" id=\"reviewPlaceConfirm\" '+(cash?'disabled':'')+'>Place prediction</button><button class=\"btn ghost\" id=\"reviewTradeCancel\">Go back</button></div>'+
+        '</div></div>');
+      $('#reviewTradeClose').onclick=()=>$('#tradeReviewOverlay')?.remove();
+      $('#reviewTradeCancel').onclick=()=>$('#tradeReviewOverlay')?.remove();
+      if(cash&&$('#reviewRiskAck'))$('#reviewRiskAck').onchange=()=>{$('#reviewPlaceConfirm').disabled=!$('#reviewRiskAck').checked};
+      $('#reviewPlaceConfirm').onclick=()=>submitPrediction(q,stake);
+    }catch(e){
+      toast(e.message||'Could not refresh odds',true);
+      $('#placeBtn').disabled=false;$('#placeBtn').textContent='Review risk & payout';
+    }
   };
   document.querySelectorAll('.outcome-btn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.outcome-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');chosen={id:b.dataset.outcome,label:b.dataset.label};updateQuote()});
   $('#stakeInput').oninput=()=>{clearTimeout(quoteTimer);quoteTimer=setTimeout(updateQuote,280)};
   document.querySelectorAll('[data-stake]').forEach(b=>b.onclick=()=>{$('#stakeInput').value=b.dataset.stake;updateQuote()});
-  $('#placeBtn').onclick=async()=>{if(!state.online){toast('Offline: reconnect before placing a prediction.',true);return}if(!state.user){showAuth();return}if(!chosen)return;try{$('#placeBtn').disabled=true;const key='web-'+crypto.randomUUID();await rpc('place_prediction',{p_market_id:m.id,p_outcome_id:chosen.id,p_stake_ugx:Number($('#stakeInput').value),p_idempotency_key:key});await loadBalance();toast('Prediction placed');state.market=await rpc('market_page',{p_market_id:m.id});drawMarket();await loadMarkets()}catch(e){toast(e.message||'Trade failed',true);$('#placeBtn').disabled=false}};
-  if($('#advYesBtn'))$('#advYesBtn').onclick=()=>showAdvancedBuy(m,yes);
-  if($('#advNoBtn'))$('#advNoBtn').onclick=()=>showAdvancedBuy(m,no);
+  $('#placeBtn').onclick=reviewPrediction;
   $('#watchBtn').onclick=async()=>{if(!state.online){toast('Offline: reconnect before changing your watchlist.',true);return}if(!state.user){showAuth();return}try{const {data:user}=await supabase.auth.getUser();const uid=user.user?.id;const {data:ex}=await supabase.from('watchlist').select('id').eq('user_id',uid).eq('market_id',m.id).maybeSingle();if(ex)await supabase.from('watchlist').delete().eq('id',ex.id);else await supabase.from('watchlist').insert({user_id:uid,market_id:m.id});toast(ex?'Removed from watchlist':'Added to watchlist');const page=await rpc('market_page',{p_market_id:m.id});page.__watched=!ex;state.market=page;drawMarket()}catch(e){toast(e.message,true)}};
   if($('#settleRequestBtn'))$('#settleRequestBtn').onclick=async()=>{if(!state.online){toast('Offline: reconnect before requesting settlement.',true);return}if(!state.user){showAuth();return}try{await rpc('request_market_settlement',{p_market_id:m.id,p_suggested_outcome_id:null,p_note:'User requested settlement review from market page.'});toast('Settlement request submitted')}catch(e){toast(e.message,true)}};
   if($('#challengeResolutionBtn'))$('#challengeResolutionBtn').onclick=async()=>{
@@ -1035,6 +1124,11 @@ async function loadDiscover(){
     b=cached.value||{};
     toast('Offline: showing last synced intelligence ('+cachedAgeLabel(cached)+')');
   }
+  state.ugandaPulse=b?.uganda_pulse||[];
+  state.ugandaSocialRadar=b?.uganda_social_radar||[];
+    state.ugandaConsumption=b?.uganda_consumption||[];
+  state.socialSourceStatus=b?.social_source_status||null;
+  state.digitalProfile=b?.digital_profile||null;
   state.trends=b?.trends||[];
   state.stories=b?.stories||[];
   state.creators=b?.creators||[];
@@ -1045,25 +1139,53 @@ async function loadDiscover(){
 }
 
 function renderMedia(){
+  const pulse=(state.ugandaPulse||[]).slice(0,14);
+  const socialRadar=(state.ugandaSocialRadar||[]).slice(0,12);
+  const consumption=(state.ugandaConsumption||[]).slice(0,16);
+  const socialPlatforms=state.socialSourceStatus?.platforms||[];
   const latestStories=(state.stories||[]).slice(0,9);
-  const creators=(state.creators||[]).slice(0,6);
+  const creators=(state.creators||[]).slice(0,8);
   const weather=(state.weatherSignals||[]).slice(0,6);
   const official=(state.officialData||[]).slice(0,5);
   const global=(state.externalSignals||[]).slice(0,6);
+  const metricShort=n=>{n=Number(n||0);return n>=1000000?(n/1000000).toFixed(n>=10000000?1:2)+'M':n>=1000?(n/1000).toFixed(0)+'K':n.toLocaleString('en-UG')};
+  const sourceStatus=p=>{
+    const x=socialPlatforms.find(s=>String(s.platform).toLowerCase()===String(p).toLowerCase());
+    if(!x)return 'reference research';
+    if(x.ingestion_status==='active')return 'live public signal';
+    if(x.ingestion_status==='official_access_required')return 'research reference · direct API pending';
+    return String(x.ingestion_status||'reference research').replaceAll('_',' ');
+  };
   $('#view').innerHTML=
     '<section class="homehero">'+
-      '<div class="media-label">Uganda Pulse</div>'+
-      '<h1>What is moving Uganda right now?</h1>'+
-      '<p>Ugandan media, creators, official statistics, weather, sports and market signals — with global prediction markets used as learning and context inputs.</p>'+
-      '<div class="hero-kpis"><span class="hero-kpi">'+(state.online?'● Internet connected':'○ Offline cache')+'</span><span class="hero-kpi">'+latestStories.length+' story clusters</span><span class="hero-kpi">'+creators.length+' creator signals</span></div>'+
+      '<div class="media-label">Uganda Pulse · local-first intelligence</div>'+
+      '<h1>What Uganda is talking about now.</h1>'+
+      '<p>News, verified creators, music consumption, local-language signals, public data, weather and social-discovery research are filtered into one Uganda-first feed. TikTok and X reference rankings are clearly separated from direct live platform data.</p>'+
+      '<div class="hero-kpis"><span class="hero-kpi">'+(state.online?'● Internet connected':'○ Offline cache')+'</span><span class="hero-kpi">'+pulse.length+' Uganda signals</span><span class="hero-kpi">'+latestStories.length+' story clusters</span></div>'+
     '</section>'+
-    '<div class="section-title"><h2>Trending stories</h2><span class="statuschip">Backend intelligence active</span></div>'+
+    '<div class="section-title"><h2>Trending in Uganda now</h2><span class="statuschip">diversified · source-aware</span></div>'+
+    (pulse.length?'<div class="media-grid">'+pulse.map(x=>
+      '<div class="media-card"><div class="media-label">'+esc((x.item_type||'signal').replaceAll('_',' '))+' · '+esc(x.category||'Uganda')+'</div><h3>'+esc(x.label||'Uganda signal')+'</h3><p>Signal '+Number(x.signal_score||0).toFixed(0)+' · '+Number(x.source_count||0)+' source'+(Number(x.source_count||0)===1?'':'s')+' · '+esc(x.confidence||'low')+' confidence</p>'+(x.why_hot?'<small>'+esc(x.why_hot)+'</small>':'')+
+      '<div class="source-row"><span class="source-pill">'+Number(x.mention_count||0)+' mentions</span>'+(x.political_content?'<span class="source-pill">politics</span>':'')+'</div></div>'
+    ).join('')+'</div>':'<div class="empty">Uganda trend radar is refreshing.</div>')+
+    '<div class="section-title"><h2>What Uganda is listening to</h2><span class="statuschip">local chart + artist momentum</span></div>'+
+    '<p class="auth-note">Uganda-local Apple Music and YouTube charts are treated as consumption signals. Spotify rows show global momentum for Ugandan artists. These signals influence discovery and demand ranking only; they are never settlement evidence.</p>'+
+    (consumption.length?'<div class="media-grid">'+consumption.map(x=>
+      '<a class="media-card" href="'+esc(x.source_url||'#')+'" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="media-label">'+esc(String(x.platform||'music').replaceAll('_',' ').toUpperCase())+' · '+esc(x.scope==='uganda_local_chart'?'Uganda chart':'Ugandan artist momentum')+'</div><h3>'+esc(x.subject)+(x.artist&&x.artist!==x.subject?' — '+esc(x.artist):'')+'</h3><p>#'+Number(x.rank_position||0)+(x.metric_type==='views_week'?' · '+metricShort(x.metric_value)+' weekly views':x.metric_type==='monthly_listeners'?' · '+metricShort(x.metric_value)+' monthly listeners':'')+'</p><div class="source-row"><span class="source-pill">'+esc(x.source_name||'public chart')+'</span><span class="source-pill">reference only</span></div></a>'
+    ).join('')+'</div>':'<div class="empty">Consumption radar is refreshing.</div>')+
+    '<div class="section-title"><h2>TikTok, X & creator discovery</h2><span class="statuschip">research ≠ settlement evidence</span></div>'+
+    '<p class="auth-note">Direct TikTok/X ingestion is used only when approved platform access is available. Until then, public ranking snapshots help discover what Ugandans follow; they do not determine outcomes or settlements.</p>'+
+    (socialPlatforms.length?'<div class="chips" style="margin-bottom:10px">'+socialPlatforms.map(x=>'<span class="chip">'+esc(String(x.platform).toUpperCase())+' · '+esc(sourceStatus(x.platform))+'</span>').join('')+'</div>':'')+
+    (socialRadar.length?'<div class="media-grid">'+socialRadar.map(x=>
+      '<a class="media-card" href="'+esc(x.source_url||'#')+'" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="media-label">'+esc(String(x.platform||'social').toUpperCase())+' · reference snapshot</div><h3>'+esc(x.subject||x.handle||'Uganda creator')+'</h3><p>'+esc(x.metric_type||'public metric')+' '+metricShort(x.metric_value)+(x.engagement_rate_pct!=null?' · '+Number(x.engagement_rate_pct).toFixed(2)+'% engagement':'')+(x.attention_score!=null?' · attention '+Number(x.attention_score).toFixed(0):'')+'</p>'+(x.why_relevant?'<small>'+esc(x.why_relevant)+'</small>':'')+'<div class="source-row"><span class="source-pill">'+esc(x.source_name||'public research')+'</span><span class="source-pill">'+esc(x.confidence||'reference')+'</span></div></a>'
+    ).join('')+'</div>':'<div class="empty">Social reference research is refreshing.</div>')+
+    '<div class="section-title"><h2>Trending stories</h2><span class="statuschip">multi-source Uganda news</span></div>'+
     (latestStories.length?'<div class="media-grid">'+latestStories.map(s=>
       '<div class="media-card"><div class="media-label">'+esc(s.category||'News')+'</div><h3>'+esc(s.label)+'</h3><p>'+Number(s.article_count||0)+' articles · '+Number(s.distinct_source_count||0)+' sources</p>'+
       (s.sample_articles?.length?'<div class="source-row">'+s.sample_articles.slice(0,2).map(a=>'<a class="source-pill" href="'+esc(a.url)+'" target="_blank" rel="noopener">'+esc(short(a.title))+' ↗</a>').join('')+'</div>':'')+
       '</div>'
     ).join('')+'</div>':'<div class="empty">News agents are refreshing.</div>')+
-    '<div class="section-title"><h2>Creators & media voices</h2></div>'+
+    '<div class="section-title"><h2>Verified creators & media voices</h2></div>'+
     (creators.length?'<div class="media-grid">'+creators.map(x=>
       '<div class="media-card"><div class="media-label">'+esc(x.creator_type||'Creator')+'</div><h3>'+esc(x.display_name)+'</h3><p>'+Number(x.mention_count||0)+' recent mentions · '+Number(x.source_count||0)+' sources</p><div class="source-row"><span class="source-pill">'+esc(x.confidence||'')+' confidence</span><span class="source-pill">trend '+Number(x.latest_trend_score||0).toFixed(0)+'</span></div></div>'
     ).join('')+'</div>':'<div class="empty">Creator signals are warming up.</div>')+
@@ -1071,13 +1193,13 @@ function renderMedia(){
     (weather.length?'<div class="media-grid">'+weather.map(w=>
       '<div class="media-card"><div class="media-label">'+esc(w.region||'Uganda')+'</div><h3>'+esc(w.label||w.location_key)+'</h3><p>'+esc(String(w.forecast_date||''))+' · Rain '+Number(w.precipitation_probability_max||0).toFixed(0)+'% · '+Number(w.max_temperature_c||0).toFixed(1)+'°C max</p></div>'
     ).join('')+'</div>':'<div class="empty">Weather agent is refreshing.</div>')+
-    '<div class="section-title"><h2>Official data</h2></div>'+
+    '<div class="section-title"><h2>Official Uganda data</h2></div>'+
     (official.length?'<div class="timeline">'+official.map(x=>
       '<a class="item" href="'+esc(x.source_url||'#')+'" target="_blank" rel="noopener" style="display:block;text-decoration:none"><b>'+esc(x.source_name)+'</b><br><span>'+esc(x.summary||'Official structured update')+'</span><br><small>'+dt(x.observed_at)+' · Source ↗</small></a>'
     ).join('')+'</div>':'<div class="empty">Official-data agent is refreshing.</div>')+
-    '<div class="section-title"><h2>Global prediction signals</h2><span class="statuschip">External observations</span></div>'+
+    '<div class="section-title"><h2>Global prediction benchmarks</h2><span class="statuschip">learning/context only</span></div>'+
     (global.length?'<div class="grid">'+global.map(x=>
-      '<a class="card market-card" href="'+esc(x.source_url||'#')+'" target="_blank" rel="noopener" style="text-decoration:none"><div class="eyebrow"><span>'+esc(x.provider)+'</span><span>'+esc(x.category)+'</span></div><div class="market-title">'+esc(x.title)+'</div><div class="market-top"><span class="auth-note">YES market price</span><div class="market-price">'+(x.yes_probability==null?'—':Number(x.yes_probability).toFixed(0)+'%')+'</div></div><div class="meta"><span>24h volume '+Number(x.volume_24h||0).toLocaleString()+'</span><span>Source ↗</span></div></a>'
+      '<a class="card market-card" href="'+esc(x.source_url||'#')+'" target="_blank" rel="noopener" style="text-decoration:none"><div class="eyebrow"><span>'+esc(x.provider)+'</span><span>'+esc(x.category)+'</span></div><div class="market-title">'+esc(x.title)+'</div><div class="market-top"><span class="auth-note">YES public-market probability</span><div class="market-price">'+(x.yes_probability==null?'—':Number(x.yes_probability).toFixed(0)+'%')+'</div></div><div class="meta"><span>24h volume '+Number(x.volume_24h||0).toLocaleString()+'</span><span>Source ↗</span></div></a>'
     ).join('')+'</div>':'<div class="empty">Global-market agent is refreshing.</div>');
 }
 
@@ -1085,14 +1207,10 @@ function renderDiscover(){renderMedia()}
 
 async function loadPortfolio(){
   if(!state.user)return;
-  const [p,s,o]=await Promise.all([
-    rpc('my_portfolio'),
-    rpc('secondary_sellable_positions'),
-    rpc('my_secondary_orders',{p_limit:100})
-  ]);
+  const p=await rpc('my_portfolio');
   state.portfolio=p||{};
-  state.portfolio.secondaryPositions=s?.positions||[];
-  state.portfolio.secondaryOrders=o?.orders||[];
+  state.portfolio.secondaryPositions=[];
+  state.portfolio.secondaryOrders=[];
 }
 
 async function cashOutSimple(pos){
@@ -1276,7 +1394,7 @@ async function paymentApi(action,payload={}){
   return data;
 }
 
-async function startManualDepositFallback(amount,phone,network){
+async function startMerchantDeposit(amount,phone,network){
   const manual=await paymentApi('deposit_start',{
     amount_ugx:amount,
     network,
@@ -1304,7 +1422,7 @@ async function startManualDepositFallback(amount,phone,network){
   return manual;
 }
 
-async function startManualWithdrawalFallback(amount,phone,network){
+async function startMerchantWithdrawal(amount,phone,network){
   const manual=await paymentApi('withdrawal_start',{
     amount_ugx:amount,
     network,
@@ -1324,52 +1442,159 @@ function previewLockedMoneyFlow(kind){
     'TEST PREVIEW ONLY\n\n'+
     (kind==='deposit'?'Deposit':'Withdrawal')+': UGX '+amount.toLocaleString()+'\n'+
     'Network: '+network+'\n\n'+
-    'The payment software path is installed, merchant ingestion is available, and the customer action can be previewed.\n\n'+
-    'No real money moved. Live transfers remain gated by provider approval and the backend cash-launch controls.'
+    'The merchant-code payment path is installed, merchant SMS ingestion is available, and the customer action can be previewed.\n\n'+
+    'No real money moved. Live transfers remain gated by the backend cash-launch controls.'
   );
 }
 
-function askCashNetwork(){
-  const network=((prompt('Mobile Money network: MTN or AIRTEL','MTN')||'').trim().toUpperCase());
-  if(!network)return null;
-  if(!['MTN','AIRTEL'].includes(network)){toast('Choose MTN or AIRTEL',true);return null}
-  return network;
-}
-function askCashPhone(){
-  const phone=(prompt('Mobile Money phone number','07')||'').trim();
+function normalizeCashPhone(value){
+  const phone=String(value||'').trim();
   if(!phone)return null;
   const digits=phone.replace(/[^0-9+]/g,'');
-  if(digits.length<9||digits.length>13){toast('Enter a valid Uganda Mobile Money number',true);return null}
+  if(digits.length<9||digits.length>13)return null;
   return phone;
 }
-function askCashAmount(kind){
-  const amount=Number(prompt((kind==='deposit'?'Deposit':'Withdraw')+' amount (UGX)','10000')||0);
-  if(!Number.isSafeInteger(amount)||amount<1000){toast('Enter an amount of at least UGX 1,000',true);return null}
-  return amount;
+function cashFlowModal(kind){
+  const isDeposit=kind==='deposit';
+  $('#overlay').innerHTML=
+    '<div class="modal"><div class="sheet" style="max-width:520px">'+
+      '<button class="close" id="cashFlowClose">✕</button>'+
+      '<div class="media-label">Mobile Money</div>'+
+      '<h2>'+(isDeposit?'Deposit to Predict UG':'Withdraw from Predict UG')+'</h2>'+
+      '<p class="auth-note">'+(isDeposit
+        ?'Pay using the Predict UG merchant code. Your wallet is credited only after the transaction is matched to the merchant record.'
+        :'Choose where to receive your payout. The amount is locked immediately and released only after the merchant payout is verified.')+'</p>'+
+      '<div class="auth-wrap">'+
+        '<label class="auth-note">Amount (UGX)</label>'+
+        '<input class="input" id="cashFlowAmount" inputmode="numeric" type="number" min="1000" step="500" value="5000">'+
+        '<label class="auth-note">Network</label>'+
+        '<div class="outcome-btns"><button class="outcome-btn y active" id="cashFlowMtn">MTN</button><button class="outcome-btn" id="cashFlowAirtel">Airtel</button></div>'+
+        '<label class="auth-note">'+(isDeposit?'Paying from phone':'Receive on phone')+'</label>'+
+        '<input class="input" id="cashFlowPhone" inputmode="tel" placeholder="07XXXXXXXX">'+
+        '<button class="btn primary" id="cashFlowContinue">'+(isDeposit?'Get payment instructions':'Review withdrawal')+'</button>'+
+      '</div>'+
+    '</div></div>';
+  let network='MTN';
+  const setNetwork=n=>{
+    network=n;
+    $('#cashFlowMtn').classList.toggle('active',n==='MTN');
+    $('#cashFlowAirtel').classList.toggle('active',n==='AIRTEL');
+  };
+  $('#cashFlowMtn').onclick=()=>setNetwork('MTN');
+  $('#cashFlowAirtel').onclick=()=>setNetwork('AIRTEL');
+  $('#cashFlowClose').onclick=()=>{$('#overlay').innerHTML=''};
+  $('#cashFlowContinue').onclick=async()=>{
+    const amount=Number($('#cashFlowAmount').value||0);
+    const phone=normalizeCashPhone($('#cashFlowPhone').value);
+    if(!Number.isSafeInteger(amount)||amount<1000){toast('Enter at least UGX 1,000',true);return}
+    if(!phone){toast('Enter a valid Uganda Mobile Money number',true);return}
+    const btn=$('#cashFlowContinue');
+    btn.disabled=true;
+    btn.textContent=isDeposit?'Creating deposit…':'Checking withdrawal…';
+    try{
+      if(isDeposit){
+        const manual=await paymentApi('deposit_start',{
+          amount_ugx:amount,
+          network,
+          phone,
+          idempotency_key:'merchant-deposit-'+crypto.randomUUID()
+        });
+        const code=String(manual.merchant_code||'');
+        $('#overlay').innerHTML=
+          '<div class="modal"><div class="sheet" style="max-width:520px">'+
+            '<button class="close" id="depositPayClose">✕</button>'+
+            '<div class="media-label">'+esc(network)+' merchant payment</div>'+
+            '<h2>Pay '+ugx(Number(manual.amount_ugx||amount))+'</h2>'+
+            '<div class="review-hero">'+
+              '<div class="auth-note">Merchant code</div>'+
+              '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px">'+
+                '<div style="font-size:1.7rem;font-weight:900;letter-spacing:.08em">'+esc(code)+'</div>'+
+                '<button class="btn small" id="copyMerchantCode">Copy</button>'+
+              '</div>'+
+            '</div>'+
+            '<div class="timeline">'+
+              '<div class="item"><b>1 · Open '+esc(network)+' Mobile Money</b><br><small>Choose Pay Merchant / Merchant Code.</small></div>'+
+              '<div class="item"><b>2 · Enter '+esc(code)+'</b><br><small>Pay exactly '+ugx(Number(manual.amount_ugx||amount))+'.</small></div>'+
+              '<div class="item"><b>3 · Enter the transaction ID below</b><br><small>Predict UG checks it against the merchant transaction before crediting your wallet.</small></div>'+
+            '</div>'+
+            '<div class="auth-wrap" style="margin-top:12px">'+
+              '<input class="input" id="depositTxRef" autocomplete="off" placeholder="'+esc(network)+' transaction ID">'+
+              '<button class="btn primary" id="submitDepositRef">Submit for verification</button>'+
+              '<button class="btn ghost" id="depositRefLater">I will enter it later</button>'+
+            '</div>'+
+          '</div></div>';
+        $('#depositPayClose').onclick=()=>{$('#overlay').innerHTML=''};
+        $('#copyMerchantCode').onclick=async()=>{
+          try{await navigator.clipboard.writeText(code);toast('Merchant code copied')}
+          catch{toast('Merchant code: '+code)}
+        };
+        $('#depositRefLater').onclick=()=>{$('#overlay').innerHTML='';toast('Deposit created. Submit the real transaction ID when payment is complete.')};
+        $('#submitDepositRef').onclick=async()=>{
+          const tx=String($('#depositTxRef').value||'').trim();
+          if(tx.length<5){toast('Enter the real Mobile Money transaction ID',true);return}
+          const submit=$('#submitDepositRef');submit.disabled=true;submit.textContent='Submitting…';
+          try{
+            await paymentApi('deposit_reference',{
+              payment_intent_id:manual.payment_intent_id,
+              transaction_reference:tx
+            });
+            $('#overlay').innerHTML='';
+            toast('Deposit submitted for merchant verification.');
+            await loadPortfolio();await loadBalance();render();
+          }catch(e){
+            submit.disabled=false;submit.textContent='Submit for verification';
+            toast(e.message||'Could not submit transaction ID',true);
+          }
+        };
+      }else{
+        $('#overlay').innerHTML=
+          '<div class="modal"><div class="sheet" style="max-width:520px">'+
+            '<button class="close" id="withdrawReviewClose">✕</button>'+
+            '<div class="media-label">Final withdrawal review</div>'+
+            '<h2>'+ugx(amount)+' → '+esc(network)+'</h2>'+
+            '<div class="quote">'+
+              '<div class="quote-row"><span>Amount</span><b>'+ugx(amount)+'</b></div>'+
+              '<div class="quote-row"><span>Network</span><b>'+esc(network)+'</b></div>'+
+              '<div class="quote-row"><span>Phone</span><b>'+esc(phone)+'</b></div>'+
+              '<div class="quote-row"><span>Status after request</span><b>Locked pending payout</b></div>'+
+            '</div>'+
+            '<p class="auth-note">Predict UG will not mark this withdrawal complete until the outgoing merchant-wallet transaction is verified.</p>'+
+            '<div class="auth-wrap"><button class="btn primary" id="confirmWithdrawal">Confirm withdrawal</button><button class="btn ghost" id="cancelWithdrawal">Go back</button></div>'+
+          '</div></div>';
+        $('#withdrawReviewClose').onclick=$('#cancelWithdrawal').onclick=()=>cashFlowModal('withdrawal');
+        $('#confirmWithdrawal').onclick=async()=>{
+          const confirm=$('#confirmWithdrawal');confirm.disabled=true;confirm.textContent='Queuing…';
+          try{
+            await paymentApi('withdrawal_start',{
+              amount_ugx:amount,
+              network,
+              phone,
+              idempotency_key:'merchant-withdraw-'+crypto.randomUUID()
+            });
+            $('#overlay').innerHTML='';
+            toast(network+' withdrawal queued. Funds are locked until payout verification.');
+            await loadPortfolio();await loadBalance();render();
+          }catch(e){
+            confirm.disabled=false;confirm.textContent='Confirm withdrawal';
+            toast(e.message||'Withdrawal could not be started',true);
+          }
+        };
+      }
+    }catch(e){
+      btn.disabled=false;
+      btn.textContent=isDeposit?'Get payment instructions':'Review withdrawal';
+      toast(e.message||(isDeposit?'Deposit could not be started':'Withdrawal could not be started'),true);
+    }
+  };
 }
 async function runCashDepositFlow(){
   if(!state.online){toast('Offline: reconnect before depositing.',true);return}
-  const amount=askCashAmount('deposit'); if(!amount)return;
-  const network=askCashNetwork(); if(!network)return;
-  const phone=askCashPhone(); if(!phone)return;
-  if(!confirm('Deposit '+ugx(amount)+' using '+network+' Mobile Money from '+phone+'?'))return;
-  try{
-    await startManualDepositFallback(amount,phone,network);
-    await loadPortfolio(); await loadBalance(); render();
-  }catch(e){toast(e.message||'Deposit could not be started',true)}
+  cashFlowModal('deposit');
 }
 async function runCashWithdrawalFlow(){
   if(!state.online){toast('Offline: reconnect before withdrawing.',true);return}
-  const amount=askCashAmount('withdrawal'); if(!amount)return;
-  const network=askCashNetwork(); if(!network)return;
-  const phone=askCashPhone(); if(!phone)return;
-  if(!confirm('Withdraw '+ugx(amount)+' to '+network+' Mobile Money number '+phone+'?'))return;
-  try{
-    await startManualWithdrawalFallback(amount,phone,network);
-    await loadPortfolio(); await loadBalance(); render();
-  }catch(e){toast(e.message||'Withdrawal could not be started',true)}
+  cashFlowModal('withdrawal');
 }
-
 function renderPortfolio(){
   if(!state.user){
     $('#view').innerHTML='<section class="hero"><h1>Portfolio</h1><p>Sign in to see your balance, predictions and results.</p></section><button class="btn primary" id="signInNow">Sign in</button>';
@@ -1379,7 +1604,7 @@ function renderPortfolio(){
   const p=state.portfolio;
   if(!p){$('#view').innerHTML='<div class="loading">Loading your portfolio…</div>';loadPortfolio().then(render);return}
   const history=p.positions||[];
-  const active=(p.secondaryPositions||[]).filter(x=>Number(x.sellable_stake_ugx||0)>0);
+  const active=[]; // fixed-odds sportsbook mode: exchange exits are not customer-facing
   const cashMode=p.trading_mode==='cash';
   const statusOf=x=>String(x.position_status||'open').toLowerCase();
   const isOpen=x=>['open','active','pending'].includes(statusOf(x));
@@ -1401,10 +1626,10 @@ function renderPortfolio(){
     '<div class="hero-kpis"><span class="hero-kpi">'+(cashMode?ugx(balance):balance.toLocaleString('en-UG')+' practice credits')+'</span><span class="hero-kpi">'+openHistory.length+' open</span><span class="hero-kpi">'+won+' won · '+lost+' lost</span></div></section>'+
     (!cashMode?'<div class="statusbar"><span class="statuschip warn">Practice credits only · not withdrawable cash</span></div>':'')+
     '<div class="section-title"><h2>Open predictions</h2><button class="btn small ghost" id="findMarketBtn">Find a market</button></div>'+
-    (openHistory.length?'<div class="timeline">'+openHistory.map(x=>'<button class="item" data-open-market="'+esc(x.market_id)+'" style="width:100%;text-align:left;color:inherit"><div class="eyebrow"><span>'+esc(x.outcome_label)+' · '+ugx(x.total_stake_ugx)+'</span>'+chip(x)+'</div><b style="display:block;margin:7px 0">'+esc(x.market_title)+'</b><small>'+dt(x.last_trade_at)+'</small></button>').join('')+'</div>':'<div class="empty">No open predictions. Pick a market and choose YES or NO.</div>')+
+    (openHistory.length?'<div class="timeline">'+openHistory.map(x=>'<button class="item" data-open-market="'+esc(x.market_id)+'" style="width:100%;text-align:left;color:inherit"><div class="eyebrow"><span>'+esc(x.outcome_label)+' · '+ugx(x.total_stake_ugx)+'</span>'+chip(x)+'</div><b style="display:block;margin:7px 0">'+esc(x.market_title)+'</b><small>Odds '+(Number(x.effective_odds_decimal||0)>1?Number(x.effective_odds_decimal).toFixed(2):'—')+' · potential return '+(cashMode?ugx(x.quoted_payout_ugx||0):Number(x.quoted_payout_ugx||0).toLocaleString('en-UG')+' credits')+' · '+dt(x.last_trade_at)+'</small></button>').join('')+'</div>':'<div class="empty">No open predictions. Pick a market and choose YES or NO.</div>')+
     (active.length?'<div class="section-title"><h2>Exit early</h2></div><div class="timeline">'+active.map(x=>'<div class="item"><b>'+esc(x.market_title)+'</b><br><span>'+esc(x.outcome_label)+' · '+ugx(x.stake_ugx)+'</span><br><small>'+ugx(x.sellable_stake_ugx)+' can be exited</small><br><button class="btn small primary" style="margin-top:8px" data-cashout="'+x.position_id+'">'+(cashMode?'Cash out':'Exit prediction')+'</button></div>').join('')+'</div>':'')+
     '<div class="section-title"><h2>Results</h2></div>'+
-    (settled.length?'<div class="timeline">'+settled.map(x=>'<button class="item" data-open-market="'+esc(x.market_id)+'" style="width:100%;text-align:left;color:inherit"><div class="eyebrow"><span>'+esc(x.outcome_label)+' · '+ugx(x.total_stake_ugx)+'</span>'+chip(x)+'</div><b style="display:block;margin:7px 0">'+esc(x.market_title)+'</b><small>'+dt(x.last_trade_at)+'</small></button>').join('')+'</div>':'<div class="empty">Settled results will appear here.</div>')+
+    (settled.length?'<div class="timeline">'+settled.map(x=>'<button class="item" data-open-market="'+esc(x.market_id)+'" style="width:100%;text-align:left;color:inherit"><div class="eyebrow"><span>'+esc(x.outcome_label)+' · '+ugx(x.total_stake_ugx)+'</span>'+chip(x)+'</div><b style="display:block;margin:7px 0">'+esc(x.market_title)+'</b><small>Odds '+(Number(x.effective_odds_decimal||0)>1?Number(x.effective_odds_decimal).toFixed(2):'—')+' · '+dt(x.last_trade_at)+'</small></button>').join('')+'</div>':'<div class="empty">Settled results will appear here.</div>')+
     (cashMode?'<div class="card" style="margin-top:18px"><div class="section-title" style="margin-top:0"><h2>Wallet</h2><small style="color:var(--muted)">MTN & Airtel Money</small></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn primary" id="cashDepositBtn">Deposit</button><button class="btn" id="cashWithdrawBtn">Withdraw</button></div><p class="auth-note">Deposits are credited only after the backend verifies the Mobile Money transaction. Withdrawals remain locked until payout completion is confirmed.</p></div>':'<div class="card" style="margin-top:18px"><b>Real-money wallet is not active</b><p class="auth-note">Predict UG is currently using practice credits while live-money launch gates remain off.</p>'+(state.isAdmin?'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn small" id="previewDepositBtn">Preview deposit</button><button class="btn small" id="previewWithdrawBtn">Preview withdrawal</button></div>':'')+'</div>');
   if($('#findMarketBtn'))$('#findMarketBtn').onclick=()=>{state.tab='markets';render()};
   if($('#cashDepositBtn'))$('#cashDepositBtn').onclick=runCashDepositFlow;
@@ -1417,7 +1642,7 @@ function renderPortfolio(){
 async function loadWatchlist(){
   if(!state.user)return;
   const {data,error}=await supabase.from('watchlist').select('market_id,created_at').order('created_at',{ascending:false});if(error)throw error;
-  const ids=(data||[]).map(x=>x.market_id);const all=await rpc('market_feed',{p_category:null,p_search:null,p_limit:100});state.watchlist=(all||[]).filter(x=>ids.includes(x.market_id))
+  const ids=(data||[]).map(x=>x.market_id);const all=await rpc('sportsbook_market_feed',{p_category:null,p_search:null,p_limit:100,p_uganda_first:false});state.watchlist=(all||[]).filter(x=>ids.includes(x.market_id))
 }
 function renderWatchlist(){
   if(!state.user){$('#view').innerHTML='<section class="hero"><h1>Watchlist</h1><p>Sign in to save markets you care about.</p></section><button class="btn primary" id="watchSignIn">Sign in</button>';$('#watchSignIn').onclick=showAuth;return}
@@ -1438,7 +1663,7 @@ function renderLeaderboard(){
 }
 async function loadAdmin(){
   if(!state.isAdmin)return;
-  const [a,c,m,e,d,support,errors,recovery,aiProviders,autonomy,mtnStatus]=await Promise.all([
+  const [a,c,m,e,d,support,errors,recovery,aiProviders,autonomy,mtnStatus,treasury,sportsbookRisk,probabilityEngine]=await Promise.all([
     rpc('admin_ops_dashboard'),
     rpc('ceo_dashboard',{p_days:30}),
     rpc('admin_manual_momo_queue',{p_limit:100}),
@@ -1449,7 +1674,10 @@ async function loadAdmin(){
     rpc('admin_recovery_status'),
     rpc('admin_ai_provider_status'),
     rpc('admin_autonomy_status'),
-    rpc('admin_mtn_momo_status')
+    rpc('admin_mtn_momo_status'),
+    rpc('admin_platform_treasury_status'),
+    rpc('admin_sportsbook_risk_status'),
+    rpc('admin_probability_engine_status')
   ]);
   state.admin=a;
   state.ceo=c;
@@ -1462,6 +1690,9 @@ async function loadAdmin(){
   state.aiProviders=aiProviders||[];
   state.autonomy=autonomy||{};
   state.mtnStatus=mtnStatus||{};
+  state.treasury=treasury||{};
+  state.sportsbookRisk=sportsbookRisk||{};
+  state.probabilityEngine=probabilityEngine||{};
 }
 function renderAdmin(){
   if(!state.isAdmin){$('#view').innerHTML='<div class="empty">Admin access required.</div>';return}
@@ -1484,7 +1715,29 @@ function renderAdmin(){
         ' · Cash launch '+(state.autonomy?.production?.ready_for_cash_launch?'READY':'BLOCKED')+
       '</p>'+
     '</div>'+
-    '<div class="section-title"><h2>Launch blockers</h2></div><div class="timeline">'+((r.blockers||[]).length?r.blockers.map(x=>'<div class="item">'+esc(x)+'</div>').join(''):'<div class="item">No blockers.</div>')+'</div>'+    '<details style="margin-top:14px"><summary class="section-title" style="cursor:pointer"><h2 style="display:inline">Recovery readiness</h2></summary>'+
+    '<div class="section-title"><h2>Launch blockers</h2></div><div class="timeline">'+((r.blockers||[]).length?r.blockers.map(x=>'<div class="item">'+esc(x)+'</div>').join(''):'<div class="item">No blockers.</div>')+'</div>'+    '<div class="section-title"><h2>Sportsbook pricing & risk</h2></div>'+
+    '<div class="card"><div class="statgrid"><div class="stat"><small>Model</small><b>Dynamic fixed odds</b></div><div class="stat"><small>Risk health</small><b>'+esc(state.sportsbookRisk?.latest_audit?.health_status||'—')+'</b></div><div class="stat"><small>Near limit</small><b>'+Number(state.sportsbookRisk?.latest_audit?.near_limit_markets||0)+'</b></div><div class="stat"><small>Cash reserve</small><b>'+ugx(state.sportsbookRisk?.cash_book_reserve_ugx||0)+'</b></div></div><p class="auth-note" style="margin-top:10px">All enabled market categories use category margins plus live exposure adjustments. Accepted odds are locked per ticket. Real cash stays fail-closed while the cash reserve/limits or other launch gates are incomplete.</p></div>'+        '<div class="section-title"><h2>Probability Lab</h2><span class="statuschip">real-world validation</span></div>'+
+    '<div class="card">'+
+      '<div class="statgrid">'+
+        '<div class="stat"><small>Model</small><b>'+esc(state.probabilityEngine?.model_version||'—')+'</b></div>'+
+        '<div class="stat"><small>Training markets</small><b>'+Number(state.probabilityEngine?.training_samples||0).toLocaleString('en-UG')+'</b></div>'+
+        '<div class="stat"><small>Rolling backtest</small><b>'+esc(state.probabilityEngine?.rolling_temporal_backtest?.validation_status||'—')+'</b></div>'+
+        '<div class="stat"><small>Monthly walk-forward</small><b>'+esc(state.probabilityEngine?.monthly_walk_forward?.validation_status||'—')+'</b></div>'+
+      '</div>'+
+      '<div class="meta"><span>Training Brier</span><b>'+Number(state.probabilityEngine?.training_brier||0).toFixed(4)+'</b></div>'+
+      '<div class="meta"><span>Calibration error</span><b>'+Number(state.probabilityEngine?.expected_calibration_error||0).toFixed(4)+'</b></div>'+
+      '<div class="meta"><span>Rolling Brier gain</span><b>'+Number(state.probabilityEngine?.rolling_temporal_backtest?.brier_gain||0).toFixed(4)+'</b></div>'+
+      '<div class="meta"><span>Rolling log-loss gain</span><b>'+Number(state.probabilityEngine?.rolling_temporal_backtest?.log_loss_gain||0).toFixed(4)+'</b></div>'+
+      '<div class="meta"><span>Walk-forward Brier gain</span><b>'+Number(state.probabilityEngine?.monthly_walk_forward?.brier_gain||0).toFixed(4)+'</b></div>'+
+      '<div class="meta"><span>Live forward test</span><b>'+esc(state.probabilityEngine?.live_forward_test?.status||'collecting')+' · '+Number(state.probabilityEngine?.live_forward_test?.snapshots||0).toLocaleString('en-UG')+' snapshots · '+Number(state.probabilityEngine?.live_forward_test?.resolved_snapshot_scores||0)+' resolved</b></div>'+
+      '<div class="meta"><span>Pricing gate</span><b>'+esc(state.probabilityEngine?.pricing_gate?.reason||'—')+' · model cap '+Number(state.probabilityEngine?.pricing_gate?.algorithm_weight_cap||0).toFixed(2)+'</b></div>'+
+      '<div class="meta"><span>Stress test</span><b>'+esc(state.probabilityEngine?.pricing_gate?.stress_status||'—')+' · '+Number(state.probabilityEngine?.pricing_gate?.stress_iterations||0).toLocaleString('en-UG')+' quote trials</b></div>'+
+      '<div class="meta"><span>Source resilience</span><b>'+esc(state.probabilityEngine?.pricing_gate?.source_resilience_status||'—')+' · '+Number(state.probabilityEngine?.pricing_gate?.fresh_external_providers||0)+'/'+Number(state.probabilityEngine?.pricing_gate?.expected_external_providers||0)+' fresh benchmark providers</b></div>'+
+      '<div class="meta"><span>Consensus integrity</span><b>'+esc(state.probabilityEngine?.pricing_gate?.consensus_quality_status||'—')+'</b></div>'+
+      '<p class="auth-note" style="margin-top:10px">Predict UG uses time-separated validation, provider-by-category source reliability and reduced historical influence on long-horizon markets. Forward forecasts are frozen before outcomes and scored only after the real event resolves.</p>'+
+      ((state.probabilityEngine?.open_forward_tests||[]).length?'<details style="margin-top:10px"><summary class="auth-note" style="cursor:pointer">Open real-world tests</summary><div class="timeline" style="margin-top:8px">'+state.probabilityEngine.open_forward_tests.slice(0,8).map(x=>'<div class="item"><b>'+esc(x.title)+'</b><br><small>'+esc(x.category)+' · raw '+Number(x.raw_yes_probability||0).toFixed(1)+'% · calibrated '+Number(x.calibrated_yes_probability||0).toFixed(1)+'% · sportsbook '+Number(x.sportsbook_fair_yes_probability||0).toFixed(1)+'% · closes '+dt(x.close_time)+'</small></div>').join('')+'</div></details>':'')+
+      ((state.probabilityEngine?.source_category_reliability||[]).length?'<details style="margin-top:10px"><summary class="auth-note" style="cursor:pointer">Source reliability by category</summary><div class="timeline" style="margin-top:8px">'+state.probabilityEngine.source_category_reliability.slice(0,18).map(x=>'<div class="item"><b>'+esc(x.provider)+' · '+esc(x.category)+'</b><br><small>'+Number(x.sample_count||0).toLocaleString('en-UG')+' resolved markets · Brier '+Number(x.brier_score||0).toFixed(3)+' · weight '+Number(x.reliability_weight||0).toFixed(2)+'</small></div>').join('')+'</div></details>':'')+
+    '</div>'+    '<details style="margin-top:14px"><summary class="section-title" style="cursor:pointer"><h2 style="display:inline">Recovery readiness</h2></summary>'+
       '<div class="card"><div class="meta"><span>Status</span><b>'+esc(state.recoveryStatus?.status||'unknown')+'</b></div>'+
       '<div class="meta"><span>Last snapshot</span><b>'+esc(state.recoveryStatus?.checked_at?dt(state.recoveryStatus.checked_at):'current')+'</b></div>'+
       '<small>'+esc(JSON.stringify(state.recoveryStatus?.snapshot||{}).slice(0,700))+'</small></div></details>'+
@@ -1514,45 +1767,15 @@ function renderAdmin(){
       '</div>'+
       '<p class="auth-note" style="margin-top:10px">Recommended order: Gemini → OpenRouter Free → Groq → Cloudflare Workers AI. The deterministic Market Factory continues if every LLM is unavailable.</p>'+
     '</div>'+
-    '<div class="section-title"><h2>MTN MoMo API</h2></div>'+
+    '<div class="section-title"><h2>MTN + Airtel merchant cash rails</h2></div>'+
     '<div class="card">'+
-      '<p class="auth-note">Secure MTN setup for both Collections (deposits) and Disbursements (withdrawals). All four values are stored in Supabase Vault and never written into the APK or repository.</p>'+
-      '<div class="meta"><span>Collections / deposits</span><b>'+(state.mtnStatus?.collections_configured?'configured ✓':'not configured')+'</b></div>'+
-      '<div class="meta"><span>Disbursements / withdrawals</span><b>'+(state.mtnStatus?.disbursements_configured?'configured ✓':'not configured')+'</b></div>'+
-      '<div class="meta"><span>API user + API key</span><b>'+(state.mtnStatus?.api_user_present&&state.mtnStatus?.api_key_present?'configured ✓':'not configured')+'</b></div>'+
-      '<div class="meta"><span>Environment</span><b>'+esc(state.mtnStatus?.environment||'sandbox')+'</b></div>'+
-      '<div class="meta"><span>MTN status</span><b>'+esc(state.mtnStatus?.integration_status||'waiting for credentials')+'</b></div>'+
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
-        '<button class="btn small primary" id="mtnApiSetup">'+(state.mtnStatus?.configured?'Replace all MTN credentials':'Configure MTN credentials')+'</button>'+
-        '<button class="btn small" id="mtnApiTest" '+(state.mtnStatus?.configured?'':'disabled')+'>Test Collections + Disbursements</button>'+
-        '<button class="btn small primary" id="mtnSandboxE2E" '+(state.mtnStatus?.configured?'':'disabled')+'>Run MTN sandbox E2E</button>'+
-        (state.mtnStatus?.configured?'<button class="btn small danger" id="mtnApiClear">Remove credentials</button>':'')+
-      '</div>'+
-      '<p class="auth-note" style="margin-top:10px">Sandbox credentials can be tested safely, but real-money deposits and withdrawals remain off until MTN production approval, licensing and payout configuration are cleared.</p>'+
-    '</div>'+
-    '<div class="section-title"><h2>MTN Uganda production readiness</h2></div>'+
-    '<div class="card">'+
-      '<p class="auth-note">Keep sandbox working while you complete MTN Go-Live. Production credentials are stored separately and cannot enable live money by themselves.</p>'+
-      '<div class="meta"><span>Production credentials</span><b>'+(state.mtnStatus?.production_configured?'configured ✓':'waiting for MTN onboarding')+'</b></div>'+
-      '<div class="meta"><span>Uganda target</span><b>'+esc(state.mtnStatus?.production_target_environment||'mtnuganda')+'</b></div>'+
-      '<div class="meta"><span>Currency</span><b>'+esc(state.mtnStatus?.production_currency||'UGX')+'</b></div>'+
-      '<div class="meta"><span>HTTPS production base URL</span><b>'+(state.mtnStatus?.production_base_url_present?'configured ✓':'waiting')+'</b></div>'+
-      '<div class="meta"><span>Contract transferType</span><b>'+(state.mtnStatus?.production_transfer_type_present?'configured ✓':'add if MTN assigns one')+'</b></div>'+
-      '<div class="meta"><span>Live activation</span><b>LOCKED</b></div>'+
-      '<div class="timeline" style="margin-top:12px">'+
-        '<div class="item"><b>1. MTN Go-Live / Uganda</b><br><small>Select Uganda, package and Collections + Disbursements products.</small></div>'+
-        '<div class="item"><b>2. Business KYC + signed contract</b><br><small>Submit the business-owner and company documents requested by MTN.</small></div>'+
-        '<div class="item"><b>3. Partner Portal credentials</b><br><small>Create production API user/key and use the production Collections and Disbursements subscription keys.</small></div>'+
-        '<div class="item"><b>4. Callback + network</b><br><small>Register Predict UG HTTPS callback host and provide MTN any originating public IP they require.</small></div>'+
-        '<div class="item"><b>5. Production token test</b><br><small>Predict UG tests authentication only. No production transaction is sent.</small></div>'+
-      '</div>'+
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
-        '<a class="btn small" href="https://momoapi.mtn.com/" target="_blank" rel="noopener">Open MTN Go-Live portal</a>'+
-        '<button class="btn small primary" id="mtnProdSetup">'+(state.mtnStatus?.production_configured?'Replace production credentials':'Configure production credentials')+'</button>'+
-        '<button class="btn small" id="mtnProdTest" '+(state.mtnStatus?.production_configured?'':'disabled')+'>Test production tokens</button>'+
-        (state.mtnStatus?.production_configured?'<button class="btn small danger" id="mtnProdClear">Remove production credentials</button>':'')+
-      '</div>'+
-      '<p class="auth-note" style="margin-top:10px">Even after a successful token test, Predict UG keeps deposits, withdrawals and market staking disabled until licensing and provider approval are explicitly cleared.</p>'+
+      '<p class="auth-note">Predict UG uses the existing MTN and Airtel merchant codes only. Direct MTN/Airtel developer APIs, sandbox and production API onboarding are not part of the customer cash flow.</p>'+
+      '<div class="meta"><span>Deposit method</span><b>Merchant code</b></div>'+
+      '<div class="meta"><span>Withdrawal method</span><b>Merchant business-wallet payout</b></div>'+
+      '<div class="meta"><span>Deposit verification</span><b>Transaction reference + merchant SMS reconciliation</b></div>'+
+      '<div class="meta"><span>Duplicate protection</span><b>Enabled</b></div>'+
+      '<div class="meta"><span>Direct provider API</span><b>DISABLED</b></div>'+
+      '<p class="auth-note" style="margin-top:10px">Cash feature flags remain fail-closed until the separate Predict UG launch/compliance gates are cleared.</p>'+
     '</div>'+
     '<div class="section-title"><h2>Merchant phone automation</h2></div>'+
     '<div class="card">'+
@@ -1626,7 +1849,7 @@ function renderAdmin(){
       '</div>'+
     '</details>'+
     '<div class="section-title"><h2>Agent findings</h2></div><div class="admin-list">'+((a.open_agent_findings||[]).length?a.open_agent_findings.slice(0,20).map(x=>'<div class="item"><b>'+esc(x.summary)+'</b><br><small>'+esc(x.agent_key)+' · '+esc(x.severity)+' · '+dt(x.created_at)+'</small></div>').join(''):'<div class="empty">No open findings.</div>')+'</div>'+
-    '<div class="section-title"><h2>CEO snapshot</h2></div><div class="card"><div class="meta"><span>Users</span><b>'+Number(c.totals?.users||0)+'</b></div><div class="meta"><span>Open markets</span><b>'+Number(c.totals?.open_markets||0)+'</b></div><div class="meta"><span>News items</span><b>'+Number(c.totals?.news_items||0)+'</b></div><div class="meta"><span>Revenue</span><b>'+ugx(c.totals?.platform_revenue_ugx||0)+'</b></div></div>';
+    '<div class="section-title"><h2>CEO snapshot</h2></div><div class="card"><div class="meta"><span>Users</span><b>'+Number(c.totals?.users||0)+'</b></div><div class="meta"><span>Open markets</span><b>'+Number(c.totals?.open_markets||0)+'</b></div><div class="meta"><span>News items</span><b>'+Number(c.totals?.news_items||0)+'</b></div><div class="meta"><span>Sportsbook net result</span><b>'+ugx(state.treasury?.sportsbook_net_result_ugx??state.treasury?.realized_platform_revenue_ugx??0)+'</b></div><div class="meta"><span>Customer funds owed</span><b>'+ugx(state.treasury?.total_customer_liability_ugx||0)+'</b></div><div class="meta"><span>Unsettled market stakes</span><b>'+ugx(state.treasury?.unsettled_market_stakes_ugx||0)+'</b></div><p class="auth-note" style="margin-top:10px">Fixed-odds sportsbook result is stakes received minus winning payouts. Customer balances and unsettled liabilities remain reserved for users.</p></div>';
   $('#admCreate').onclick=async()=>{try{const title=$('#admTitle').value.trim(),cat=$('#admCat').value,close=$('#admClose').value,rule=$('#admRule').value.trim(),source=$('#admSource').value.trim();if(!title||!close||!rule)throw new Error('Title, close time and rule are required');await rpc('create_market',{p_title:title,p_category:cat,p_description:'',p_close_time:new Date(close).toISOString(),p_resolution_rule:rule,p_outcomes:[{label:'YES',seed_liquidity_ugx:50000},{label:'NO',seed_liquidity_ugx:50000}],p_source_name:source?'Primary source':null,p_source_url:source||null,p_platform_share_bps:900});toast('Market created');await loadMarkets();await loadAdmin();render()}catch(e){toast(e.message,true)}};
 
 
@@ -2274,9 +2497,7 @@ function showPasswordReset(recoveryMode=false){
 function trustedApkDownload(value){
   try{
     const u=new URL(String(value||''),PUBLIC_ORIGIN);
-    if(u.protocol==='https:'&&u.host==='predict-ug-app.onrender.com'&&u.pathname.startsWith('/downloads/')){
-      return u.toString();
-    }
+    if(u.protocol==='https:'&&u.host==='predict-ug-app.onrender.com'&&u.pathname.startsWith('/downloads/'))return u.toString();
   }catch{}
   return PUBLIC_ORIGIN+'/downloads/predict-ug.apk';
 }
@@ -2289,64 +2510,27 @@ async function fetchReleaseMetadata(){
   return meta;
 }
 async function checkForAppUpdate(interactive=false){
-  if(!state.online){
-    if(interactive)toast('Offline: reconnect to check for updates.',true);
-    return null;
-  }
+  if(!state.online){if(interactive)toast('Offline: reconnect to check for updates.',true);return null}
   try{
     const meta=await fetchReleaseMetadata();
-    const latestCode=Number(meta.versionCode||0);
-    const newer=latestCode>APP_VERSION_CODE;
+    const latestCode=Number(meta.versionCode||0), newer=latestCode>APP_VERSION_CODE;
     state.releaseUpdate=newer?meta:null;
     if(newer){
-      const version=String(meta.version||'new version');
-      if(interactive){
-        if(confirm('Predict UG '+version+' is available. Open the verified APK download?')){
-          location.href=trustedApkDownload(meta.canonicalDownload);
-        }
-      }else{
-        const key='predict_ug_update_notice_'+latestCode;
-        try{
-          if(localStorage.getItem(key)!=='1'){
-            localStorage.setItem(key,'1');
-            toast('Predict UG '+version+' is available · Profile → Update app');
-          }
-        }catch{}
-      }
-    }else if(interactive){
-      toast('Predict UG '+APP_BUILD+' is up to date');
-    }
+      const v=String(meta.version||'new version');
+      if(interactive){if(confirm('Predict UG '+v+' is available. Open the verified APK download?'))location.href=trustedApkDownload(meta.canonicalDownload)}
+      else{const key='predict_ug_update_notice_'+latestCode;try{if(localStorage.getItem(key)!=='1'){localStorage.setItem(key,'1');toast('Predict UG '+v+' is available · Profile → Update app')}}catch{}}
+    }else if(interactive)toast('Predict UG '+APP_BUILD+' is up to date');
     return meta;
-  }catch(e){
-    if(interactive)toast(e.message||'Could not check for updates',true);
-    return null;
-  }
+  }catch(e){if(interactive)toast(e.message||'Could not check for updates',true);return null}
 }
-async function forceAppUpdate(){
-  return checkForAppUpdate(true);
-}
+async function forceAppUpdate(){return checkForAppUpdate(true)}
 async function runAppCheck(){
   const out=[];
-  try{
-    const r=await fetch(INSTALL_ORIGIN+'?health=1&t='+Date.now(),{cache:'no-store'});
-    const h=await r.json();
-    out.push(h?.ok?'Backend: online':'Backend: problem');
-  }catch{out.push('Backend: offline')}
-  try{
-    const s=await supabase.auth.getSession();
-    out.push(s.data?.session?'Session: signed in':'Session: signed out');
-  }catch{out.push('Session: check failed')}
-  try{
-    const meta=await fetchReleaseMetadata();
-    out.push(Number(meta.versionCode)>APP_VERSION_CODE
-      ?('Update: '+String(meta.version||'new version')+' available')
-      :('App: Android '+APP_BUILD+' · latest'));
-  }catch{
-    out.push('App: Android '+APP_BUILD+' · update check unavailable');
-  }
+  try{const r=await fetch(INSTALL_ORIGIN+'?health=1&t='+Date.now(),{cache:'no-store'});const h=await r.json();out.push(h?.ok?'Backend: online':'Backend: problem')}catch{out.push('Backend: offline')}
+  try{const s=await supabase.auth.getSession();out.push(s.data?.session?'Session: signed in':'Session: signed out')}catch{out.push('Session: check failed')}
+  try{const meta=await fetchReleaseMetadata();out.push(Number(meta.versionCode)>APP_VERSION_CODE?('Update: '+String(meta.version||'new version')+' available'):('App: Android '+APP_BUILD+' · latest'))}catch{out.push('App: Android '+APP_BUILD+' · update check unavailable')}
   return out.join(' · ');
 }
-
 function showAuth(){
   const referralPrefill=pendingReferralCode();
   $('#overlay').innerHTML=
@@ -2553,10 +2737,7 @@ let deferredInstallPrompt=null;
 const INSTALL_ORIGIN='https://rnvyrlmrwhfauuskyhje.supabase.co/functions/v1/predict-ug-live';
 function isInstallOrigin(){return false}
 function isStandalone(){return window.matchMedia?.('(display-mode: standalone)')?.matches||navigator.standalone===true}
-function syncInstallButton(){
-  const btn=$('#installBtn');
-  if(btn)btn.classList.add('hidden');
-}
+function syncInstallButton(){const btn=$('#installBtn');if(btn)btn.classList.add('hidden');}
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;syncInstallButton()});
 window.addEventListener('online',()=>{state.online=true;toast('Back online');refreshAll();if(state.market?.market?.id&&!isClosed(state.market.market))startMarketRealtime(state.market.market.id)});
 window.addEventListener('offline',()=>{state.online=false;stopMarketRealtime();toast('Offline: showing last synced data');render();if(state.market)drawMarket()});
@@ -2566,7 +2747,7 @@ $('#installBtn').onclick=()=>{};
 syncInstallButton();
 if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>Promise.all(regs.filter(r=>r.scope.includes('/functions/v1/predict-ug-web')).map(r=>r.unregister()))).catch(()=>{});
-  if(isInstallOrigin()){navigator.serviceWorker.register(INSTALL_ORIGIN+'?asset=sw&v=13',{scope:'/functions/v1/predict-ug-live',updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});}
+  if(isInstallOrigin()){navigator.serviceWorker.register(INSTALL_ORIGIN+'?asset=sw&v=14',{scope:'/functions/v1/predict-ug-live',updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});}
 }
 if('caches' in window){
   caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('predict-ug')).map(k=>caches.delete(k)))).catch(()=>{});
