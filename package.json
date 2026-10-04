@@ -1,7 +1,7 @@
 {
   "name": "predict-ug-core",
   "private": true,
-  "version": "0.7.44",
+  "version": "0.7.45",
   "description": "Predict UG public consumer Android build mirror",
   "engines": {
     "node": ">=22"

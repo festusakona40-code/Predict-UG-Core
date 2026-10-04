@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.44. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.45. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#071426"/>
@@ -132,8 +132,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.44';
-const APP_VERSION_CODE=50;
+const APP_BUILD='0.7.45';
+const APP_VERSION_CODE=51;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -259,13 +259,20 @@ function behaviorSessionId(){
 async function trackBehavior(eventName,{category=null,marketId=null,metadata={}}={}){
   if(!state.user||!state.online)return;
   const political=isPoliticalCategory(category);
+  const clientSurface=typeof APP_VERSION_CODE==='number'?'android':'web';
   try{
     await supabase.rpc('record_user_behavior_event',{
       p_event_name:eventName,
       p_category:political?null:(category||null),
       p_market_id:political?null:(marketId||null),
       p_session_id:behaviorSessionId(),
-      p_metadata:{...metadata,political_personalization_excluded:political||undefined}
+      p_metadata:{
+        ...metadata,
+        client_surface:clientSurface,
+        app_build:APP_BUILD,
+        app_version_code:clientSurface==='android'?APP_VERSION_CODE:null,
+        political_personalization_excluded:political||undefined
+      }
     });
   }catch(e){
     reportClientError(e.message||'Behavior event failed',e.stack||'',{kind:'behavior_event',event_name:eventName});
@@ -339,7 +346,7 @@ function showHowItWorks(){
         '<div class="item"><b>3 · Practice first</b><br><small>The public beta uses practice credits unless your account explicitly shows approved cash mode. Practice credits cannot be withdrawn.</small></div>'+
         '<div class="item"><b>4 · Settlement is rule-based</b><br><small>Every market has a published resolution rule and source. Predict UG does not settle a market just because AI or users think an outcome happened.</small></div>'+
       '</div>'+
-      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.44 · bundled frontend</p></div>'+
+      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.45 · bundled frontend</p></div>'+
       '<div class="auth-wrap" style="margin-top:12px"><button class="btn primary" id="howStart">Try a starter market</button><button class="btn ghost" id="howDone">Browse all markets</button><button class="btn ghost" id="howFeedback">Something is confusing</button></div>'+
     '</div></div>';
   $('#howClose').onclick=$('#howDone').onclick=()=>$('#overlay').innerHTML='';
@@ -1824,7 +1831,7 @@ async function loadAdmin(){
 function renderAdmin(){
   if(!state.isAdmin){$('#view').innerHTML='<div class="empty">Admin access required.</div>';return}
   if(!state.admin){$('#view').innerHTML='<div class="loading">Loading admin control room…</div>';loadAdmin().then(render);return}
-  const a=state.admin,r=a.production_readiness||{},b=a.build_completion||{},c=state.ceo||{},t=state.businessTraction||{},tu=t.users||{},tf=t.activation_funnel||{},ta=t.forecast_activity||{},ti=t.market_inventory||{},tg=t.growth||{},tr=t.release||{};
+  const a=state.admin,r=a.production_readiness||{},b=a.build_completion||{},c=state.ceo||{},t=state.businessTraction||{},tu=t.users||{},tf=t.activation_funnel||{},ta=t.forecast_activity||{},ti=t.market_inventory||{},tg=t.growth||{},tr=t.release||{},tcb=t.activation_by_client_build||[];
   $('#view').innerHTML='<section class="hero"><h1>Predict UG Ops</h1><p>Core product, agents, settlement and launch controls.</p></section>'+
     '<div class="statgrid"><div class="stat"><small>Build done</small><b>'+Number(b.done||0)+'</b></div><div class="stat"><small>Readiness</small><b>'+Number(r.readiness_score||0)+'/100</b></div><div class="stat"><small>E2E</small><b>'+esc(a.latest_e2e?.status||'—')+'</b></div><div class="stat"><small>Recovery</small><b>'+esc(state.recoveryStatus?.status||'—')+'</b></div></div>'+
     '<div class="section-title"><h2>Customer & business traction</h2><span class="statuschip">aggregate · QA excluded</span></div>'+
@@ -1837,12 +1844,16 @@ function renderAdmin(){
       '</div>'+
       '<div class="meta"><span>Registered → predictor</span><b>'+((Number(tg.registered_to_predictor_rate||0)*100).toFixed(1))+'%</b></div>'+
       '<div class="meta"><span>Observed app users (30d)</span><b>'+Number(tu.behavior_active_in_window||0).toLocaleString('en-UG')+'</b></div>'+
+      '<div class="meta"><span>Starter market users</span><b>'+Number(tf.starter_market_users||0).toLocaleString('en-UG')+'</b></div>'+
+      '<div class="meta"><span>Guide → starter</span><b>'+((Number(tf.guide_to_starter_rate||0)*100).toFixed(1))+'%</b></div>'+
+      '<div class="meta"><span>Starter → prediction</span><b>'+((Number(tf.starter_to_prediction_rate||0)*100).toFixed(1))+'%</b></div>'+
       '<div class="meta"><span>Market viewers → prediction</span><b>'+((Number(tf.market_view_to_prediction_rate||0)*100).toFixed(1))+'%</b></div>'+
       '<div class="meta"><span>Shares / referrals (30d)</span><b>'+Number(tf.share_users||0)+' / '+Number(tg.referral_claims_in_window||0)+'</b></div>'+
       '<div class="meta"><span>Uganda-local / Uganda feed</span><b>'+Number(ti.uganda_local_or_creator_markets||0)+' / '+Number(ti.uganda_feed_markets||0)+'</b></div>'+
       '<div class="meta"><span>Customer Android</span><b>'+esc(tr.version||'—')+' · code '+Number(tr.version_code||0)+'</b></div>'+
       '<p class="auth-note" style="margin-top:10px">Forecast-credit volume is product-validation activity, not cash revenue. QA accounts, direct identity fields and political personalization are excluded from this report.</p>'+
       ((t.prediction_category_mix||[]).length?'<details style="margin-top:10px"><summary class="auth-note" style="cursor:pointer">Prediction category mix</summary><div class="timeline" style="margin-top:8px">'+t.prediction_category_mix.map(x=>'<div class="item"><b>'+esc(x.category)+'</b><br><small>'+Number(x.predictions||0)+' predictions · '+Number(x.users||0)+' user(s) · '+ugx(x.forecast_credit_volume_ugx||0)+' forecast credits</small></div>').join('')+'</div></details>':'')+
+      (tcb.length?'<details style="margin-top:10px"><summary class="auth-note" style="cursor:pointer">Activation by client / build</summary><div class="timeline" style="margin-top:8px">'+tcb.map(x=>'<div class="item"><b>'+esc(x.client_surface||'unknown')+' · '+esc(x.app_build||'unknown')+(x.app_version_code?' · code '+Number(x.app_version_code):'')+'</b><br><small>'+Number(x.users||0)+' user(s) · '+Number(x.app_open_users||0)+' opens · '+Number(x.market_view_users||0)+' market viewers · '+Number(x.starter_market_users||0)+' starter users · '+Number(x.prediction_submitted_users||0)+' predictors</small></div>').join('')+'</div></details>':'')+
     '</div>'+
     '<div class="section-title"><h2>Autonomy status</h2></div>'+
     '<div class="card">'+
