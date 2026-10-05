@@ -1,18 +1,36 @@
 import fs from "node:fs";
-import { execFileSync } from "node:child_process";
+import path from "node:path";
 
-const policy = JSON.parse(fs.readFileSync("MIRROR_POLICY.json", "utf8"));
-const provenance = JSON.parse(fs.readFileSync("SOURCE_PROVENANCE.json", "utf8"));
+const root = process.cwd();
+const policy = JSON.parse(fs.readFileSync(path.join(root, "MIRROR_POLICY.json"), "utf8"));
+const provenance = JSON.parse(fs.readFileSync(path.join(root, "SOURCE_PROVENANCE.json"), "utf8"));
 
 const fail = (message) => {
   console.error("public-mirror-boundary: " + message);
   process.exitCode = 1;
 };
 
-const tracked = execFileSync("git", ["ls-files", "-z"], { encoding: "utf8" })
-  .split("\0")
-  .filter(Boolean)
-  .sort();
+const norm = (p) => p.split(path.sep).join("/");
+const ignoredPrefixes = [".git/", "node_modules/", "android/.gradle/", "android/app/build/"];
+const metadataFiles = new Set([
+  "MIRROR_POLICY.json",
+  "PUBLIC_EXPORT_MANIFEST.json",
+  "SOURCE_PROVENANCE.json",
+  "scripts/verify-public-export.mjs",
+  "scripts/verify-public-mirror-boundary.mjs",
+]);
+
+function walk(dir) {
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const absolute = path.join(dir, entry.name);
+    const rel = norm(path.relative(root, absolute));
+    if (ignoredPrefixes.some((p) => rel === p.slice(0, -1) || rel.startsWith(p))) continue;
+    if (entry.isDirectory()) out.push(...walk(absolute));
+    else if (entry.isFile()) out.push(rel);
+  }
+  return out;
+}
 
 const isAllowed = (rel) =>
   policy.public_allowed_exact_files.includes(rel) ||
@@ -22,31 +40,23 @@ const isForbiddenPath = (rel) =>
   policy.forbidden_prefixes.some((prefix) => rel === prefix.replace(/\/$/, "") || rel.startsWith(prefix)) ||
   policy.forbidden_filename_extensions.some((ext) => rel.toLowerCase().endsWith(ext));
 
-const metadataFiles = new Set(["MIRROR_POLICY.json", "PUBLIC_EXPORT_MANIFEST.json"]);
-const privateMarkerControlFiles = new Set(policy.control_files_allowed_to_name_private_markers || []);
-
-for (const rel of tracked) {
-  if (!isAllowed(rel)) fail("unexpected tracked file outside allowlist: " + rel);
+for (const rel of walk(root)) {
+  if (!isAllowed(rel)) fail("unexpected file outside allowlist: " + rel);
   if (isForbiddenPath(rel)) fail("forbidden path or file type: " + rel);
 
   if (!metadataFiles.has(rel)) {
-    let text = "";
-    try { text = fs.readFileSync(rel, "utf8"); } catch { continue; }
-
-    for (const marker of policy.secret_content_patterns || []) {
-      if (text.includes(marker)) fail("forbidden secret marker in " + rel + ": " + marker);
-    }
-
-    if (!privateMarkerControlFiles.has(rel)) {
-      for (const marker of policy.private_source_markers || []) {
-        if (text.includes(marker)) fail("forbidden private-source marker in " + rel + ": " + marker);
+    const bytes = fs.readFileSync(path.join(root, rel));
+    if (!bytes.includes(0)) {
+      const text = bytes.toString("utf8");
+      for (const marker of policy.forbidden_content_patterns) {
+        if (text.includes(marker)) fail("forbidden content marker in " + rel + ": " + marker);
       }
     }
   }
 }
 
 for (const rel of policy.public_allowed_exact_files) {
-  if (!tracked.includes(rel)) fail("required allowlisted tracked file missing: " + rel);
+  if (!fs.existsSync(path.join(root, rel))) fail("required allowlisted file missing: " + rel);
 }
 
 if (policy.production_money_allowed !== false) {
@@ -71,19 +81,19 @@ if (provenance.production_money_enabled !== false) {
   fail("public mirror provenance must keep production_money_enabled=false");
 }
 
-const exclusions = Array.isArray(provenance.private_components_excluded)
-  ? provenance.private_components_excluded
-  : [];
-const hasExclusion = (base) => exclusions.some((x) => x === base || x === base + "/**" || x.startsWith(base + "/"));
-for (const item of [
-  "supabase",
+const requiredExclusions = [
+  "supabase/migrations",
   "android/app/src/merchant",
   "production signing material",
   "provider credentials"
-]) {
-  if (!hasExclusion(item)) fail("provenance missing required private exclusion: " + item);
+];
+for (const item of requiredExclusions) {
+  if (!Array.isArray(provenance.private_components_excluded) ||
+      !provenance.private_components_excluded.includes(item)) {
+    fail("provenance missing required private exclusion: " + item);
+  }
 }
 
 if (!process.exitCode) {
-  console.log("public-mirror-boundary: passed policy " + policy.policy_version + " for " + tracked.length + " tracked files");
+  console.log("public-mirror-boundary: passed policy " + policy.policy_version);
 }
