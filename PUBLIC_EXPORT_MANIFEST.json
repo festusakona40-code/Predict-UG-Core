@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "source_repository": "festusakona40-code/Predict-Ug",
+  "public_repository": "festusakona40-code/Predict-UG-Core",
+  "source_commit": "4b684f81385a830cd1700e11d32d55cc04eba5a1",
+  "policy": "allowlist_only",
+  "exact_copy_files": {
+    "android/app/src/consumer/AndroidManifest.xml": "06d42104786f27ba435db89dd8de2ae976754aac",
+    "android/app/src/main/assets/index.html": "9ff85aebbd7e9cbe69ca1f65b348f718b1c41560",
+    "android/app/src/main/java/com/predictug/app/AppOriginPolicy.java": "0f78df6b3f1411d498c7488bc08a86b644f1ab81",
+    "android/app/src/main/java/com/predictug/app/MainActivity.java": "147d1600053b66515c8dc79b80834c6e4d6bc298",
+    "android/app/src/main/java/com/predictug/app/NativeCrashReporter.java": "4d1cc7a8d5f9a975fc1e448061c1e98b238850ed",
+    "android/app/src/main/java/com/predictug/app/PlayIntegrityBridge.java": "74f773da5c9cfbaba632c8c8742aae503c1d727f",
+    "android/app/src/main/res/drawable/ic_launcher.xml": "956b594690bb5bc7b26ba74783b36d4c02fbb508",
+    "android/app/src/main/res/values/strings.xml": "ad48b31194179c93eb8f2c20b4a8fbe3bd70483e",
+    "android/app/src/main/res/xml/backup_rules.xml": "ce0b32432a06d0978e0f0ba660c50b34c801d1e4",
+    "android/app/src/main/res/xml/data_extraction_rules.xml": "224515d8b15faaaff5fbe052391b855b0429ceb2",
+    "android/app/src/test/java/com/predictug/app/AppOriginPolicyTest.java": "c22bdafe93ddad75c179bf31d95ad0a88ebcb0b9",
+    "android/build.gradle": "9a0c48ae316faa507559841fec2a4557a7703fd8",
+    "android/gradle.properties": "2e11322913e56c04783e2f5dbe7927b9e0539007",
+    "android/settings.gradle": "66484309bcd717958695ffe910d1928a5b8379ce"
+  },
+  "transformed_public_files": {
+    "android/app/build.gradle": "consumer-only Gradle projection; merchant flavor/signing configuration removed",
+    "android/app/src/main/AndroidManifest.xml": "consumer-safe base manifest projection",
+    "package.json": "public mirror package metadata; no private scripts",
+    "package-lock.json": "lockfile generated from public mirror package manifest"
+  },
+  "public_maintained_files": [
+    ".github/workflows/android-consumer.yml",
+    ".github/workflows/source-guard.yml",
+    ".gitignore",
+    ".gitleaks.toml",
+    "AGENTS.md",
+    "CONTRIBUTING.md",
+    "README.md",
+    "SECURITY.md",
+    "SOURCE_PROVENANCE.json",
+    "PUBLIC_EXPORT_MANIFEST.json",
+    "scripts/prepare-consumer-assets.mjs",
+    "scripts/verify-android-release-contract.mjs",
+    "scripts/verify-public-export.mjs"
+  ],
+  "forbidden_prefixes": [
+    "supabase/",
+    "android/app/src/merchant/",
+    "docs/",
+    "private/",
+    "ops/",
+    "secrets/"
+  ],
+  "forbidden_patterns": [
+    ".env",
+    ".pem",
+    ".p12",
+    ".pfx",
+    ".jks",
+    ".keystore",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "sb_secret_",
+    "BEGIN PRIVATE KEY",
+    "MerchantSmsReceiver",
+    "MerchantSecureStore",
+    "android.permission.RECEIVE_SMS",
+    "android.permission.READ_SMS"
+  ],
+  "guarantees": {
+    "production_money_enabled": false,
+    "production_deployments_from_public_repo": false,
+    "production_signing_material_allowed": false,
+    "provider_credentials_allowed": false
+  }
+}
