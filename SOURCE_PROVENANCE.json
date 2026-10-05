@@ -1,21 +1,24 @@
 {
   "schema_version": 2,
-  "generated_at_utc": "2026-10-05T09:28:00Z",
+  "generated_at_utc": "2026-10-05T09:25:00Z",
   "source_repository": "festusakona40-code/Predict-Ug",
   "source_visibility": "private",
-  "source_commit": "481a2b16e2c273efbd36e7cabdb162a1f3cb44e7",
+  "source_commit": "4b684f81385a830cd1700e11d32d55cc04eba5a1",
   "public_repository": "festusakona40-code/Predict-UG-Core",
-  "mirror_policy_version": "2026-10-05.2",
+  "sync_parent_public_commit": "cf6a3a73f5ac42d6ae7e8b2d5d65051e49646113",
   "consumer_version": "0.7.46",
   "consumer_version_code": 52,
+  "export_policy": "allowlist_only",
+  "export_manifest": "PUBLIC_EXPORT_MANIFEST.json",
   "production_money_enabled": false,
-  "ci_authority": "public_consumer_build_and_source_validation",
-  "production_authority": "private_backend_and_manual_release_gates",
+  "production_deployments_from_public_repo": false,
+  "production_signing_material_in_public_repo": false,
   "private_components_excluded": [
-    "supabase/migrations",
-    "android/app/src/merchant",
+    "supabase/**",
+    "android/app/src/merchant/**",
     "production signing material",
     "provider credentials",
-    "private operational runbooks"
+    "private operational runbooks",
+    "private CI/deployment automation"
   ]
 }
