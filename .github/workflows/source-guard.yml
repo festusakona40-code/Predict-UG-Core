@@ -21,19 +21,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
-      - name: Reject private source classes and secret material
-        shell: bash
-        run: |
-          set -euo pipefail
-          test ! -d supabase/migrations
-          test ! -d android/app/src/merchant
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
 
-          if find . -type f \( -name '*.jks' -o -name '*.keystore' -o -name '*.pem' -o -name '*.p12' -o -name '*.pfx' \) -print -quit | grep -q .; then
-            echo "::error::Signing or key material is forbidden in the public mirror"
-            exit 1
-          fi
-
-          if grep -R -n -E 'SUPABASE_SERVICE_ROLE_KEY|sb_secret_|BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY|RECEIVE_SMS|READ_SMS|MerchantSmsReceiver|MerchantSecureStore' .             --exclude-dir=.git --exclude-dir=.github --exclude=package-lock.json; then
-            echo "::error::Private or sensitive source leaked into the public mirror"
-            exit 1
-          fi
+      - name: Enforce sanitized mirror boundary and provenance
+        run: node scripts/verify-public-mirror-boundary.mjs
