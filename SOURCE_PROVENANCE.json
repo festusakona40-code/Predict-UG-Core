@@ -21,5 +21,10 @@
     "private operational runbooks",
     "private CI/deployment automation"
   ],
-  "mirror_policy_version": "2026-10-05.3"
+  "mirror_policy_version": "2026-10-05.3",
+  "public_ci_run": 37291341202,
+  "public_ci_conclusion": "success",
+  "artifact_name": "predict-ug-public-consumer",
+  "artifact_id": 11337190552,
+  "artifact_digest": "sha256:6370c466fcabb3f1e6c345a258caf3e83356da3c6dfd04b9153d2bb103f77486"
 }
