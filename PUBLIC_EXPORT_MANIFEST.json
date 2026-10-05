@@ -33,13 +33,15 @@
     ".gitleaks.toml",
     "AGENTS.md",
     "CONTRIBUTING.md",
+    "MIRROR_POLICY.json",
+    "PUBLIC_EXPORT_MANIFEST.json",
     "README.md",
     "SECURITY.md",
     "SOURCE_PROVENANCE.json",
-    "PUBLIC_EXPORT_MANIFEST.json",
     "scripts/prepare-consumer-assets.mjs",
     "scripts/verify-android-release-contract.mjs",
-    "scripts/verify-public-export.mjs"
+    "scripts/verify-public-export.mjs",
+    "scripts/verify-public-mirror-boundary.mjs"
   ],
   "forbidden_prefixes": [
     "supabase/",
