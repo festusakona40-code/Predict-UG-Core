@@ -2,7 +2,7 @@
   "schema_version": 1,
   "source_repository": "festusakona40-code/Predict-Ug",
   "public_repository": "festusakona40-code/Predict-UG-Core",
-  "source_commit": "4b3e64193df4368dfa73e295a91cf20ba4c7f333",
+  "source_commit": "c79a0d8b2c05b12ab155e979dc468028c9abe984",
   "policy": "allowlist_only",
   "exact_copy_files": {
     "android/app/src/consumer/AndroidManifest.xml": "06d42104786f27ba435db89dd8de2ae976754aac",
