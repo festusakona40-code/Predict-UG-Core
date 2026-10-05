@@ -28,3 +28,6 @@ jobs:
 
       - name: Enforce sanitized mirror boundary and provenance
         run: node scripts/verify-public-mirror-boundary.mjs
+
+      - name: Verify exact private-source export parity
+        run: node scripts/verify-public-export.mjs
