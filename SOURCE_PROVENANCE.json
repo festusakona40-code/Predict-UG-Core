@@ -14,8 +14,8 @@
   "production_deployments_from_public_repo": false,
   "production_signing_material_in_public_repo": false,
   "private_components_excluded": [
-    "supabase/**",
-    "android/app/src/merchant/**",
+    "supabase/migrations",
+    "android/app/src/merchant",
     "production signing material",
     "provider credentials",
     "private operational runbooks",
