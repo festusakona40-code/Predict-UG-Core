@@ -48,6 +48,12 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Enforce sanitized mirror boundary and provenance
+        run: node scripts/verify-public-mirror-boundary.mjs
+
+      - name: Verify exact private-source export parity
+        run: node scripts/verify-public-export.mjs
+
       - name: Install pinned browser dependency
         run: npm ci --ignore-scripts --no-audit --no-fund
 
@@ -56,12 +62,6 @@ jobs:
 
       - name: Verify release/update contract
         run: node scripts/verify-android-release-contract.mjs
-
-      - name: Enforce sanitized mirror boundary and provenance
-        run: node scripts/verify-public-mirror-boundary.mjs
-
-      - name: Verify exact private-source export parity
-        run: node scripts/verify-public-export.mjs
 
       - name: Verify origin-bound native bridge
         shell: bash
