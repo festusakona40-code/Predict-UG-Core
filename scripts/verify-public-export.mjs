@@ -60,7 +60,16 @@ for (const prefix of manifest.forbidden_prefixes || []) {
   }
 }
 
+const policyMetadataFiles = new Set([
+  "PUBLIC_EXPORT_MANIFEST.json",
+  "MIRROR_POLICY.json",
+  "SOURCE_PROVENANCE.json",
+  "scripts/verify-public-export.mjs",
+  "scripts/verify-public-mirror-boundary.mjs",
+]);
+
 const textFiles = tracked.filter((file) => {
+  if (policyMetadataFiles.has(file)) return false;
   try {
     const stat = fs.statSync(file);
     return stat.size <= 5_000_000;
