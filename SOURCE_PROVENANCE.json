@@ -20,5 +20,6 @@
     "provider credentials",
     "private operational runbooks",
     "private CI/deployment automation"
-  ]
+  ],
+  "mirror_policy_version": "2026-10-05.3"
 }
