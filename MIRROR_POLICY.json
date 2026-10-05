@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "policy_version": "2026-10-05.2",
+  "canonical_private_repository": "festusakona40-code/Predict-Ug",
+  "public_ci_repository": "festusakona40-code/Predict-UG-Core",
+  "purpose": "Deterministic allowlist for the sanitized public consumer CI mirror.",
+  "public_allowed_exact_files": [
+    ".github/workflows/android-consumer.yml",
+    ".github/workflows/source-guard.yml",
+    ".gitignore",
+    ".gitleaks.toml",
+    "AGENTS.md",
+    "CONTRIBUTING.md",
+    "README.md",
+    "SECURITY.md",
+    "SOURCE_PROVENANCE.json",
+    "MIRROR_POLICY.json",
+    "android/app/build.gradle",
+    "android/build.gradle",
+    "android/gradle.properties",
+    "android/settings.gradle",
+    "package.json",
+    "package-lock.json",
+    "scripts/prepare-consumer-assets.mjs",
+    "scripts/verify-android-release-contract.mjs",
+    "scripts/verify-public-mirror-boundary.mjs"
+  ],
+  "public_allowed_prefixes": [
+    "android/app/src/consumer/",
+    "android/app/src/main/",
+    "android/app/src/test/"
+  ],
+  "forbidden_prefixes": [
+    "supabase/",
+    "android/app/src/merchant/",
+    "public-mirror/",
+    "docs/",
+    ".env",
+    ".git/"
+  ],
+  "forbidden_filename_extensions": [
+    ".jks",
+    ".keystore",
+    ".pem",
+    ".p12",
+    ".pfx",
+    ".key"
+  ],
+  "forbidden_content_patterns": [
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_SECRET_KEYS",
+    "sb_secret_",
+    "BEGIN RSA PRIVATE KEY",
+    "BEGIN EC PRIVATE KEY",
+    "BEGIN OPENSSH PRIVATE KEY",
+    "PESAPAL_CONSUMER_SECRET",
+    "MTN_MOMO_API_KEY",
+    "AIRTEL_CLIENT_SECRET",
+    "android.permission.RECEIVE_SMS",
+    "android.permission.READ_SMS",
+    "MerchantSmsReceiver",
+    "MerchantSecureStore"
+  ],
+  "production_money_allowed": false
+}
