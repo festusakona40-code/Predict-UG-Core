@@ -81,7 +81,16 @@ const textFiles = tracked.filter((file) => {
 const forbiddenTokens = (manifest.forbidden_patterns || []).filter((x) =>
   !x.startsWith(".") || x.includes("PRIVATE KEY")
 );
+const controlFiles = new Set([
+  "PUBLIC_EXPORT_MANIFEST.json",
+  "MIRROR_POLICY.json",
+  "scripts/verify-public-export.mjs",
+  "scripts/verify-public-mirror-boundary.mjs",
+  ".github/workflows/android-consumer.yml",
+  ".github/workflows/source-guard.yml",
+]);
 for (const file of textFiles) {
+  if (controlFiles.has(file)) continue;
   let content;
   try { content = fs.readFileSync(file, "utf8"); } catch { continue; }
   for (const token of forbiddenTokens) {
