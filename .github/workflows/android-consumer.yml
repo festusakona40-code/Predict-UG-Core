@@ -7,6 +7,11 @@ on:
       - "package.json"
       - "package-lock.json"
       - "scripts/prepare-consumer-assets.mjs"
+      - "scripts/verify-public-export.mjs"
+      - "scripts/verify-public-mirror-boundary.mjs"
+      - "PUBLIC_EXPORT_MANIFEST.json"
+      - "MIRROR_POLICY.json"
+      - "SOURCE_PROVENANCE.json"
       - ".github/workflows/android-consumer.yml"
   push:
     branches: [main]
@@ -15,6 +20,11 @@ on:
       - "package.json"
       - "package-lock.json"
       - "scripts/prepare-consumer-assets.mjs"
+      - "scripts/verify-public-export.mjs"
+      - "scripts/verify-public-mirror-boundary.mjs"
+      - "PUBLIC_EXPORT_MANIFEST.json"
+      - "MIRROR_POLICY.json"
+      - "SOURCE_PROVENANCE.json"
       - ".github/workflows/android-consumer.yml"
   workflow_dispatch:
 
