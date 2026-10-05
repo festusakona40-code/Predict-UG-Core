@@ -48,7 +48,8 @@
     ".pfx",
     ".key"
   ],
-  "forbidden_content_patterns": [
+  "production_money_allowed": false,
+  "secret_content_patterns": [
     "SUPABASE_SERVICE_ROLE_KEY",
     "SUPABASE_SECRET_KEYS",
     "sb_secret_",
@@ -57,11 +58,17 @@
     "BEGIN OPENSSH PRIVATE KEY",
     "PESAPAL_CONSUMER_SECRET",
     "MTN_MOMO_API_KEY",
-    "AIRTEL_CLIENT_SECRET",
+    "AIRTEL_CLIENT_SECRET"
+  ],
+  "private_source_markers": [
     "android.permission.RECEIVE_SMS",
     "android.permission.READ_SMS",
     "MerchantSmsReceiver",
     "MerchantSecureStore"
   ],
-  "production_money_allowed": false
+  "control_files_allowed_to_name_private_markers": [
+    ".github/workflows/android-consumer.yml",
+    ".github/workflows/source-guard.yml",
+    "scripts/verify-public-mirror-boundary.mjs"
+  ]
 }
