@@ -13,6 +13,7 @@ const fail = (message) => {
 const norm = (p) => p.split(path.sep).join("/");
 const ignoredPrefixes = [".git/", "node_modules/", "android/.gradle/", "android/app/build/"];
 const metadataFiles = new Set(["MIRROR_POLICY.json"]);
+const privateMarkerControlFiles = new Set(policy.control_files_allowed_to_name_private_markers || []);
 
 function walk(dir) {
   const out = [];
@@ -42,8 +43,13 @@ for (const rel of walk(root)) {
     const bytes = fs.readFileSync(path.join(root, rel));
     if (!bytes.includes(0)) {
       const text = bytes.toString("utf8");
-      for (const marker of policy.forbidden_content_patterns) {
-        if (text.includes(marker)) fail("forbidden content marker in " + rel + ": " + marker);
+      for (const marker of policy.secret_content_patterns || []) {
+        if (text.includes(marker)) fail("forbidden secret marker in " + rel + ": " + marker);
+      }
+      if (!privateMarkerControlFiles.has(rel)) {
+        for (const marker of policy.private_source_markers || []) {
+          if (text.includes(marker)) fail("forbidden private-source marker in " + rel + ": " + marker);
+        }
       }
     }
   }
