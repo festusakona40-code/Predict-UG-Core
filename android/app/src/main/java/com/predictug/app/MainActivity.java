@@ -29,6 +29,8 @@ import androidx.webkit.WebViewAssetLoader;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
 
+import org.json.JSONObject;
+
 import java.util.Collections;
 
 public class MainActivity extends ComponentActivity {
@@ -36,12 +38,16 @@ public class MainActivity extends ComponentActivity {
     private static final String APP_URL = APP_ORIGIN + "/assets/index.html";
 
     private WebView webView;
+    private boolean pageFinishedForShare = false;
+    private String pendingSharedText = null;
+    private String pendingSharedTitle = null;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         NativeCrashReporter.install(this, "android", BuildConfig.VERSION_NAME);
+        captureSharedText(getIntent());
 
         final WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
                 .setDomain("appassets.androidplatform.net")
@@ -137,6 +143,8 @@ public class MainActivity extends ComponentActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                pageFinishedForShare = true;
+                deliverPendingSharedText();
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     if (webView == null || isFinishing()) return;
                     webView.evaluateJavascript(
@@ -269,6 +277,68 @@ public class MainActivity extends ComponentActivity {
         }
     }
 
+    private static String trimShared(CharSequence value, int max) {
+        if (value == null) return null;
+        String text = value.toString().trim();
+        if (text.isEmpty()) return null;
+        return text.length() > max ? text.substring(0, max) : text;
+    }
+
+    private void captureSharedText(Intent intent) {
+        if (intent == null || !Intent.ACTION_SEND.equals(intent.getAction())) return;
+        String type = intent.getType();
+        if (type == null || !type.toLowerCase().startsWith("text/")) return;
+
+        String text = trimShared(intent.getCharSequenceExtra(Intent.EXTRA_TEXT), 6000);
+        String title = trimShared(intent.getCharSequenceExtra(Intent.EXTRA_SUBJECT), 240);
+        if (text == null && title == null) return;
+
+        pendingSharedText = text != null ? text : title;
+        pendingSharedTitle = title;
+    }
+
+    private void deliverPendingSharedText() {
+        if (!pageFinishedForShare || webView == null || pendingSharedText == null) return;
+
+        try {
+            JSONObject payload = new JSONObject();
+            payload.put("text", pendingSharedText);
+            if (pendingSharedTitle != null) payload.put("title", pendingSharedTitle);
+            payload.put("source", "android_share");
+            payload.put("received_at_ms", System.currentTimeMillis());
+
+            String script =
+                    "(function(){try{var p=" + payload.toString()
+                            + ";localStorage.setItem('predictug_pending_shared_claim_v1',JSON.stringify(p));"
+                            + "if(typeof window.__predictUgReceiveSharedClaim==='function'){"
+                            + "window.__predictUgReceiveSharedClaim(p);}"
+                            + "return 'stored';}catch(e){return 'error';}})()";
+
+            webView.evaluateJavascript(script, value -> {
+                if (value != null && !value.contains("error")) {
+                    pendingSharedText = null;
+                    pendingSharedTitle = null;
+                }
+            });
+        } catch (Exception error) {
+            NativeCrashReporter.reportNonFatal(
+                    this,
+                    "android-share",
+                    BuildConfig.VERSION_NAME,
+                    "Could not hand shared text to Claim Checker",
+                    String.valueOf(error)
+            );
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        captureSharedText(intent);
+        deliverPendingSharedText();
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         if (webView != null) {
@@ -279,6 +349,7 @@ public class MainActivity extends ComponentActivity {
 
     @Override
     protected void onDestroy() {
+        pageFinishedForShare = false;
         if (webView != null) {
             webView.stopLoading();
             webView.setWebChromeClient(null);
