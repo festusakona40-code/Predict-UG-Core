@@ -1186,7 +1186,7 @@ function drawMarket(){
       '<button class="btn ghost" style="width:100%;margin-top:8px" id="watchBtn">'+(d.__watched?'★ Watching':'☆ Save this market')+'</button>'+
 
       (isClosed(m)?'<button class="btn ghost" style="width:100%;margin-top:8px" id="settleRequestBtn">Request settlement</button>':'')+
-      '<p class="auth-note">'+(state.status?.real_money_enabled?'Cash mode follows your eligibility.':'Cash deposits and withdrawals remain unavailable until approval. Forecast participation is active.')+'</p>'+
+      '<p class="auth-note">'+(state.status?.real_money_enabled?'Cash mode follows your eligibility.':'Cash deposits and withdrawals remain unavailable until approval. Practice-credit predictions are active.')+'</p>'+
       ((d.my_positions||[]).length?'<div class="item"><b>Your position</b><br>'+d.my_positions.map(p=>esc(p.outcome_label)+' · '+ugx(p.total_stake_ugx)+' · '+esc(p.position_status)).join('<br>')+'</div>':'')+
       adminPanel+
     '</div></aside></div></div></div>';
@@ -1211,16 +1211,19 @@ function drawMarket(){
       '<div class=\"risk-grid\"><div class=\"risk-card win\"><small>If you are right</small><div class=\"risk-number\">'+esc(returnText)+'</div><div class=\"auth-note\">fixed potential return</div></div>'+
       '<div class=\"risk-card loss\"><small>If you are wrong</small><div class=\"risk-number\">− '+esc(lossText)+'</div><div class=\"auth-note\">full stake lost · return 0</div></div></div>'+
       '<div class=\"quote-row\"><span>Potential profit</span><b>'+esc(profitText)+'</b></div>'+
-      '<div class=\"quote-row\"><span>Decimal odds</span><b>'+odds.toFixed(2)+'</b></div>'+
-      '<div class=\"quote-row\"><span>Fair probability</span><b>'+fair.toFixed(2)+'%</b></div>'+
-      '<div class=\"quote-row\"><span>Odds probability</span><b>'+offered.toFixed(2)+'%</b></div>'+
-      '<div class=\"quote-row\"><span>Base margin</span><b>'+margin.toFixed(0)+'% built into odds</b></div>'+
-      '<div class=\"quote-row\"><span>Pricing signal</span><b>'+esc(source)+'</b></div>'+
+      '<div class=\"quote-row\"><span>Your odds</span><b>'+odds.toFixed(2)+'</b></div>'+
       (maxStake>0?'<div class=\"quote-row\"><span>Maximum accepted now</span><b>'+esc(quoteValue(q,maxStake))+'</b></div>':'')+
       (!bookOpen?'<div class=\"auth-note\" style=\"margin-top:8px;color:var(--amber)\">This market is temporarily unavailable for new predictions.</div>':'')+
       (bookOpen&&!acceptable?'<div class=\"auth-note\" style=\"margin-top:8px;color:var(--amber)\">Your amount is above the current risk limit. Reduce the stake to '+esc(quoteValue(q,maxStake))+'.</div>':'')+
-      '<div class=\"trade-formula\">Your accepted odds are locked for this prediction. If correct, return = stake × accepted odds. If wrong, the stake is lost. Pricing can change for later predictions as market probability and exposure move.</div>';
+      '<details style=\"margin-top:10px\"><summary class=\"auth-note\" style=\"cursor:pointer\">How these odds work</summary><div style=\"padding-top:8px\">'+
+        '<div class=\"quote-row\"><span>Fair probability</span><b>'+fair.toFixed(2)+'%</b></div>'+
+        '<div class=\"quote-row\"><span>Odds probability</span><b>'+offered.toFixed(2)+'%</b></div>'+
+        '<div class=\"quote-row\"><span>Base margin</span><b>'+margin.toFixed(0)+'%</b></div>'+
+        '<div class=\"quote-row\"><span>Pricing signal</span><b>'+esc(source)+'</b></div>'+
+        '<div class=\"trade-formula\">Your accepted odds are locked for this prediction. If correct, return = stake × accepted odds. If wrong, the stake is lost. Pricing can change for later predictions as market probability and exposure move.</div>'+
+      '</div></details>';
     $('#placeBtn').disabled=!(bookOpen&&acceptable);
+    $('#placeBtn').textContent='Review '+chosen.label+' prediction';
   };
   const updateQuote=async()=>{
     latestQuote=null;
