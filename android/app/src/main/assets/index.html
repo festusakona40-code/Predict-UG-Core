@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.48. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.49. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#071426"/>
@@ -85,6 +85,13 @@
     .home-kicker span{color:var(--muted);font-weight:800}
     .home-intro-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:16px}
     .quiet-badge{font-size:.77rem;color:var(--muted);padding:7px 10px;border:1px solid rgba(255,255,255,.07);border-radius:999px}
+    .event-rail{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(250px,330px);gap:10px;overflow-x:auto;padding:2px 0 8px;scroll-snap-type:x proximity;scrollbar-width:none}
+    .event-rail::-webkit-scrollbar{display:none}
+    .event-card{scroll-snap-align:start;text-align:left;color:inherit;border:1px solid #1b3b31;border-radius:15px;background:#0a1714;padding:14px;min-height:150px;cursor:pointer}
+    .event-card:hover{border-color:#2a7658;background:#0d1e19}
+    .event-card h3{margin:7px 0 9px;font-size:1rem;line-height:1.32}
+    .event-card .event-series{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#78dfbb;font-weight:900}
+    .event-card .event-bottom{display:flex;justify-content:space-between;gap:10px;margin-top:13px;padding-top:10px;border-top:1px solid rgba(255,255,255,.05);font-size:.72rem;color:var(--muted)}
     .market-toolbar{position:sticky;top:58px;z-index:18;background:linear-gradient(180deg,rgba(7,17,15,.98),rgba(7,17,15,.94));padding:10px 0 4px;margin-bottom:2px}
     .market-toolbar .searchrow{margin:0 0 10px}.market-toolbar .chips{padding-bottom:7px}
     .chip{background:#0a1714;border-color:#1b372e;padding:8px 12px}.chip.active{background:#113326;border-color:#2a7658;color:#a6f3d8}
@@ -126,6 +133,15 @@
     .detail-head-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
     .detail-head .detail-title{font-size:clamp(1.55rem,5vw,2.2rem);line-height:1.12;letter-spacing:-.038em;margin:0 54px 8px 0}
     .detail-head .detail-sub{font-size:.82rem;line-height:1.45}
+    .lifecycle-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:12px 0}
+    .lifecycle-step{border:1px solid #1b3b31;border-radius:11px;background:#091612;padding:9px 8px;text-align:center;color:#70867d;font-size:.68rem;font-weight:800}
+    .lifecycle-step.done{color:#8df0cd;border-color:#235c49;background:rgba(53,210,154,.055)}
+    .lifecycle-step.active{color:#fff;border-color:#2a7658;background:#113326}
+    .rules-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:9px}
+    .rules-summary-item{border:1px solid #18382f;border-radius:11px;background:#091612;padding:10px}
+    .rules-summary-item small{display:block;color:var(--muted);font-size:.68rem;margin-bottom:4px}
+    .rules-summary-item b{font-size:.82rem;line-height:1.35}
+    @media(max-width:600px){.lifecycle-strip{grid-template-columns:repeat(2,1fr)}.rules-summary-grid{grid-template-columns:1fr}}
     .detail-facts{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
     .detail-fact{padding:7px 9px;border:1px solid #1a392f;border-radius:999px;background:#0a1714;color:var(--muted);font-size:.73rem}
     .detail-fact strong{color:var(--text)}
@@ -236,8 +252,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.48';
-const APP_VERSION_CODE=54;
+const APP_BUILD='0.7.49';
+const APP_VERSION_CODE=55;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -259,7 +275,7 @@ function clearStoredAuthSession(){
   }catch{}
 }
 
-const state={tab:'markets',session:null,user:null,isAdmin:false,status:null,categories:[],markets:[],ugandaTrends:[],ugandaDemand:[],ugandaSocialRadar:[],ugandaConsumption:[],ugandaPulse:[],recentResults:[],socialSourceStatus:null,socialClaims:[],socialClaimNote:'',digitalProfile:null,category:'',search:'',market:null,portfolio:null,watchlist:[],notifications:[],leaderboard:[],trends:[],stories:[],creators:[],externalSignals:[],weatherSignals:[],statementSignals:[],officialData:[],admin:null,ceo:null,businessTraction:null,aiProviders:[],autonomy:null,loading:false,online:navigator.onLine,realtimeStatus:'idle',realtimeMarketId:null,balance:null,balanceMode:'forecast_credit',unreadNotifications:0,behaviorPrefs:[],behaviorSessionId:null};
+const state={tab:'markets',session:null,user:null,isAdmin:false,status:null,categories:[],markets:[],marketEvents:[],ugandaTrends:[],ugandaDemand:[],ugandaSocialRadar:[],ugandaConsumption:[],ugandaPulse:[],recentResults:[],socialSourceStatus:null,socialClaims:[],socialClaimNote:'',digitalProfile:null,category:'',search:'',market:null,portfolio:null,watchlist:[],notifications:[],leaderboard:[],trends:[],stories:[],creators:[],externalSignals:[],weatherSignals:[],statementSignals:[],officialData:[],admin:null,ceo:null,businessTraction:null,aiProviders:[],autonomy:null,loading:false,online:navigator.onLine,realtimeStatus:'idle',realtimeMarketId:null,balance:null,balanceMode:'forecast_credit',unreadNotifications:0,behaviorPrefs:[],behaviorSessionId:null};
 
 const $=s=>document.querySelector(s);
 const esc=(s='')=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
@@ -811,6 +827,20 @@ async function syncPaymentReturn(){
     history.replaceState({},'',location.pathname);
   }catch(e){toast('Payment status check failed',true)}
 }
+async function loadEventHub(){
+  const key='event-hub:'+(state.category||'all');
+  try{
+    const data=await rpc('uganda_event_hub',{
+      p_category:state.category||null,
+      p_limit:14
+    });
+    state.marketEvents=Array.isArray(data?.events)?data.events:[];
+    cacheWrite(key,data);
+  }catch(e){
+    const cached=cacheRead(key);
+    state.marketEvents=Array.isArray(cached?.value?.events)?cached.value.events:[];
+  }
+}
 async function loadPublicBootstrap(){
   const key='bootstrap:'+(state.category||'all')+':'+(state.search||'');
   try{
@@ -827,6 +857,7 @@ async function loadPublicBootstrap(){
     state.ugandaSocialRadar=b?.uganda_social_radar||[];
     state.ugandaConsumption=b?.uganda_consumption||[];
     state.recentResults=b?.recent_results||[];
+    await loadEventHub();
     cacheWrite(key,b);
   }catch(e){
     const cached=cacheRead(key);
@@ -840,6 +871,7 @@ async function loadPublicBootstrap(){
     state.ugandaSocialRadar=b?.uganda_social_radar||[];
     state.ugandaConsumption=b?.uganda_consumption||[];
     state.recentResults=b?.recent_results||[];
+    await loadEventHub();
     state.status={...(state.status||{}),offline_cache:true,offline_saved_at:cached.saved_at};
   }
 }
@@ -873,6 +905,7 @@ async function loadMarkets(){
   try{
     const rows=await rpc('uganda_sportsbook_market_feed',{p_category:state.category||null,p_search:state.search||null,p_limit:80,p_uganda_first:true})||[];
     state.markets=personalizeMarkets(rows);
+    await loadEventHub();
     cacheWrite(key,rows);
     if(state.status?.offline_cache){
       const next={...(state.status||{})};
@@ -965,6 +998,48 @@ function marketCard(m){
     '<div class="meta"><span class="trust-mark">✓ '+esc(trust)+'</span><span>'+(m.watched?'★ Saved':'View market →')+'</span></div>'+
   '</article>';
 }
+function eventHubCard(e){
+  const markets=Array.isArray(e?.markets)?e.markets:[];
+  const top=markets[0]||{};
+  const count=Number(e?.market_count||markets.length||0);
+  const yes=top?.yes_probability==null?null:Number(top.yes_probability);
+  return '<button class="event-card" data-event="'+esc(e.event_id||'')+'">'+
+    '<div class="event-series">'+esc(e.series_title||e.category||'Predict UG event')+'</div>'+
+    '<h3>'+esc(e.title||top.title||'Event')+'</h3>'+
+    '<div class="source-row">'+
+      '<span class="source-pill">'+esc(e.category||'Market')+'</span>'+
+      '<span class="source-pill">'+count+' market'+(count===1?'':'s')+'</span>'+
+      (yes==null?'':'<span class="source-pill">'+yes.toFixed(0)+'% YES</span>')+
+    '</div>'+
+    '<div class="event-bottom"><span>'+esc(e.source_name||'Verified source')+'</span><span>'+dt(e.first_close_time||e.event_at)+'</span></div>'+
+  '</button>';
+}
+async function openEvent(eventId){
+  const cached=(state.marketEvents||[]).find(x=>x.event_id===eventId);
+  if(cached&&Number(cached.market_count||cached.markets?.length||0)===1){
+    const marketId=cached.markets?.[0]?.market_id;
+    if(marketId){openMarket(marketId);return}
+  }
+  let page=null;
+  try{
+    page=await rpc('uganda_event_page',{p_event_id:eventId});
+  }catch(e){
+    if(cached)page={event:cached,markets:cached.markets||[]};
+  }
+  if(!page?.event){toast('Could not open event',true);return}
+  const markets=Array.isArray(page.markets)?page.markets:[];
+  if(markets.length===1){openMarket(markets[0].market_id);return}
+  $('#overlay').innerHTML=
+    '<div class="modal"><div class="sheet" style="max-width:760px">'+
+      '<button class="close" id="eventClose">✕</button>'+
+      '<div class="media-label">'+esc(page.event.series_title||page.event.category||'Predict UG event')+'</div>'+
+      '<h2>'+esc(page.event.title||'Event')+'</h2>'+
+      '<p class="auth-note">'+esc(page.event.source_name||'Verified source')+' · '+dt(page.event.event_at)+'</p>'+
+      '<div class="grid">'+markets.map(marketCard).join('')+'</div>'+
+    '</div></div>';
+  $('#eventClose').onclick=()=>{$('#overlay').innerHTML=''};
+  document.querySelectorAll('#overlay [data-market]').forEach(el=>el.onclick=()=>openMarket(el.dataset.market));
+}
 function renderMarkets(){
   const mode=state.status?.trading_mode||'forecast_credit';
   const starterMarket=starterMarketCandidate();
@@ -975,6 +1050,7 @@ function renderMarkets(){
   const ugDemand=(state.ugandaDemand||[]).slice(0,6);
   const social=(state.ugandaSocialRadar||[]).slice(0,6);
   const recent=(state.recentResults||[]).slice(0,6);
+  const events=(state.marketEvents||[]).slice(0,12);
   const consumption=(state.ugandaConsumption||[]).filter(x=>x.scope==='uganda_local_chart').slice(0,8);
   const metricShort=n=>{n=Number(n||0);return n>=1000000?(n/1000000).toFixed(n>=10000000?1:2)+'M':n>=1000?(n/1000).toFixed(0)+'K':n.toLocaleString('en-UG')};
 
@@ -994,6 +1070,8 @@ function renderMarkets(){
       '<div class="searchrow"><input class="input" id="searchInput" value="'+esc(state.search)+'" placeholder="Search Predict UG"><button class="btn primary" id="searchBtn">Search</button></div>'+
       '<div class="chips"><button class="chip '+(!state.category?'active':'')+'" data-category="">All</button>'+state.categories.map(c=>'<button class="chip '+(state.category===c.category_key?'active':'')+'" data-category="'+esc(c.category_key)+'">'+esc(c.label)+'</button>').join('')+'</div>'+
     '</section>'+
+
+    (events.length?'<div class="section-title"><div><span class="feed-kicker">Events</span><h2>Explore by event</h2></div><small style="color:var(--muted)">Series → event → market</small></div><div class="event-rail">'+events.map(eventHubCard).join('')+'</div>':'')+
 
     '<div class="market-feed-header"><div><span class="feed-kicker">Trending</span><h2>Uganda now</h2></div><button class="btn small ghost" data-tab="media">Open Pulse</button></div>'+
     (localMarkets.length?'<div class="grid">'+localMarkets.map(marketCard).join('')+'</div>':'<div class="empty">No Uganda markets match your filters right now.</div>')+
@@ -1017,6 +1095,7 @@ function renderMarkets(){
 
     '<div class="card" style="margin-top:18px"><div class="auth-note">Predict UG public beta · practice credits are not cash.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn small primary" id="footerHowItWorks">How it works</button><button class="btn small ghost" id="homePrivacy">Privacy</button><button class="btn small ghost" id="homeTerms">Terms</button><button class="btn small ghost" id="homeSupport">Support</button></div></div>';
 
+  document.querySelectorAll('[data-event]').forEach(el=>el.onclick=()=>openEvent(el.dataset.event));
   document.querySelectorAll('[data-result-market]').forEach(el=>el.onclick=()=>openMarket(el.dataset.resultMarket));
   if($('#homeHowItWorks'))$('#homeHowItWorks').onclick=showHowItWorks;
   if($('#footerHowItWorks'))$('#footerHowItWorks').onclick=showHowItWorks;
@@ -1126,6 +1205,56 @@ async function showAdvancedBuy(m,outcome){
   }
 }
 
+function lifecycleStripHtml(m,d){
+  const status=String(m?.status||'open').toLowerCase();
+  const proposal=d?.resolution?.latest_proposal||{};
+  const settled=['resolved','void'].includes(status);
+  const closed=settled||status==='closed'||status==='suspended'||new Date(m?.close_time)<new Date();
+  const reviewing=!settled&&(proposal?.id||closed);
+  const step=(label,mode)=>'<div class="lifecycle-step '+mode+'">'+label+'</div>';
+  return '<div class="lifecycle-strip">'+
+    step('1 · Trading',status==='open'?'active':'done')+
+    step('2 · Closed',closed?(reviewing?'done':'active'):'')+
+    step('3 · Determination',settled?'done':reviewing?'active':'')+
+    step('4 · Settled',settled?'active':'')+
+  '</div>';
+}
+function rulesSummaryHtml(m,d){
+  const mode=(d?.trading_mode||'forecast_credit')==='cash'?'Cash market':'Practice credits';
+  const catalog=d?.contract||{};
+  const series=catalog.series||{};
+  const event=catalog.event||{};
+  const spec=catalog.contract||{};
+  const rules=catalog.rules_summary||{};
+  const question=rules.question||m.title||'';
+  const measured=rules.value_measured||question;
+  const sourceName=rules.verification_source_name||m.source_name||'Attached market rule';
+  const sourceUrl=rules.verification_source_url||m.source_url||'';
+  const determination=event.determination_at||spec.expected_determination_at||null;
+  const exactRule=rules.yes_condition||catalog.rules_primary||m.resolution_rule||'No rule provided';
+  const secondaryRule=catalog.rules_secondary||'';
+  const seriesTitle=series.title||m.category||'Market';
+  const contractType=String(spec.contract_type||'binary').replaceAll('_',' ');
+  const strikeType=String(spec.strike_type||'yes/no').replaceAll('_',' ');
+  return '<div class="card detail-card" style="margin-top:12px">'+
+    '<div class="section-title" style="margin-top:0"><h2>What decides this market</h2><span class="statuschip">Official contract</span></div>'+
+    '<div class="rules-summary-grid">'+
+      '<div class="rules-summary-item"><small>Series</small><b>'+esc(seriesTitle)+'</b></div>'+
+      '<div class="rules-summary-item"><small>What is measured</small><b>'+esc(short(measured))+'</b></div>'+
+      '<div class="rules-summary-item"><small>Trading closes</small><b>'+dt(m.close_time)+'</b></div>'+
+      '<div class="rules-summary-item"><small>Expected determination</small><b>'+(determination?dt(determination):'After source confirmation')+'</b></div>'+
+      '<div class="rules-summary-item"><small>Official source</small><b>'+esc(sourceName)+'</b></div>'+
+      '<div class="rules-summary-item"><small>Contract</small><b>'+esc(contractType)+' · '+esc(strikeType)+'</b></div>'+
+      '<div class="rules-summary-item"><small>Payout model</small><b>'+esc(mode)+' · accepted odds lock at placement</b></div>'+
+      '<div class="rules-summary-item"><small>Question</small><b>'+esc(question)+'</b></div>'+
+    '</div>'+
+    '<details open style="margin-top:10px"><summary class="auth-note" style="cursor:pointer">Exact YES / NO rule</summary><p style="line-height:1.55">'+esc(exactRule)+'</p>'+
+      (secondaryRule?'<p class="auth-note">'+esc(secondaryRule)+'</p>':'')+
+      '<p class="auth-note">Social posts, news and AI can help discover or explain a market, but they do not decide the result unless the published contract explicitly names them as the verification source.</p>'+
+    '</details>'+
+    (sourceUrl?'<div class="meta"><span>Verification</span><a href="'+esc(sourceUrl)+'" target="_blank" rel="noopener">Open official source ↗</a></div>':'')+
+  '</div>';
+}
 function drawMarket(){
   const d=state.market,m=d?.market;if(!m)return;
   const offlineDetail=!!d.__offline_cache||!state.online;
@@ -1195,11 +1324,12 @@ function drawMarket(){
       '<div class="detail-head-top"><div class="eyebrow"><span>'+esc(m.category)+'</span></div><span class="market-status-pill">'+esc(m.status||'open')+'</span></div>'+
       '<h2 class="detail-title">'+esc(m.title)+'</h2>'+
       '<div class="detail-sub">Closes '+dt(m.close_time)+liveLabel+(offlineDetail?' · Offline read-only'+(d.__offline_saved_at?' · synced '+cachedAgeLabel({saved_at:d.__offline_saved_at}):''):'')+'</div>'+
-      '<div class="detail-facts"><span class="detail-fact"><strong>'+(yes?pct(yes.display_probability):'—')+'</strong> YES chance</span><span class="detail-fact">'+esc(detailMode)+'</span><span class="detail-fact">Resolution source: <strong>'+esc(m.source_name||'attached rule')+'</strong></span></div>'+
+      '<div class="detail-facts"><span class="detail-fact"><strong>'+(yes?pct(yes.display_probability):'—')+'</strong> YES chance</span><span class="detail-fact">'+esc(detailMode)+'</span><span class="detail-fact">Resolution source: <strong>'+esc(m.source_name||'attached rule')+'</strong></span></div>'+lifecycleStripHtml(m,d)+
     '</section>'+
     '<div class="detail-grid"><div>'+
       '<div class="card detail-card probability-card"><div class="section-title"><h2>Market probability</h2><span class="statuschip">'+(yes?pct(yes.display_probability):'—')+' YES</span></div>'+historySvg(d)+'</div>'+
-      '<div class="card detail-card resolution-card" style="margin-top:12px"><h3>How this market resolves</h3><p>'+esc(m.resolution_rule||'No rule provided')+'</p><div class="meta"><span>'+esc(m.source_name||'Source not attached')+'</span>'+(m.source_url?'<a href="'+esc(m.source_url)+'" target="_blank" rel="noopener">Open source ↗</a>':'')+'</div></div>'+
+      rulesSummaryHtml(m,d)+
+
       ((d.resolution?.clarifications||[]).length?'<div class="section-title"><h2>Clarifications</h2></div><div class="timeline">'+d.resolution.clarifications.map(c=>'<div class="item">'+esc(c.clarification_text)+'<br><small>'+dt(c.created_at)+'</small></div>').join('')+'</div>':'')+
       resolutionPanel+
       intelligencePanel+
@@ -1460,7 +1590,10 @@ async function showSocialClaimChecker(){
           esc(String(x.verification_status||'unverified').replaceAll('_',' '))+
           (x.authoritative_source_id?' · check '+esc(String(x.authoritative_source_id).replaceAll('-',' ')):'')+
           ' · '+esc(String(x.market_eligibility||'context_only').replaceAll('_',' '))+
-          '</small></div>'
+          '</small>'+
+          (x.authoritative_value!=null?'<br><small><b>Official reference:</b> '+esc(String(x.authoritative_value))+' '+esc(x.authoritative_unit||'')+'</small>':'')+
+          (x.evidence_note?'<br><small>'+esc(x.evidence_note)+'</small>':'')+
+          '</div>'
         ).join('')+'</div>':'<div class="empty">No measurable claim was detected in that text.</div>')+
         '<p class="auth-note">This analysis is private user-shared context. It does not publish a market or settle anything automatically.</p>'+
         '<button class="btn ghost" id="claimDeleteNow">Delete this analysis now</button>';
