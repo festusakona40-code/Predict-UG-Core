@@ -2,6 +2,7 @@ package com.predictug.app;
 
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
+import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -29,8 +30,14 @@ import androidx.webkit.WebViewAssetLoader;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
 
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.TextRecognition;
+import com.google.mlkit.vision.text.TextRecognizer;
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
+
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.Collections;
 
 public class MainActivity extends ComponentActivity {
@@ -41,13 +48,15 @@ public class MainActivity extends ComponentActivity {
     private boolean pageFinishedForShare = false;
     private String pendingSharedText = null;
     private String pendingSharedTitle = null;
+    private Uri pendingSharedImageUri = null;
+    private boolean sharedImageProcessing = false;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         NativeCrashReporter.install(this, "android", BuildConfig.VERSION_NAME);
-        captureSharedText(getIntent());
+        captureSharedContent(getIntent());
 
         final WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
                 .setDomain("appassets.androidplatform.net")
@@ -57,6 +66,7 @@ public class MainActivity extends ComponentActivity {
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(7, 20, 38));
         setContentView(webView);
+        processPendingSharedImage();
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -284,17 +294,121 @@ public class MainActivity extends ComponentActivity {
         return text.length() > max ? text.substring(0, max) : text;
     }
 
-    private void captureSharedText(Intent intent) {
+    private Uri sharedImageUri(Intent intent) {
+        if (intent == null) return null;
+
+        Uri uri = null;
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                uri = intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri.class);
+            } else {
+                //noinspection deprecation
+                uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            }
+        } catch (Exception ignored) {
+        }
+
+        if (uri != null) return uri;
+
+        ClipData clipData = intent.getClipData();
+        if (clipData != null && clipData.getItemCount() > 0) {
+            return clipData.getItemAt(0).getUri();
+        }
+        return null;
+    }
+
+    private void captureSharedContent(Intent intent) {
         if (intent == null || !Intent.ACTION_SEND.equals(intent.getAction())) return;
+
         String type = intent.getType();
-        if (type == null || !type.toLowerCase().startsWith("text/")) return;
-
-        String text = trimShared(intent.getCharSequenceExtra(Intent.EXTRA_TEXT), 6000);
+        if (type == null) return;
+        String normalizedType = type.toLowerCase();
         String title = trimShared(intent.getCharSequenceExtra(Intent.EXTRA_SUBJECT), 240);
-        if (text == null && title == null) return;
 
-        pendingSharedText = text != null ? text : title;
-        pendingSharedTitle = title;
+        if (normalizedType.startsWith("text/")) {
+            String text = trimShared(intent.getCharSequenceExtra(Intent.EXTRA_TEXT), 6000);
+            if (text == null && title == null) return;
+
+            pendingSharedImageUri = null;
+            pendingSharedText = text != null ? text : title;
+            pendingSharedTitle = title;
+            return;
+        }
+
+        if (normalizedType.startsWith("image/")) {
+            Uri imageUri = sharedImageUri(intent);
+            if (imageUri == null) return;
+
+            pendingSharedText = null;
+            pendingSharedTitle = title;
+            pendingSharedImageUri = imageUri;
+        }
+    }
+
+    private void processPendingSharedImage() {
+        if (sharedImageProcessing || pendingSharedImageUri == null) return;
+
+        final Uri imageUri = pendingSharedImageUri;
+        final InputImage image;
+        try {
+            image = InputImage.fromFilePath(this, imageUri);
+        } catch (IOException | SecurityException error) {
+            pendingSharedImageUri = null;
+            NativeCrashReporter.reportNonFatal(
+                    this,
+                    "android-share-ocr",
+                    BuildConfig.VERSION_NAME,
+                    "Could not open shared screenshot",
+                    String.valueOf(error)
+            );
+            Toast.makeText(
+                    this,
+                    "Predict UG could not read that screenshot. Try sharing it again.",
+                    Toast.LENGTH_LONG
+            ).show();
+            return;
+        }
+
+        sharedImageProcessing = true;
+        final TextRecognizer recognizer =
+                TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+
+        recognizer.process(image)
+                .addOnSuccessListener(result -> {
+                    String extracted = trimShared(result.getText(), 6000);
+                    pendingSharedImageUri = null;
+
+                    if (extracted == null) {
+                        Toast.makeText(
+                                MainActivity.this,
+                                "No readable text was found in that screenshot.",
+                                Toast.LENGTH_LONG
+                        ).show();
+                        return;
+                    }
+
+                    pendingSharedText = extracted;
+                    deliverPendingSharedText();
+                })
+                .addOnFailureListener(error -> {
+                    pendingSharedImageUri = null;
+                    NativeCrashReporter.reportNonFatal(
+                            MainActivity.this,
+                            "android-share-ocr",
+                            BuildConfig.VERSION_NAME,
+                            "Screenshot text extraction failed",
+                            String.valueOf(error)
+                    );
+                    Toast.makeText(
+                            MainActivity.this,
+                            "Predict UG could not extract text from that screenshot.",
+                            Toast.LENGTH_LONG
+                    ).show();
+                })
+                .addOnCompleteListener(task -> {
+                    sharedImageProcessing = false;
+                    recognizer.close();
+                });
     }
 
     private void deliverPendingSharedText() {
@@ -335,7 +449,8 @@ public class MainActivity extends ComponentActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        captureSharedText(intent);
+        captureSharedContent(intent);
+        processPendingSharedImage();
         deliverPendingSharedText();
     }
 
