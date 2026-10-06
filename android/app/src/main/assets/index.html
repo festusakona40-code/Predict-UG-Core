@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.54. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.55. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#071426"/>
@@ -261,8 +261,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.54';
-const APP_VERSION_CODE=60;
+const APP_BUILD='0.7.55';
+const APP_VERSION_CODE=61;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -1725,7 +1725,9 @@ function claimAuthorityName(id){
     'ubos-official':'Uganda Bureau of Statistics (UBOS)',
     'bank-of-uganda':'Bank of Uganda',
     'pau-official':'Petroleum Authority of Uganda',
-    'unma-official':'Uganda weather authority',
+    'memd-official':'Ministry of Energy and Mineral Development (MEMD)',
+    'maaif-official':'Ministry of Agriculture, Animal Industry and Fisheries (MAAIF)',
+    'unma-official':'Uganda National Meteorological Authority (UNMA)',
     'parliament-uganda':'Parliament of Uganda',
     'electoral-commission-ug':'Electoral Commission of Uganda',
     'uganda-police-official':'Uganda Police Force',
