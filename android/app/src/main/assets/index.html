@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.47. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.48. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#071426"/>
@@ -236,8 +236,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.47';
-const APP_VERSION_CODE=53;
+const APP_BUILD='0.7.48';
+const APP_VERSION_CODE=54;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -259,7 +259,7 @@ function clearStoredAuthSession(){
   }catch{}
 }
 
-const state={tab:'markets',session:null,user:null,isAdmin:false,status:null,categories:[],markets:[],ugandaTrends:[],ugandaDemand:[],ugandaSocialRadar:[],ugandaConsumption:[],ugandaPulse:[],socialSourceStatus:null,digitalProfile:null,category:'',search:'',market:null,portfolio:null,watchlist:[],notifications:[],leaderboard:[],trends:[],stories:[],creators:[],externalSignals:[],weatherSignals:[],statementSignals:[],officialData:[],admin:null,ceo:null,businessTraction:null,aiProviders:[],autonomy:null,loading:false,online:navigator.onLine,realtimeStatus:'idle',realtimeMarketId:null,balance:null,balanceMode:'forecast_credit',unreadNotifications:0,behaviorPrefs:[],behaviorSessionId:null};
+const state={tab:'markets',session:null,user:null,isAdmin:false,status:null,categories:[],markets:[],ugandaTrends:[],ugandaDemand:[],ugandaSocialRadar:[],ugandaConsumption:[],ugandaPulse:[],recentResults:[],socialSourceStatus:null,socialClaims:[],socialClaimNote:'',digitalProfile:null,category:'',search:'',market:null,portfolio:null,watchlist:[],notifications:[],leaderboard:[],trends:[],stories:[],creators:[],externalSignals:[],weatherSignals:[],statementSignals:[],officialData:[],admin:null,ceo:null,businessTraction:null,aiProviders:[],autonomy:null,loading:false,online:navigator.onLine,realtimeStatus:'idle',realtimeMarketId:null,balance:null,balanceMode:'forecast_credit',unreadNotifications:0,behaviorPrefs:[],behaviorSessionId:null};
 
 const $=s=>document.querySelector(s);
 const esc=(s='')=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
@@ -826,6 +826,7 @@ async function loadPublicBootstrap(){
     state.ugandaDemand=b?.uganda_demand||[];
     state.ugandaSocialRadar=b?.uganda_social_radar||[];
     state.ugandaConsumption=b?.uganda_consumption||[];
+    state.recentResults=b?.recent_results||[];
     cacheWrite(key,b);
   }catch(e){
     const cached=cacheRead(key);
@@ -838,6 +839,7 @@ async function loadPublicBootstrap(){
     state.ugandaDemand=b?.uganda_demand||[];
     state.ugandaSocialRadar=b?.uganda_social_radar||[];
     state.ugandaConsumption=b?.uganda_consumption||[];
+    state.recentResults=b?.recent_results||[];
     state.status={...(state.status||{}),offline_cache:true,offline_saved_at:cached.saved_at};
   }
 }
@@ -972,6 +974,7 @@ function renderMarkets(){
   const ugTrends=(state.ugandaTrends||[]).slice(0,8);
   const ugDemand=(state.ugandaDemand||[]).slice(0,6);
   const social=(state.ugandaSocialRadar||[]).slice(0,6);
+  const recent=(state.recentResults||[]).slice(0,6);
   const consumption=(state.ugandaConsumption||[]).filter(x=>x.scope==='uganda_local_chart').slice(0,8);
   const metricShort=n=>{n=Number(n||0);return n>=1000000?(n/1000000).toFixed(n>=10000000?1:2)+'M':n>=1000?(n/1000).toFixed(0)+'K':n.toLocaleString('en-UG')};
 
@@ -997,6 +1000,10 @@ function renderMarkets(){
 
     (globalMarkets.length?'<div class="section-title"><div><span class="feed-kicker">Reference</span><h2>Global benchmarks</h2></div><small style="color:var(--muted)">Wider prediction-market context</small></div><div class="grid">'+globalMarkets.map(marketCard).join('')+'</div>':'')+
 
+    (recent.length?'<div class="section-title"><div><span class="feed-kicker">Trust</span><h2>Recently resolved</h2></div><small style="color:var(--muted)">Evidence-backed results</small></div><div class="media-grid">'+recent.map(x=>
+      '<button class="media-card" data-result-market="'+esc(x.market_id)+'" style="text-align:left;color:inherit;border:0;width:100%;cursor:pointer"><div class="media-label">'+esc(x.category||'Market')+' · '+esc(x.result_label||x.status||'Resolved')+'</div><h3>'+esc(short(x.title))+'</h3><p>'+esc(x.source_name||'Verified source')+' · '+Number(x.evidence_count||0)+' evidence source'+(Number(x.evidence_count||0)===1?'':'s')+'</p><small>Resolved '+dt(x.resolved_at)+'</small></button>'
+    ).join('')+'</div>':'')+
+
     ((ugTrends.length||ugDemand.length)?'<div class="card" style="margin-top:18px"><div class="section-title" style="margin-top:0"><div><span class="feed-kicker">Signals</span><h2>Uganda Pulse</h2></div><button class="btn small ghost" data-tab="media">See all</button></div>'+
       (ugDemand.length?'<div class="chips" style="margin-bottom:8px">'+ugDemand.map(x=>'<span class="chip">'+esc(x.category)+' · '+Number(x.demand_score||0).toFixed(0)+'</span>').join('')+'</div>':'')+
       (ugTrends.length?'<div class="media-grid">'+ugTrends.slice(0,3).map(x=>'<div class="media-card"><div class="media-label">'+esc(x.category||x.item_type)+' · '+esc(x.platform||'Uganda')+'</div><h3>'+esc(x.label)+'</h3><p>'+Number(x.signal_score||0).toFixed(0)+' signal · '+esc(x.confidence||'')+'</p>'+(x.why_hot?'<small>'+esc(x.why_hot)+'</small>':'')+'</div>').join('')+'</div>':'')+
@@ -1010,6 +1017,7 @@ function renderMarkets(){
 
     '<div class="card" style="margin-top:18px"><div class="auth-note">Predict UG public beta · practice credits are not cash.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn small primary" id="footerHowItWorks">How it works</button><button class="btn small ghost" id="homePrivacy">Privacy</button><button class="btn small ghost" id="homeTerms">Terms</button><button class="btn small ghost" id="homeSupport">Support</button></div></div>';
 
+  document.querySelectorAll('[data-result-market]').forEach(el=>el.onclick=()=>openMarket(el.dataset.resultMarket));
   if($('#homeHowItWorks'))$('#homeHowItWorks').onclick=showHowItWorks;
   if($('#footerHowItWorks'))$('#footerHowItWorks').onclick=showHowItWorks;
   if($('#starterMarketBtn'))$('#starterMarketBtn').onclick=()=>openStarterMarket('home_polish');
@@ -1387,6 +1395,9 @@ async function loadDiscover(){
   state.ugandaSocialRadar=b?.uganda_social_radar||[];
     state.ugandaConsumption=b?.uganda_consumption||[];
   state.socialSourceStatus=b?.social_source_status||null;
+  const claimPulse=b?.social_claims||{};
+  state.socialClaims=Array.isArray(claimPulse)?claimPulse:(claimPulse.claims||[]);
+  state.socialClaimNote=Array.isArray(claimPulse)?'':String(claimPulse.note||'');
   state.digitalProfile=b?.digital_profile||null;
   state.trends=b?.trends||[];
   state.stories=b?.stories||[];
@@ -1397,11 +1408,83 @@ async function loadDiscover(){
   state.officialData=b?.official_data||[];
 }
 
+async function showSocialClaimChecker(){
+  if(!state.user){showAuth();return}
+  $('#overlay').innerHTML=
+    '<div class="modal"><div class="sheet" style="max-width:620px">'+
+      '<button class="close" id="claimCheckClose">✕</button>'+
+      '<div class="media-label">Predict UG claim checker</div>'+
+      '<h2>Check a social post</h2>'+
+      '<p class="auth-note">Paste text from a status, screenshot or public post. Predict UG will split it into claims and show what still needs verification. User-shared context is retained for 7 days and is never automatic market or settlement evidence.</p>'+
+      '<div class="auth-wrap">'+
+        '<label class="auth-note">Source</label>'+
+        '<select class="input" id="claimCheckPlatform">'+
+          '<option value="whatsapp_status">WhatsApp status</option>'+
+          '<option value="screenshot">Screenshot</option>'+
+          '<option value="x">X / Twitter</option>'+
+          '<option value="tiktok">TikTok</option>'+
+          '<option value="instagram">Instagram</option>'+
+          '<option value="youtube">YouTube</option>'+
+          '<option value="facebook">Facebook</option>'+
+          '<option value="website">Website</option>'+
+          '<option value="other">Other</option>'+
+        '</select>'+
+        '<label class="auth-note">Paste the post text</label>'+
+        '<textarea class="input" id="claimCheckText" rows="8" maxlength="6000" placeholder="Paste the text here…"></textarea>'+
+        '<button class="btn primary" id="claimCheckRun">Analyze claims</button>'+
+      '</div>'+
+      '<div id="claimCheckResults" style="margin-top:14px"></div>'+
+    '</div></div>';
+  $('#claimCheckClose').onclick=()=>{$('#overlay').innerHTML=''};
+  $('#claimCheckRun').onclick=async()=>{
+    const btn=$('#claimCheckRun');
+    const textValue=String($('#claimCheckText').value||'').trim();
+    const platform=String($('#claimCheckPlatform').value||'other');
+    if(textValue.length<10){toast('Paste at least 10 characters',true);return}
+    btn.disabled=true;btn.textContent='Checking…';
+    try{
+      const result=await rpc('submit_social_claim_text',{
+        p_source_platform:platform,
+        p_text:textValue,
+        p_public_url:null,
+        p_privacy_scope:'user_shared_context'
+      });
+      const claims=Array.isArray(result?.claims)?result.claims:[];
+      const target=$('#claimCheckResults');
+      target.innerHTML=
+        '<div class="section-title"><h2 style="font-size:1.05rem">Detected claims</h2><span class="statuschip">'+claims.length+' found</span></div>'+
+        (claims.length?'<div class="timeline">'+claims.map(x=>
+          '<div class="item"><b>'+esc(String(x.claim_type||'claim').replaceAll('_',' '))+
+          (x.claimed_value!=null?' · '+esc(String(x.claimed_value))+' '+esc(x.claimed_unit||''):'')+
+          '</b><br><span>'+esc(short(x.claim_text||''))+'</span><br><small>'+
+          esc(String(x.verification_status||'unverified').replaceAll('_',' '))+
+          (x.authoritative_source_id?' · check '+esc(String(x.authoritative_source_id).replaceAll('-',' ')):'')+
+          ' · '+esc(String(x.market_eligibility||'context_only').replaceAll('_',' '))+
+          '</small></div>'
+        ).join('')+'</div>':'<div class="empty">No measurable claim was detected in that text.</div>')+
+        '<p class="auth-note">This analysis is private user-shared context. It does not publish a market or settle anything automatically.</p>'+
+        '<button class="btn ghost" id="claimDeleteNow">Delete this analysis now</button>';
+      const del=$('#claimDeleteNow');
+      if(del)del.onclick=async()=>{
+        try{
+          await rpc('delete_my_social_claim_submission',{p_submission_id:result.submission_id});
+          $('#overlay').innerHTML='';toast('Claim analysis deleted');
+        }catch(e){toast(e.message||'Could not delete analysis',true)}
+      };
+    }catch(e){
+      toast(e.message||'Claim analysis failed',true);
+    }finally{
+      if(btn){btn.disabled=false;btn.textContent='Analyze claims'}
+    }
+  };
+}
+
 function renderMedia(){
   const pulse=(state.ugandaPulse||[]).slice(0,14);
   const socialRadar=(state.ugandaSocialRadar||[]).slice(0,12);
   const consumption=(state.ugandaConsumption||[]).slice(0,16);
   const socialPlatforms=state.socialSourceStatus?.platforms||[];
+  const socialClaims=(state.socialClaims||[]).slice(0,10);
   const latestStories=(state.stories||[]).slice(0,9);
   const creators=(state.creators||[]).slice(0,8);
   const weather=(state.weatherSignals||[]).slice(0,6);
@@ -1411,9 +1494,28 @@ function renderMedia(){
   const sourceStatus=p=>{
     const x=socialPlatforms.find(s=>String(s.platform).toLowerCase()===String(p).toLowerCase());
     if(!x)return 'reference research';
+    if(x.ingestion_status==='verified_settlement_active'){
+      const n=Number(x.settlement_account_count||0);
+      return n+' verified feed'+(n===1?'':'s')+' · deterministic settlement';
+    }
+    if(x.ingestion_status==='public_research_active')return 'research reference · discovery only';
+    if(x.ingestion_status==='public_research_warming')return 'research warming · discovery only';
     if(x.ingestion_status==='active')return 'live public signal';
     if(x.ingestion_status==='official_access_required')return 'research reference · direct API pending';
     return String(x.ingestion_status||'reference research').replaceAll('_',' ');
+  };
+  const claimStatus=x=>{
+    const s=String(x?.verification_status||'unverified');
+    if(s==='verified')return 'verified';
+    if(s==='contradicted')return 'contradicted';
+    if(x?.verification_source_id)return 'checking '+String(x.verification_source_id).replaceAll('-',' ');
+    return s.replaceAll('_',' ');
+  };
+  const claimTitle=x=>{
+    const base=String(x?.claim_type||'social claim').replaceAll('_',' ');
+    return x?.claim_value!=null
+      ?base+': '+String(x.claim_value)+(x.claim_unit?' '+String(x.claim_unit):'')
+      :base;
   };
   $('#view').innerHTML=
     '<section class="homehero">'+
@@ -1427,13 +1529,19 @@ function renderMedia(){
       '<div class="media-card"><div class="media-label">'+esc((x.item_type||'signal').replaceAll('_',' '))+' · '+esc(x.category||'Uganda')+'</div><h3>'+esc(x.label||'Uganda signal')+'</h3><p>Signal '+Number(x.signal_score||0).toFixed(0)+' · '+Number(x.source_count||0)+' source'+(Number(x.source_count||0)===1?'':'s')+' · '+esc(x.confidence||'low')+' confidence</p>'+(x.why_hot?'<small>'+esc(x.why_hot)+'</small>':'')+
       '<div class="source-row"><span class="source-pill">'+Number(x.mention_count||0)+' mentions</span>'+(x.political_content?'<span class="source-pill">politics</span>':'')+'</div></div>'
     ).join('')+'</div>':'<div class="empty">Uganda trend radar is refreshing.</div>')+
+    '<div class="section-title"><h2>Claims being checked</h2><span class="statuschip">social signal ≠ fact</span></div>'+
+    '<p class="auth-note">'+esc(state.socialClaimNote||'Public social claims are discovery/context signals, not facts. Predict UG verifies them against independent sources before market use.')+'</p>'+
+    '<div style="margin:10px 0 14px"><button class="btn small" id="claimCheckerBtn">Check a social post</button></div>'+
+    (socialClaims.length?'<div class="media-grid">'+socialClaims.map(x=>
+      '<div class="media-card"><div class="media-label">'+esc(String(x.platform||'public').toUpperCase())+' · '+esc(String(x.temporal_mode||'claim').replaceAll('_',' '))+'</div><h3>'+esc(claimTitle(x))+'</h3><p>'+esc(short(x.claim_text||''))+'</p><div class="source-row"><span class="source-pill">'+esc(claimStatus(x))+'</span><span class="source-pill">'+esc(String(x.marketability_status||'context_only').replaceAll('_',' '))+'</span></div><small>'+esc(x.source_name||'Public source')+' · '+dt(x.observed_at)+'</small>'+(x.source_url?'<div><a href="'+esc(x.source_url)+'" target="_blank" rel="noopener" class="auth-note">View public source</a></div>':'')+'</div>'
+    ).join('')+'</div>':'<div class="empty">No measurable social claims detected in the current public signal window.</div>')+
     '<div class="section-title"><h2>What Uganda is listening to</h2><span class="statuschip">local chart + artist momentum</span></div>'+
     '<p class="auth-note">Uganda-local Apple Music and YouTube charts are treated as consumption signals. Spotify rows show global momentum for Ugandan artists. These signals influence discovery and demand ranking only; they are never settlement evidence.</p>'+
     (consumption.length?'<div class="media-grid">'+consumption.map(x=>
       '<a class="media-card" href="'+esc(x.source_url||'#')+'" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="media-label">'+esc(String(x.platform||'music').replaceAll('_',' ').toUpperCase())+' · '+esc(x.scope==='uganda_local_chart'?'Uganda chart':'Ugandan artist momentum')+'</div><h3>'+esc(x.subject)+(x.artist&&x.artist!==x.subject?' — '+esc(x.artist):'')+'</h3><p>#'+Number(x.rank_position||0)+(x.metric_type==='views_week'?' · '+metricShort(x.metric_value)+' weekly views':x.metric_type==='monthly_listeners'?' · '+metricShort(x.metric_value)+' monthly listeners':'')+'</p><div class="source-row"><span class="source-pill">'+esc(x.source_name||'public chart')+'</span><span class="source-pill">reference only</span></div></a>'
     ).join('')+'</div>':'<div class="empty">Consumption radar is refreshing.</div>')+
     '<div class="section-title"><h2>TikTok, X & creator discovery</h2><span class="statuschip">research ≠ settlement evidence</span></div>'+
-    '<p class="auth-note">Direct TikTok/X ingestion is used only when approved platform access is available. Until then, public ranking snapshots help discover what Ugandans follow; they do not determine outcomes or settlements.</p>'+
+    '<p class="auth-note">Verified registered YouTube feeds can settle upload-activity markets. TikTok, X and Instagram ranking research helps discover what Ugandans follow, but it cannot determine outcomes or settlements until official account-level access is available.</p>'+
     (socialPlatforms.length?'<div class="chips" style="margin-bottom:10px">'+socialPlatforms.map(x=>'<span class="chip">'+esc(String(x.platform).toUpperCase())+' · '+esc(sourceStatus(x.platform))+'</span>').join('')+'</div>':'')+
     (socialRadar.length?'<div class="media-grid">'+socialRadar.map(x=>
       '<a class="media-card" href="'+esc(x.source_url||'#')+'" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="media-label">'+esc(String(x.platform||'social').toUpperCase())+' · reference snapshot</div><h3>'+esc(x.subject||x.handle||'Uganda creator')+'</h3><p>'+esc(x.metric_type||'public metric')+' '+metricShort(x.metric_value)+(x.engagement_rate_pct!=null?' · '+Number(x.engagement_rate_pct).toFixed(2)+'% engagement':'')+(x.attention_score!=null?' · attention '+Number(x.attention_score).toFixed(0):'')+'</p>'+(x.why_relevant?'<small>'+esc(x.why_relevant)+'</small>':'')+'<div class="source-row"><span class="source-pill">'+esc(x.source_name||'public research')+'</span><span class="source-pill">'+esc(x.confidence||'reference')+'</span></div></a>'
@@ -1460,6 +1568,8 @@ function renderMedia(){
     (global.length?'<div class="grid">'+global.map(x=>
       '<a class="card market-card" href="'+esc(x.source_url||'#')+'" target="_blank" rel="noopener" style="text-decoration:none"><div class="eyebrow"><span>'+esc(x.provider)+'</span><span>'+esc(x.category)+'</span></div><div class="market-title">'+esc(x.title)+'</div><div class="market-top"><span class="auth-note">YES public-market probability</span><div class="market-price">'+(x.yes_probability==null?'—':Number(x.yes_probability).toFixed(0)+'%')+'</div></div><div class="meta"><span>24h volume '+Number(x.volume_24h||0).toLocaleString()+'</span><span>Source ↗</span></div></a>'
     ).join('')+'</div>':'<div class="empty">Global-market agent is refreshing.</div>');
+  const claimBtn=$('#claimCheckerBtn');
+  if(claimBtn)claimBtn.onclick=showSocialClaimChecker;
 }
 
 function renderDiscover(){renderMedia()}
