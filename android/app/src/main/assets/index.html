@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.49. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.50. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#071426"/>
@@ -129,6 +129,10 @@
 
     /* Market detail polish: consumer-first hierarchy without changing pricing/accounting. */
     .sheet.full{height:96vh;background:#07110f}
+    .detail-breadcrumb{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 10px;color:#789086;font-size:.7rem}
+    .detail-breadcrumb span{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .detail-breadcrumb strong{color:#b7c9c1;font-weight:850}
+    .detail-breadcrumb i{font-style:normal;color:#3f5c50}
     .detail-head{padding:2px 2px 4px}
     .detail-head-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
     .detail-head .detail-title{font-size:clamp(1.55rem,5vw,2.2rem);line-height:1.12;letter-spacing:-.038em;margin:0 54px 8px 0}
@@ -252,8 +256,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.49';
-const APP_VERSION_CODE=55;
+const APP_BUILD='0.7.50';
+const APP_VERSION_CODE=56;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -742,7 +746,7 @@ function installAuthListener(){
   authListenerInstalled=true;
   supabase.auth.onAuthStateChange((event,session)=>{
     state.session=session||null;state.user=session?.user||null;state.isAdmin=false;render();
-    if(state.user){setTimeout(async()=>{try{state.isAdmin=!!(await rpc('is_admin'));await Promise.all([loadBalance(),loadUnreadNotifications(),loadBehaviorPrefs()]);state.markets=personalizeMarkets(state.markets);render();const legalOk=await ensureLegalAcceptance();if(legalOk)maybeShowFirstUseGuide()}catch{}},0)}
+    if(state.user){setTimeout(async()=>{try{state.isAdmin=!!(await rpc('is_admin'));await Promise.all([loadBalance(),loadUnreadNotifications(),loadBehaviorPrefs()]);state.markets=personalizeMarkets(state.markets);render();const legalOk=await ensureLegalAcceptance();if(legalOk&&!maybeOpenPendingSharedClaim())maybeShowFirstUseGuide()}catch{}},0)}
     else{state.balance=null;state.unreadNotifications=0}
   });
 }
@@ -778,7 +782,7 @@ async function ensureLegalAcceptance(){
         if(!saved?.complete)throw new Error('Acceptance could not be saved');
         $('#overlay').innerHTML='';
         toast('Terms accepted');
-        setTimeout(()=>maybeShowFirstUseGuide(),180);
+        setTimeout(()=>{if(!maybeOpenPendingSharedClaim())maybeShowFirstUseGuide()},180);
       }catch(e){status.textContent=e.message||'Could not save acceptance';btn.disabled=false}
     };
     return false;
@@ -1233,9 +1237,15 @@ function rulesSummaryHtml(m,d){
   const determination=event.determination_at||spec.expected_determination_at||null;
   const exactRule=rules.yes_condition||catalog.rules_primary||m.resolution_rule||'No rule provided';
   const secondaryRule=catalog.rules_secondary||'';
+  const ambiguity=rules.ambiguity_policy||'';
   const seriesTitle=series.title||m.category||'Market';
   const contractType=String(spec.contract_type||'binary').replaceAll('_',' ');
   const strikeType=String(spec.strike_type||'yes/no').replaceAll('_',' ');
+  const settlementSeconds=Number(spec.settlement_timer_seconds||0);
+  const timerText=settlementSeconds>0
+    ?(settlementSeconds>=86400?(settlementSeconds/86400).toFixed(settlementSeconds%86400?1:0)+' days':settlementSeconds>=3600?(settlementSeconds/3600).toFixed(settlementSeconds%3600?1:0)+' hours':Math.max(1,Math.round(settlementSeconds/60))+' min')
+    :'Source-confirmed';
+  const earlyClose=spec.can_close_early===true;
   return '<div class="card detail-card" style="margin-top:12px">'+
     '<div class="section-title" style="margin-top:0"><h2>What decides this market</h2><span class="statuschip">Official contract</span></div>'+
     '<div class="rules-summary-grid">'+
@@ -1245,11 +1255,15 @@ function rulesSummaryHtml(m,d){
       '<div class="rules-summary-item"><small>Expected determination</small><b>'+(determination?dt(determination):'After source confirmation')+'</b></div>'+
       '<div class="rules-summary-item"><small>Official source</small><b>'+esc(sourceName)+'</b></div>'+
       '<div class="rules-summary-item"><small>Contract</small><b>'+esc(contractType)+' · '+esc(strikeType)+'</b></div>'+
+      '<div class="rules-summary-item"><small>Determination timing</small><b>'+esc(timerText)+'</b></div>'+
+      '<div class="rules-summary-item"><small>Early determination</small><b>'+(earlyClose?'Allowed when rule becomes irreversible':'No — wait for the published determination rule')+'</b></div>'+
       '<div class="rules-summary-item"><small>Payout model</small><b>'+esc(mode)+' · accepted odds lock at placement</b></div>'+
       '<div class="rules-summary-item"><small>Question</small><b>'+esc(question)+'</b></div>'+
     '</div>'+
     '<details open style="margin-top:10px"><summary class="auth-note" style="cursor:pointer">Exact YES / NO rule</summary><p style="line-height:1.55">'+esc(exactRule)+'</p>'+
       (secondaryRule?'<p class="auth-note">'+esc(secondaryRule)+'</p>':'')+
+      (earlyClose&&spec.early_close_condition?'<p class="auth-note"><b>Early determination:</b> '+esc(spec.early_close_condition)+'</p>':'')+
+      (ambiguity?'<p class="auth-note"><b>If evidence is ambiguous:</b> '+esc(ambiguity)+'</p>':'')+
       '<p class="auth-note">Social posts, news and AI can help discover or explain a market, but they do not decide the result unless the published contract explicitly names them as the verification source.</p>'+
     '</details>'+
     (sourceUrl?'<div class="meta"><span>Verification</span><a href="'+esc(sourceUrl)+'" target="_blank" rel="noopener">Open official source ↗</a></div>':'')+
@@ -1257,6 +1271,12 @@ function rulesSummaryHtml(m,d){
 }
 function drawMarket(){
   const d=state.market,m=d?.market;if(!m)return;
+  const catalog=d?.contract||{};
+  const catalogSeries=catalog.series||{};
+  const catalogEvent=catalog.event||{};
+  const hierarchyBreadcrumb=(catalogSeries.title||catalogEvent.title)
+    ?'<div class="detail-breadcrumb"><span>'+esc(catalogSeries.title||m.category||'Series')+'</span><i>›</i><span>'+esc(catalogEvent.title||m.title||'Event')+'</span><i>›</i><strong>Market</strong></div>'
+    :'';
   const offlineDetail=!!d.__offline_cache||!state.online;
   const liveLabel=!offlineDetail&&state.realtimeMarketId===m.id?(state.realtimeStatus==='live'?' · Live':state.realtimeStatus==='reconnecting'?' · Reconnecting':state.realtimeStatus==='connecting'?' · Connecting':''):'';
   const outs=d.outcomes||[],yes=outs.find(o=>String(o.label).toUpperCase()==='YES'),no=outs.find(o=>String(o.label).toUpperCase()==='NO');
@@ -1321,9 +1341,10 @@ function drawMarket(){
   const detailMode=(d.trading_mode||'forecast_credit')==='cash'?'Cash market':'Practice credits';
   $('#overlay').innerHTML='<div class="modal"><div class="sheet full"><button class="btn small ghost" id="shareMarket" style="float:right;margin-right:8px">Share</button><button class="close" id="closeMarket">✕</button>'+
     '<section class="detail-head">'+
+      hierarchyBreadcrumb+
       '<div class="detail-head-top"><div class="eyebrow"><span>'+esc(m.category)+'</span></div><span class="market-status-pill">'+esc(m.status||'open')+'</span></div>'+
       '<h2 class="detail-title">'+esc(m.title)+'</h2>'+
-      '<div class="detail-sub">Closes '+dt(m.close_time)+liveLabel+(offlineDetail?' · Offline read-only'+(d.__offline_saved_at?' · synced '+cachedAgeLabel({saved_at:d.__offline_saved_at}):''):'')+'</div>'+
+      '<div class="detail-sub">Trading closes '+dt(m.close_time)+(catalogEvent.determination_at?' · Expected determination '+dt(catalogEvent.determination_at):'')+liveLabel+(offlineDetail?' · Offline read-only'+(d.__offline_saved_at?' · synced '+cachedAgeLabel({saved_at:d.__offline_saved_at}):''):'')+'</div>'+
       '<div class="detail-facts"><span class="detail-fact"><strong>'+(yes?pct(yes.display_probability):'—')+'</strong> YES chance</span><span class="detail-fact">'+esc(detailMode)+'</span><span class="detail-fact">Resolution source: <strong>'+esc(m.source_name||'attached rule')+'</strong></span></div>'+lifecycleStripHtml(m,d)+
     '</section>'+
     '<div class="detail-grid"><div>'+
@@ -1538,7 +1559,59 @@ async function loadDiscover(){
   state.officialData=b?.official_data||[];
 }
 
-async function showSocialClaimChecker(){
+const SHARED_CLAIM_KEY='predictug_pending_shared_claim_v1';
+function sharedClaimPlatform(value){
+  const text=String(value||'').toLowerCase();
+  if(/(?:^|\W)(?:x\.com|twitter\.com)(?:\W|$)/.test(text))return 'x';
+  if(text.includes('tiktok.com'))return 'tiktok';
+  if(text.includes('instagram.com'))return 'instagram';
+  if(text.includes('youtube.com')||text.includes('youtu.be'))return 'youtube';
+  if(text.includes('facebook.com')||text.includes('fb.watch'))return 'facebook';
+  if(text.includes('whatsapp'))return 'whatsapp_status';
+  return 'other';
+}
+function savePendingSharedClaim(payload){
+  const p=payload&&typeof payload==='object'?payload:{text:String(payload||'')};
+  const text=String(p.text||'').trim().slice(0,6000);
+  if(!text)return false;
+  const saved={text,platform:String(p.platform||sharedClaimPlatform(text)||'other'),title:String(p.title||'').slice(0,240),source:String(p.source||'shared'),received_at_ms:Number(p.received_at_ms||Date.now())};
+  try{localStorage.setItem(SHARED_CLAIM_KEY,JSON.stringify(saved));return true}catch{return false}
+}
+function readPendingSharedClaim(){
+  try{
+    const raw=localStorage.getItem(SHARED_CLAIM_KEY);
+    if(!raw)return null;
+    const p=JSON.parse(raw);
+    if(!p||!String(p.text||'').trim())return null;
+    return p;
+  }catch{return null}
+}
+function clearPendingSharedClaim(){
+  try{localStorage.removeItem(SHARED_CLAIM_KEY)}catch{}
+}
+function maybeOpenPendingSharedClaim(){
+  const p=readPendingSharedClaim();
+  if(!p||!state.user)return false;
+  clearPendingSharedClaim();
+  state.tab='media';
+  render();
+  setTimeout(()=>showSocialClaimChecker(p),0);
+  return true;
+}
+window.__predictUgReceiveSharedClaim=(payload)=>{
+  if(!savePendingSharedClaim(payload))return false;
+  if(state.user)maybeOpenPendingSharedClaim();
+  else toast('Shared post received. Sign in to analyze it.');
+  return true;
+};
+
+async function showSocialClaimChecker(prefill={}){
+  const prefillText=String(prefill?.text||'').trim().slice(0,6000);
+  if(!state.user){
+    if(prefillText)savePendingSharedClaim(prefill);
+    showAuth();
+    return;
+  }
   if(!state.user){showAuth();return}
   $('#overlay').innerHTML=
     '<div class="modal"><div class="sheet" style="max-width:620px">'+
@@ -1565,6 +1638,11 @@ async function showSocialClaimChecker(){
       '</div>'+
       '<div id="claimCheckResults" style="margin-top:14px"></div>'+
     '</div></div>';
+  const initialPlatform=String(prefill?.platform||sharedClaimPlatform(prefillText)||'other');
+  if($('#claimCheckText')&&prefillText)$('#claimCheckText').value=prefillText;
+  if($('#claimCheckPlatform')&&[...$('#claimCheckPlatform').options].some(o=>o.value===initialPlatform)){
+    $('#claimCheckPlatform').value=initialPlatform;
+  }
   $('#claimCheckClose').onclick=()=>{$('#overlay').innerHTML=''};
   $('#claimCheckRun').onclick=async()=>{
     const btn=$('#claimCheckRun');
