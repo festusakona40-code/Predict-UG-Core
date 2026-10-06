@@ -913,7 +913,7 @@ function render(){
   renderNav();
   $('#authBtn').textContent=state.user?(state.isAdmin?'Admin':'Profile'):'Sign in';
   const inviteBtn=$('#inviteBtn');
-  if(inviteBtn)inviteBtn.classList.toggle('hidden',!state.user);
+  if(inviteBtn)inviteBtn.classList.add('hidden');
   const merchantQuick=$('#merchantQuickConnect');
   if(merchantQuick)merchantQuick.classList.toggle('hidden',!(state.user&&state.isAdmin));
   const balanceBtn=$('#balanceBtn');
@@ -1917,9 +1917,25 @@ async function loadWatchlist(){
   const ids=(data||[]).map(x=>x.market_id);const all=await rpc('sportsbook_market_feed',{p_category:null,p_search:null,p_limit:100,p_uganda_first:false});state.watchlist=(all||[]).filter(x=>ids.includes(x.market_id))
 }
 function renderWatchlist(){
-  if(!state.user){$('#view').innerHTML='<section class="hero"><h1>Watchlist</h1><p>Sign in to save markets you care about.</p></section><button class="btn primary" id="watchSignIn">Sign in</button>';$('#watchSignIn').onclick=showAuth;return}
-  if(!state.watchlist.length){$('#view').innerHTML='<section class="hero"><h1>Watchlist</h1><p>Your saved markets.</p></section><div class="empty">No saved open markets yet.</div>';loadWatchlist().then(()=>{if(state.watchlist.length)render()});return}
-  $('#view').innerHTML='<section class="hero"><h1>Watchlist</h1><p>Your saved markets.</p></section><div class="grid">'+state.watchlist.map(marketCard).join('')+'</div>';
+  if(!state.user){
+    $('#view').innerHTML=
+      '<div class="market-feed-header"><div><span class="feed-kicker">Saved</span><h2>Your markets</h2></div></div>'+
+      '<div class="empty">Sign in to save markets and return to them quickly.<div style="margin-top:12px"><button class="btn primary" id="watchSignIn">Sign in</button></div></div>';
+    $('#watchSignIn').onclick=showAuth;
+    return;
+  }
+  if(!state.watchlist.length){
+    $('#view').innerHTML=
+      '<div class="market-feed-header"><div><span class="feed-kicker">Saved</span><h2>Your markets</h2></div><button class="btn small ghost" id="savedBrowse">Browse markets</button></div>'+
+      '<div class="empty">No saved open markets yet.<br><small>Tap “Save this market” on any market you want to follow.</small></div>';
+    $('#savedBrowse').onclick=()=>{state.tab='markets';render()};
+    loadWatchlist().then(()=>{if(state.watchlist.length)render()});
+    return;
+  }
+  $('#view').innerHTML=
+    '<div class="market-feed-header"><div><span class="feed-kicker">Saved</span><h2>Your markets</h2></div><button class="btn small ghost" id="savedBrowse">Browse markets</button></div>'+
+    '<div class="grid">'+state.watchlist.map(marketCard).join('')+'</div>';
+  $('#savedBrowse').onclick=()=>{state.tab='markets';render()};
 }
 async function loadNotifications(){if(!state.user)return;const {data,error}=await supabase.from('notifications').select('*').order('created_at',{ascending:false}).limit(100);if(error)throw error;state.notifications=data||[]}
 function renderNotifications(){
@@ -2989,6 +3005,7 @@ async function profileMenu(){
       '<div class="auth-wrap">'+
         '<button class="btn" data-tab="notifications">Notifications</button>'+
         '<button class="btn" data-tab="leaderboard">Leaderboard</button>'+
+        '<button class="btn" id="profileInvite">Invite friends</button>'+
         '<button class="btn" id="profileCheck">Check app</button>'+
         '<button class="btn" id="profileUpdate">Update app</button>'+
         '<button class="btn" id="profileResponsible">Responsible use & limits</button>'+
@@ -3001,6 +3018,7 @@ async function profileMenu(){
       '</div>'+
     '</div></div>';
   $('#profClose').onclick=()=>$('#overlay').innerHTML='';
+  $('#profileInvite').onclick=showInvite;
   $('#profileUpdate').onclick=forceAppUpdate;
   $('#profileResponsible').onclick=showResponsiblePlay;
   $('#profilePrivacy').onclick=()=>openHosted('/privacy.html');
