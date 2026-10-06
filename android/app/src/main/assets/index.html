@@ -1119,6 +1119,8 @@ async function showAdvancedBuy(m,outcome){
 
 function drawMarket(){
   const d=state.market,m=d?.market;if(!m)return;
+  const detailCashMode=(d.trading_mode||'forecast_credit')==='cash';
+  const detailValue=n=>detailCashMode?ugx(n):Number(n||0).toLocaleString('en-UG')+' credits';
   const offlineDetail=!!d.__offline_cache||!state.online;
   const liveLabel=!offlineDetail&&state.realtimeMarketId===m.id?(state.realtimeStatus==='live'?' · Live':state.realtimeStatus==='reconnecting'?' · Reconnecting':state.realtimeStatus==='connecting'?' · Connecting':''):'';
   const outs=d.outcomes||[],yes=outs.find(o=>String(o.label).toUpperCase()==='YES'),no=outs.find(o=>String(o.label).toUpperCase()==='NO');
@@ -1180,7 +1182,7 @@ function drawMarket(){
     '<button class="btn small primary" id="adminSettleBtn">Settle</button>'+
     '<button class="btn small danger" id="adminVoidBtn">Void</button>'+
   '</div><small>Proposal: '+esc(proposal.status||'none')+' · Evidence '+Number(proposal.evidence_count||0)+' · Open challenges '+proposalOpenChallenges+(proposalChallengeOpen?' · Window closes '+dt(proposal.challenge_until):'')+'</small></div>':'<div class="item" style="margin-top:10px"><b>Admin lifecycle</b><br><small>Offline read-only mode · reconnect to change market state.</small></div>'):'';
-  const detailMode=(d.trading_mode||'forecast_credit')==='cash'?'Cash market':'Practice credits';
+  const detailMode=detailCashMode?'Cash market':'Practice credits';
   $('#overlay').innerHTML='<div class="modal"><div class="sheet full"><button class="btn small ghost" id="shareMarket" style="float:right;margin-right:8px">Share</button><button class="close" id="closeMarket">✕</button>'+
     '<section class="detail-head">'+
       '<div class="detail-head-top"><div class="eyebrow"><span>'+esc(m.category)+'</span></div><span class="market-status-pill">'+esc(m.status||'open')+'</span></div>'+
@@ -1194,7 +1196,7 @@ function drawMarket(){
       ((d.resolution?.clarifications||[]).length?'<div class="section-title"><h2>Clarifications</h2></div><div class="timeline">'+d.resolution.clarifications.map(c=>'<div class="item">'+esc(c.clarification_text)+'<br><small>'+dt(c.created_at)+'</small></div>').join('')+'</div>':'')+
       resolutionPanel+
       intelligencePanel+
-      '<div class="section-title"><h2>Recent activity</h2></div><div class="timeline">'+((d.activity||[]).length?d.activity.slice(0,15).map(a=>'<div class="item"><b>'+esc(a.outcome_label)+'</b> · '+ugx(a.stake_ugx)+'<br><small>'+dt(a.created_at)+'</small></div>').join(''):'<div class="empty">No activity yet.</div>')+'</div>'+
+      '<div class="section-title"><h2>Recent activity</h2></div><div class="timeline">'+((d.activity||[]).length?d.activity.slice(0,15).map(a=>'<div class="item"><b>'+esc(a.outcome_label)+'</b> · '+detailValue(a.stake_ugx)+'<br><small>'+dt(a.created_at)+'</small></div>').join(''):'<div class="empty">No activity yet.</div>')+'</div>'+
     '</div><aside><div class="card tradebox"><h3>Make a prediction</h3><p class="trade-lead">Pick a side first. Your exact odds, maximum loss and possible return appear before confirmation.</p><div class="outcome-btns">'+
       '<button class="outcome-btn y" data-outcome="'+(yes?.id||'')+'" data-label="YES"><span class="outcome-label">YES</span><span class="outcome-chance">'+(yes?pct(yes.display_probability):'—')+' chance</span><span class="outcome-odds">'+(yes?oddsText(yes.offered_odds,yes.display_probability):'—')+'</span></button>'+
       '<button class="outcome-btn n" data-outcome="'+(no?.id||'')+'" data-label="NO"><span class="outcome-label">NO</span><span class="outcome-chance">'+(no?pct(no.display_probability):'—')+' chance</span><span class="outcome-odds">'+(no?oddsText(no.offered_odds,no.display_probability):'—')+'</span></button>'+
@@ -1205,7 +1207,7 @@ function drawMarket(){
 
       (isClosed(m)?'<button class="btn ghost" style="width:100%;margin-top:8px" id="settleRequestBtn">Request settlement</button>':'')+
       '<p class="auth-note">'+(state.status?.real_money_enabled?'Cash mode follows your eligibility.':'Cash deposits and withdrawals remain unavailable until approval. Practice-credit predictions are active.')+'</p>'+
-      ((d.my_positions||[]).length?'<div class="item"><b>Your position</b><br>'+d.my_positions.map(p=>esc(p.outcome_label)+' · '+ugx(p.total_stake_ugx)+' · '+esc(p.position_status)).join('<br>')+'</div>':'')+
+      ((d.my_positions||[]).length?'<div class="item"><b>Your position</b><br>'+d.my_positions.map(p=>esc(p.outcome_label)+' · '+detailValue(p.total_stake_ugx)+' · '+esc(p.position_status)).join('<br>')+'</div>':'')+
       adminPanel+
     '</div></aside></div></div></div>';
   let chosen=null,quoteTimer=null,latestQuote=null;
@@ -1289,15 +1291,16 @@ function drawMarket(){
       $('#placeBtn').disabled=true;$('#placeBtn').textContent='Refreshing odds…';
       const q=await rpc('quote_prediction',{p_market_id:m.id,p_outcome_id:chosen.id,p_stake_ugx:stake});
       renderQuote(q);
-      $('#placeBtn').textContent='Review risk & payout';
+      $('#placeBtn').textContent='Review prediction';
       if(q.book_open===false||q.bet_acceptable===false){
         const max=Number(q.max_accepted_stake_ugx||0);
-        toast(q.book_open===false?'Market temporarily unavailable':('Maximum accepted stake is '+quoteValue(q,max)),true);
+        toast(q.book_open===false?'Market temporarily unavailable':('Maximum accepted amount is '+quoteValue(q,max)),true);
         return;
       }
       trackBehavior('explain_odds_opened',{category:m.category||m.category_key,marketId:m.id,metadata:{surface:'final_prediction_review'}});
       const old=$('#tradeReviewOverlay');if(old)old.remove();
-      const margin=Number(q.platform_margin_pct??q.platform_fee_pct??9);
+      const marginRaw=q.base_margin_pct??q.platform_margin_pct??q.platform_fee_pct;
+      const margin=marginRaw==null?null:Number(marginRaw);
       const odds=Number(q.decimal_odds??0);
       const net=Number(q.if_correct_net_profit_ugx??q.estimated_profit_ugx??0);
       const cash=q.mode==='cash';
@@ -1305,11 +1308,11 @@ function drawMarket(){
       document.body.insertAdjacentHTML('beforeend',
         '<div id=\"tradeReviewOverlay\" class=\"modal\" style=\"z-index:90\"><div class=\"sheet\" style=\"max-width:520px\">'+
           '<button class=\"close\" id=\"reviewTradeClose\">✕</button>'+
-          '<div class=\"media-label\">Final bet slip</div><h2>Check your odds and risk</h2>'+
+          '<div class=\"media-label\">Final prediction review</div><h2>Check your odds and risk</h2>'+
           '<div class=\"review-hero\"><span class=\"review-side '+(chosen.label==='NO'?'no':'')+'\">'+esc(chosen.label)+' @ '+odds.toFixed(2)+'</span><h3 style=\"margin:10px 0 4px\">'+esc(m.title)+'</h3><div class=\"auth-note\">Stake: '+esc(amount(stake))+'</div></div>'+
           '<div class=\"risk-grid\"><div class=\"risk-card win\"><small>If correct</small><div class=\"risk-number\">'+esc(amount(q.if_correct_return_ugx??q.estimated_payout_ugx))+'</div><div class=\"auth-note\">return · profit '+esc((net>=0?'+':'')+amount(net))+'</div></div>'+
           '<div class=\"risk-card loss\"><small>If wrong</small><div class=\"risk-number\">− '+esc(amount(q.if_wrong_loss_ugx??stake))+'</div><div class=\"auth-note\">return 0</div></div></div>'+
-          '<div class=\"quote\"><div class=\"quote-row\"><span>Accepted odds</span><b>'+odds.toFixed(2)+'</b></div><div class=\"quote-row\"><span>Predict UG margin</span><b>'+margin.toFixed(0)+'% built into odds</b></div><div class=\"quote-row\"><span>Extra settlement fee</span><b>None</b></div><div class=\"quote-row\"><span>Price type</span><b>Fixed once accepted</b></div></div>'+
+          '<div class=\"quote\"><div class=\"quote-row\"><span>Accepted odds</span><b>'+odds.toFixed(2)+'</b></div>'+(margin==null?'':'<div class=\"quote-row\"><span>Predict UG margin</span><b>'+margin.toFixed(0)+'% built into odds</b></div>')+'<div class=\"quote-row\"><span>Extra settlement fee</span><b>None</b></div><div class=\"quote-row\"><span>Price type</span><b>Fixed once accepted</b></div></div>'+
           '<p class=\"auth-note\">Your accepted odds are locked on this ticket. Predict UG may move later odds automatically as probabilities and market exposure change, but your existing ticket does not change.</p>'+
           (cash?'<label class=\"auth-note\" style=\"display:flex;gap:8px;align-items:flex-start;margin:12px 0\"><input type=\"checkbox\" id=\"reviewRiskAck\"> <span>I understand I can lose the full '+esc(amount(stake))+' stake if this prediction is wrong.</span></label>':'')+
           '<div class=\"auth-wrap\"><button class=\"btn primary\" id=\"reviewPlaceConfirm\" '+(cash?'disabled':'')+'>Place prediction</button><button class=\"btn ghost\" id=\"reviewTradeCancel\">Go back</button></div>'+
@@ -1320,7 +1323,7 @@ function drawMarket(){
       $('#reviewPlaceConfirm').onclick=()=>submitPrediction(q,stake);
     }catch(e){
       toast(e.message||'Could not refresh odds',true);
-      $('#placeBtn').disabled=false;$('#placeBtn').textContent='Review risk & payout';
+      $('#placeBtn').disabled=false;$('#placeBtn').textContent='Review prediction';
     }
   };
   document.querySelectorAll('.outcome-btn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.outcome-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');chosen={id:b.dataset.outcome,label:b.dataset.label};trackBehavior('prediction_started',{category:m.category||m.category_key,marketId:m.id,metadata:{side:chosen.label}});updateQuote()});
