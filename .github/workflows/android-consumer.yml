@@ -73,7 +73,7 @@ jobs:
           ! grep -R -n '@JavascriptInterface' android/app/src/main/java
           grep -q 'WebViewFeature.WEB_MESSAGE_LISTENER' "$MAIN"
           grep -q 'WebViewCompat.addWebMessageListener' "$MAIN"
-          grep -q 'Collections.singleton(APP_ORIGIN)' "$MAIN"
+          grep -Eq 'Collections\.singleton\(APP_ORIGIN\)|new HashSet<>\(Arrays\.asList\(BUNDLED_APP_ORIGIN, LIVE_APP_ORIGIN\)\)' "$MAIN"
           grep -q 'message.getType() != WebMessageCompat.TYPE_STRING' "$MAIN"
           grep -q 'handleMessage(message.getData(), replyProxy)' "$MAIN"
           grep -q 'JavaScriptReplyProxy' "$BRIDGE"
