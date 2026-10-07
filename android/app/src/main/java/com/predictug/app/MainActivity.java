@@ -21,6 +21,9 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+import android.widget.FrameLayout;
+import android.widget.TextView;
+import android.view.Gravity;
 import android.view.ViewGroup;
 
 import androidx.activity.ComponentActivity;
@@ -62,14 +65,63 @@ public class MainActivity extends ComponentActivity {
         NativeCrashReporter.install(this, "android", BuildConfig.VERSION_NAME);
         captureSharedContent(getIntent());
 
+        final FrameLayout root = new FrameLayout(this);
+        root.setBackgroundColor(Color.WHITE);
+        final TextView loading = new TextView(this);
+        loading.setText("Opening Predict UG…");
+        loading.setTextColor(Color.DKGRAY);
+        loading.setTextSize(18f);
+        loading.setGravity(Gravity.CENTER);
+        root.addView(loading, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        ));
+        setContentView(root);
+
+        // Draw a native frame before Android initializes WebView. Some devices can
+        // spend long enough constructing WebView that the OS splash screen appears
+        // frozen. Posting initialization guarantees the launch screen is dismissed
+        // first and gives us a visible recovery surface instead of an apparent crash.
+        root.post(() -> initializeWebView(root, loading, savedInstanceState));
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
+    private void initializeWebView(
+            FrameLayout root,
+            TextView loading,
+            Bundle savedInstanceState
+    ) {
+        if (isFinishing()) return;
+
         final WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
                 .setDomain("appassets.androidplatform.net")
                 .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
                 .build();
 
-        webView = new WebView(this);
+        try {
+            webView = new WebView(this);
+        } catch (Throwable error) {
+            NativeCrashReporter.reportNonFatal(
+                    this,
+                    "android",
+                    BuildConfig.VERSION_NAME,
+                    "WebView initialization failed",
+                    String.valueOf(error)
+            );
+            loading.setText("Predict UG could not start Android WebView. Close and reopen the app.");
+            Toast.makeText(
+                    this,
+                    "Predict UG startup failed. Android System WebView may need an update.",
+                    Toast.LENGTH_LONG
+            ).show();
+            return;
+        }
         webView.setBackgroundColor(Color.WHITE);
-        setContentView(webView);
+        root.removeAllViews();
+        root.addView(webView, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        ));
         processPendingSharedImage();
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
