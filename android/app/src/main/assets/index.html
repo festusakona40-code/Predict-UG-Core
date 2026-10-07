@@ -1488,7 +1488,7 @@ function renderMarkets(){
   if($('#homeSuggestMarket'))$('#homeSuggestMarket').onclick=showMarketSuggestion;
   if($('#homeSupport'))$('#homeSupport').onclick=()=>openHosted('/support.html');
   if($('#homeInstallApp'))$('#homeInstallApp').onclick=()=>{const install=$('#installBtn');if(install&&!install.classList.contains('hidden'))install.click();else forceAppUpdate()};
-  if($('#searchBtn'))$('#searchBtn').onclick=async()=>{state.search=$('#searchInput').value.trim();await loadMarkets();render()};
+  if($('#searchBtn'))$('#searchBtn').onclick=async()=>{state.search=$('#searchInput').value.trim();state.loading=true;render();try{await loadMarkets()}catch{toast('Could not search markets. Check your connection and tap Search again.',true)}finally{state.loading=false;render()}};
   if($('#searchInput'))$('#searchInput').onkeydown=e=>{if(e.key==='Enter')$('#searchBtn').click()};
   document.querySelectorAll('[data-feed-sort]').forEach(el=>el.onclick=async()=>{
     const sort=el.dataset.feedSort||'trending';
@@ -3757,7 +3757,7 @@ document.addEventListener('click',async e=>{
     return;
   }
   if(t?.dataset.market){const card=t.closest('.market-card');openMarket(t.dataset.market,{openSource:card?.dataset.openSource||'market_card'});return}
-  if(t?.dataset.category!==undefined){state.category=t.dataset.category;trackBehavior('category_view',{category:state.category||null});await loadMarkets();render();document.querySelector('.market-toolbar')?.scrollIntoView({behavior:'smooth',block:'start'});return}
+  if(t?.dataset.category!==undefined){state.category=t.dataset.category;trackBehavior('category_view',{category:state.category||null});state.loading=true;render();try{await loadMarkets()}catch{toast('Could not load this category. Check your connection and tap Refresh.',true)}finally{state.loading=false;render()}document.querySelector('.market-toolbar')?.scrollIntoView({behavior:'smooth',block:'start'});return}
 });
 let deferredInstallPrompt=null;
 const INSTALL_ORIGIN='https://rnvyrlmrwhfauuskyhje.supabase.co/functions/v1/predict-ug-live';
