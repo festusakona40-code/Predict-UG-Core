@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.67. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.79. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#ffffff"/>
@@ -396,7 +396,40 @@ button:focus-visible,a:focus-visible{outline:3px solid #1877f2;outline-offset:3p
 
 
 .home-discovery{margin:24px 0;border:1px solid var(--k-line);border-radius:16px;background:#fff;padding:16px}.home-discovery summary{cursor:pointer;font-weight:750;color:#1464cc;min-height:28px}.home-discovery-content{padding-top:4px}
-.admin-disclosure{margin:18px 0;padding:16px;border:1px solid var(--k-line);border-radius:16px;background:#fff}.admin-disclosure>summary{cursor:pointer;font-weight:750;color:#1464cc;min-height:28px}.admin-disclosure .section-title{margin-top:16px}</style>
+.admin-disclosure{margin:18px 0;padding:16px;border:1px solid var(--k-line);border-radius:16px;background:#fff}.admin-disclosure>summary{cursor:pointer;font-weight:750;color:#1464cc;min-height:28px}.admin-disclosure .section-title{margin-top:16px}
+/* User-selected black app canvas; cards keep their readable light surfaces. */
+:root{--app-canvas:#000000;--bg:#000000}
+html,body,.app,.market-toolbar{background:#000000}
+body{color:#f5f6f7}
+.topbar,.nav{background:#111111;color:#f5f6f7;border-color:#303030}
+.brand,.hero h1,.section-title h2,.market-feed-header h2{color:#f5f6f7}
+.hero p,.section-title>span{color:#b8bec8}
+.card,.market-card,.event-card,.media-card,.proof-card,.sheet,.ai-box,.home-discovery,.admin-disclosure,.stat{color:#1c1e21}
+
+/* Screenshot-approved dark mint palette, shared across customer and admin flows. */
+:root{color-scheme:dark;--app-canvas:#090b0d;--k-brand:#21c99a;--k-brand-secondary:#21c99a;--k-surface:#101214;--k-surface-soft:rgba(9,11,13,.97);--k-foreground:#191c1f;--k-hover:#202427;--k-overlay:rgba(0,0,0,.72);--k-inverse:#090b0d;--k-text:#f0f2f1;--k-muted:#989d9f;--k-disabled:#686e71;--k-line:#2b2e31;--k-line-soft:#24272a;--k-line-strong:#565c5f;--k-green:#21c99a;--k-greenHover:#47d8ae;--k-greenStrong:#47d8ae;--k-greenTint:rgba(33,201,154,.12);--k-greenPressed:rgba(33,201,154,.3);--k-red:#f05b79;--k-redTint:rgba(240,91,121,.12);--k-redPressed:rgba(240,91,121,.3);--k-blue:#21c99a;--k-blueTint:rgba(33,201,154,.12);--k-orange:#e1b94c;--k-orangeStrong:#e1b94c;--k-orangeTint:rgba(225,185,76,.12);--bg:var(--app-canvas);--surface:var(--k-surface);--surface2:var(--k-foreground);--text:var(--k-text);--muted:var(--k-muted);--line:var(--k-line);--green:var(--k-green);--green2:var(--k-greenHover);--blue:var(--k-green);--shadow:0 8px 28px rgba(0,0,0,.2)}
+html,body,.app,.market-toolbar{background:var(--app-canvas);color:var(--text)}
+.topbar,.bottomnav,.nav{background:var(--k-surface-soft);color:var(--text);border-color:var(--line)}
+.card,.market-card,.event-card,.media-card,.proof-card,.compact-info,.sheet,.ai-box,.home-discovery,.admin-disclosure,.stat,.detail-card,.tradebox,.item,.review-hero,.rules-summary-item,.homehero{background:var(--surface);color:var(--text);border-color:var(--line)}
+.homehero{background:linear-gradient(145deg,#10231d,var(--surface) 65%)}
+.brand,.hero h1,.section-title h2,.market-feed-header h2{color:var(--text)}
+.hero p,.section-title>span{color:var(--muted)}
+.logo,.btn.primary,.merchant-quick{background:var(--k-brand);border-color:var(--k-brand);color:#071710}
+.btn.primary:hover,.merchant-quick:hover{background:var(--green2);border-color:var(--green2)}
+.btn,.pill,.chip,.tab,.input,.quote,.prob,.quick-stake,.quick-prompt{background:var(--surface2);color:var(--text);border-color:var(--line)}
+.btn.primary{background:var(--k-brand);border-color:var(--k-brand);color:#071710}
+.btn.ghost{background:transparent}.btn.danger{background:var(--k-redTint);color:var(--k-red);border-color:var(--k-redPressed)}
+.searchrow .input{background:var(--surface2)}.input::placeholder{color:var(--muted)}
+.navbtn.active{background:transparent;color:var(--text);box-shadow:inset 0 -2px 0 var(--green)}
+.chip.active,.tab.active{background:var(--k-greenTint);color:var(--green);border-color:var(--green)}
+.home-kicker,.feed-kicker,.event-series,.home-discovery summary,.admin-disclosure>summary{color:var(--green)}
+.market-mini.y,.market-mini.n{background:transparent;color:var(--text);border:1px solid var(--green)}
+.market-mini.y:hover,.market-mini.n:hover{background:var(--k-greenTint);color:var(--text);border-color:var(--green2)}
+.market-card:hover,.event-card:hover{background:var(--k-hover);border-color:var(--k-line-strong)}
+.outcome-btn.active.y{background:var(--green);color:#071710}.outcome-btn.active.y .outcome-chance{color:#071710}
+button:focus-visible,a:focus-visible{outline:3px solid var(--green);outline-offset:3px}
+
+</style>
 </head>
 <body>
 <div id="app" class="app">
@@ -461,8 +494,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.76';
-const APP_VERSION_CODE=78;
+const APP_BUILD='0.7.79';
+const APP_VERSION_CODE=79;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -1091,10 +1124,11 @@ async function loadBalance(){
 async function loadUnreadNotifications(){
   if(!state.user){state.unreadNotifications=0;return}
   const userId=state.user.id;
+  const request=(state.unreadRequest||0)+1;state.unreadRequest=request;
   try{
     const {count,error}=await supabase.from('notifications').select('id',{count:'exact',head:true}).eq('is_read',false).eq('user_id',userId);
     if(error)throw error;
-    if(state.user?.id===userId)state.unreadNotifications=Number(count||0);
+    if(state.user?.id===userId&&state.unreadRequest===request)state.unreadNotifications=Number(count||0);
   }catch{}
 }
 async function syncPaymentReturn(){
@@ -1282,7 +1316,7 @@ function render(){
   const inviteBtn=$('#inviteBtn');
   if(inviteBtn)inviteBtn.classList.toggle('hidden',!state.user);
   const merchantQuick=$('#merchantQuickConnect');
-  if(merchantQuick)merchantQuick.classList.toggle('hidden',!(state.user&&state.isAdmin));
+  if(merchantQuick)merchantQuick.classList.toggle('hidden',!(state.user&&state.isAdmin&&state.tab!=='admin'));
   const balanceBtn=$('#balanceBtn');
   if(balanceBtn){
     if(state.user&&state.balance!=null){balanceBtn.classList.remove('hidden');balanceBtn.textContent=state.balanceMode==='cash'?ugx(state.balance):(Number(state.balance).toLocaleString('en-UG')+' credits')}
@@ -1295,7 +1329,7 @@ function render(){
       notifBtn.innerHTML='🔔'+(state.unreadNotifications?'<span class="notif-dot">'+Math.min(99,state.unreadNotifications)+'</span>':'');
     }else notifBtn.classList.add('hidden');
   }
-  if(state.loading){$('#view').innerHTML='<div class="loading">Refreshing…</div>';return}
+  if(state.loading){$('#view').innerHTML=(state.tab==='admin'&&state.isAdmin?merchantAdminActions():'')+'<div class="loading">Refreshing…</div>';return}
   if(state.tab==='markets')renderMarkets();
   else if(state.tab==='media'||state.tab==='discover')renderMedia();
   else if(state.tab==='portfolio')renderPortfolio();
@@ -2261,13 +2295,18 @@ async function loadPortfolio(){
 
 async function loadBetaMission(){
   if(!state.user){state.betaMission=null;return}
+  const userId=state.user.id;
+  const request=(state.betaMissionRequest||0)+1;state.betaMissionRequest=request;
+  const current=()=>state.user?.id===userId&&state.betaMissionRequest===request;
   try{
     const data=await rpc('my_positions');
+    if(!current())return;
     const positions=Array.isArray(data?.positions)?data.positions:[];
     const trades=positions.reduce((sum,p)=>sum+Math.max(0,Number(p?.trade_count||0)),0);
     const goal=3;
     state.betaMission={trades,goal,complete:trades>=goal,remaining:Math.max(0,goal-trades)};
   }catch(e){
+    if(!current())return;
     state.betaMission=null;
     reportClientError(e.message||'Could not load beta mission',e.stack||'',{kind:'beta_mission_load'});
   }
@@ -2751,12 +2790,14 @@ function renderWatchlist(){
 }
 async function loadNotifications(){
   const userId=state.user?.id;if(!userId)return;
+  const request=(state.notificationsRequest||0)+1;state.notificationsRequest=request;
+  const current=()=>state.user?.id===userId&&state.notificationsRequest===request;
   try{
     const data=await rpc('notification_inbox',{p_limit:100});
-    if(state.user?.id!==userId)return;
+    if(!current())return;
     state.notifications=data||[];state.notificationsLoaded=true;state.notificationsError='';
     await loadUnreadNotifications();
-  }catch(error){if(state.user?.id===userId)state.notificationsError='Could not load updates. Check your connection and try again.';throw error}
+  }catch(error){if(!current())return;state.notificationsError='Could not load updates. Check your connection and try again.';throw error}
 }
 function updateNotificationBadge(){
   const btn=$('#notifBtn');if(!btn)return;
@@ -2798,8 +2839,11 @@ function renderLeaderboard(){
   $('#view').innerHTML='<section class="hero"><h1>Leaderboard</h1><p>Forecasting performance, not follower count.</p></section><div class="timeline">'+state.leaderboard.map((x,i)=>'<div class="item"><b>#'+(i+1)+' '+esc(x.display_name||'Predictor')+'</b><br><small>'+Object.entries(x).filter(([k])=>k!=='display_name').slice(0,4).map(([k,v])=>esc(k)+': '+esc(v)).join(' · ')+'</small></div>').join('')+'</div>';
 }
 async function loadAdmin(){
-  if(!state.isAdmin)return;
-  const [a,c,m,e,d,support,errors,recovery,aiProviders,autonomy,treasury,sportsbookRisk,probabilityEngine,businessTraction,cashLaunch,merchantConnection,securityHealth]=await Promise.all([
+  if(!state.isAdmin||!state.user)return;
+  const userId=state.user.id;
+  const request=(state.adminRequest||0)+1;state.adminRequest=request;
+  let adminTimer;
+  const [a,c,m,e,d,support,errors,recovery,aiProviders,autonomy,treasury,sportsbookRisk,probabilityEngine,businessTraction,cashLaunch,merchantConnection,securityHealth]=await Promise.race([Promise.all([
     rpc('admin_ops_dashboard'),
     rpc('ceo_dashboard',{p_days:30}),
     rpc('admin_manual_momo_queue',{p_limit:100}),
@@ -2817,7 +2861,8 @@ async function loadAdmin(){
     rpc('admin_cash_launch_financial_readiness'),
     rpc('admin_merchant_connection_status'),
     rpc('admin_security_health')
-  ]);
+  ]),new Promise((_,reject)=>{adminTimer=setTimeout(()=>reject(new Error('Admin dashboard timed out. Check your connection and retry.')),15000)})]).finally(()=>clearTimeout(adminTimer));
+  if(state.user?.id!==userId||!state.isAdmin||state.adminRequest!==request)return;
   state.admin=a;state.adminError='';
   state.ceo=c;
   state.manualMomo=m||[];
@@ -2836,10 +2881,93 @@ async function loadAdmin(){
   state.merchantConnection=merchantConnection||{};
   state.securityHealth=securityHealth||{};
 }
+async function merchantPasskeyRequest(type, payload = {}) {
+  if (!state.session?.access_token) throw new Error('Sign in as an administrator first');
+  const response = await fetch(SUPABASE_URL + '/functions/v1/merchant-momo-ingest', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', apikey: SUPABASE_KEY, authorization: 'Bearer ' + state.session.access_token },
+    body: JSON.stringify({ type, ...payload }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || 'Merchant passkey request failed');
+  return data;
+}
+function merchantPasskeyBytes(value) {
+  const text = String(value);
+  const padded = text.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((text.length + 3) % 4);
+  const raw = atob(padded);
+  return Uint8Array.from(raw, ch => ch.charCodeAt(0));
+}
+function merchantPasskeyB64(value) {
+  const bytes = new Uint8Array(value); let raw = '';
+  for (const byte of bytes) raw += String.fromCharCode(byte);
+  return btoa(raw).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+async function registerMerchantPasskey() {
+  try {
+    if (!window.PublicKeyCredential || !navigator.credentials) throw new Error('This browser does not support passkeys');
+    const options = await merchantPasskeyRequest('passkey_register_options');
+    const credential = await navigator.credentials.create({ publicKey: {
+      ...options,
+      challenge: merchantPasskeyBytes(options.challenge),
+      user: { ...options.user, id: merchantPasskeyBytes(options.user.id) },
+      excludeCredentials: (options.excludeCredentials || []).map(item => ({ ...item, id: merchantPasskeyBytes(item.id) })),
+    }});
+    if (!credential) throw new Error('Passkey registration was cancelled');
+    const response = credential.response;
+    await merchantPasskeyRequest('passkey_register_verify', { challenge_id: options.challenge_id, response: {
+      id: credential.id, rawId: merchantPasskeyB64(credential.rawId), type: credential.type,
+      authenticatorAttachment: credential.authenticatorAttachment || undefined,
+      clientExtensionResults: credential.getClientExtensionResults ? credential.getClientExtensionResults() : {},
+      response: { clientDataJSON: merchantPasskeyB64(response.clientDataJSON), attestationObject: merchantPasskeyB64(response.attestationObject), transports: response.getTransports ? response.getTransports() : [] },
+    }});
+    toast('Merchant admin passkey registered');
+  } catch (error) { toast(error.message || 'Could not register the merchant passkey', true); }
+}
+async function runMerchantPasskeyAdminAction(action,payload) {
+  if (!window.PublicKeyCredential || !navigator.credentials) throw new Error('This browser does not support passkeys');
+  const options = await merchantPasskeyRequest('passkey_admin_action_options', { action, payload });
+  const credential = await navigator.credentials.get({ publicKey: {
+    ...options,
+    challenge: merchantPasskeyBytes(options.challenge),
+    allowCredentials: (options.allowCredentials || []).map(item => ({ ...item, id: merchantPasskeyBytes(item.id) })),
+  }});
+  if (!credential) throw new Error('Passkey confirmation was cancelled');
+  const response = credential.response;
+  return merchantPasskeyRequest('passkey_admin_action_execute', {
+    action, payload, challenge_id: options.challenge_id, response: {
+      id: credential.id, rawId: merchantPasskeyB64(credential.rawId), type: credential.type,
+      authenticatorAttachment: credential.authenticatorAttachment || undefined,
+      clientExtensionResults: credential.getClientExtensionResults ? credential.getClientExtensionResults() : {},
+      response: {
+        clientDataJSON: merchantPasskeyB64(response.clientDataJSON),
+        authenticatorData: merchantPasskeyB64(response.authenticatorData),
+        signature: merchantPasskeyB64(response.signature),
+        userHandle: response.userHandle ? merchantPasskeyB64(response.userHandle) : null,
+      },
+    },
+  });
+}
+function merchantAdminActions(){
+  return '<section class="card" aria-label="Merchant setup"><h2>MTN merchant verification</h2><p class="auth-note">Use browser verification for genuine MTN merchant records. Sensitive deposit and payout confirmation now requires your fingerprint, face unlock, or device PIN through a passkey before the server accepts the admin action.</p><div class="actions"><button class="btn primary" data-merchant-proof>Verify MTN payment in browser</button><button class="btn" data-passkey-register>Register fingerprint / face / PIN</button></div><details style="margin-top:12px"><summary>Optional Merchant helper APK</summary><p class="auth-note">Automatic notification verification needs the helper app. Browser verification remains available if Android blocks the helper.</p><div class="actions"><a class="btn" href="https://predict-ug-merchant-beta-build.onrender.com/?install=merchant" target="_blank" rel="noopener">Merchant APK download page</a><button class="btn" data-merchant-connect>Connect / repair a trusted merchant phone</button></div></details></section>';
+}
+function openMerchantProof(){
+  if(!state.user||!state.isAdmin){toast('Admin access required',true);return}
+  const panel=$('#merchantProofPanel');
+  if(!panel){toast('Merchant records are still loading. Wait for the dashboard or tap Retry admin.',true);return}
+  panel.open=true;
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+document.addEventListener('click',e=>{
+  if(e.target.closest('[data-merchant-proof]'))openMerchantProof();
+  if(e.target.closest('[data-merchant-connect]'))quickConnectMerchantPhone();
+  if(e.target.closest('[data-passkey-register]'))registerMerchantPasskey();
+});
+
 function renderAdmin(){
   if(!state.isAdmin){$('#view').innerHTML='<div class="empty">Admin access required.</div>';return}
   if(!state.admin){
-    $('#view').innerHTML=state.adminError?'<div class="empty" role="status">'+esc(state.adminError)+'</div><button class="btn primary" id="retryAdminLoad">Retry admin</button>':'<div class="loading">Loading admin control room…</div>';
+    $('#view').innerHTML=merchantAdminActions()+(state.adminError?'<div class="empty" role="status">'+esc(state.adminError)+'</div><button class="btn primary" id="retryAdminLoad">Retry admin</button>':'<div class="loading">Loading admin control room…</div>');
     if($('#retryAdminLoad'))$('#retryAdminLoad').onclick=()=>{state.adminError='';render()};
     if(!state.adminLoading&&!state.adminError){
       state.adminLoading=true;
@@ -2850,7 +2978,7 @@ function renderAdmin(){
   const a=state.admin,r=a.production_readiness||{},b=a.build_completion||{},c=state.ceo||{},t=state.businessTraction||{},tu=t.users||{},tf=t.activation_funnel||{},ta=t.forecast_activity||{},ti=t.market_inventory||{},tg=t.growth||{},tr=t.release||{},tcb=t.activation_by_client_build||[];
   const cl=state.cashLaunch||{},mc=state.merchantConnection||{};
   const sh=state.securityHealth||{},sb=sh.security_boundaries||{},lp=sh.native_leaked_password_protection||{},pm=sh.application_password_mitigation||{};
-  $('#view').innerHTML='<section class="hero"><h1>Admin / CEO</h1><p>Business overview, customer support and merchant operations.</p></section>'+
+  $('#view').innerHTML=merchantAdminActions()+'<section class="hero"><h1>Admin / CEO</h1><p>Business overview, customer support and merchant operations.</p></section>'+
     '<div class="statgrid"><div class="stat"><small>Build done</small><b>'+Number(b.done||0)+'</b></div><div class="stat"><small>Readiness</small><b>'+Number(r.readiness_score||0)+'/100</b></div><div class="stat"><small>E2E</small><b>'+esc(a.latest_e2e?.status||'—')+'</b></div><div class="stat"><small>Recovery</small><b>'+esc(state.recoveryStatus?.status||'—')+'</b></div></div>'+
     '<div class="section-title"><h2>Customer & business traction</h2><span class="statuschip">aggregate · QA excluded</span></div>'+
     '<div class="card">'+
@@ -3342,35 +3470,45 @@ function renderAdmin(){
 
   document.querySelectorAll('[data-manual-confirm-deposit]').forEach(btn=>{
     btn.onclick=async()=>{
+      if(btn.disabled||!state.user||!state.isAdmin)return;
+      const userId=state.user.id;
+      btn.disabled=true;
       try{
         const ref=(prompt('Verified merchant transaction ID',btn.dataset.ref||'')||'').trim();
         if(!ref)return;
-        await rpc('admin_confirm_manual_momo_deposit',{
-          p_payment_intent_id:btn.dataset.manualConfirmDeposit,
-          p_verified_transaction_reference:ref,
-          p_note:'Confirmed from Predict UG admin queue'
+        await runMerchantPasskeyAdminAction('confirm_manual_momo_deposit',{
+          payment_intent_id:btn.dataset.manualConfirmDeposit,
+          verified_transaction_reference:ref,
+          note:'Passkey-confirmed from Predict UG admin queue'
         });
+        if(state.user?.id!==userId||!state.isAdmin)return;
         toast('Deposit credited');
-        await loadAdmin();
-        render();
-      }catch(e){toast(e.message||'Could not confirm deposit',true)}
+        try{await loadAdmin();if(state.user?.id===userId&&state.isAdmin)render()}
+        catch{toast('Deposit credited. Dashboard refresh failed; refresh the admin page.',true)}
+      }catch(e){if(state.user?.id===userId)toast(e.message||'Could not confirm deposit',true)}
+      finally{if(btn.isConnected)btn.disabled=false}
     };
   });
 
   document.querySelectorAll('[data-manual-complete-payout]').forEach(btn=>{
     btn.onclick=async()=>{
+      if(btn.disabled||!state.user||!state.isAdmin)return;
+      const userId=state.user.id;
+      btn.disabled=true;
       try{
         const ref=(prompt('Outgoing MoMo transaction ID after sending payout','')||'').trim();
         if(!ref)return;
-        await rpc('admin_complete_manual_momo_payout',{
-          p_payment_intent_id:btn.dataset.manualCompletePayout,
-          p_payout_transaction_reference:ref,
-          p_note:'Payout recorded from Predict UG admin queue'
+        await runMerchantPasskeyAdminAction('complete_manual_momo_payout',{
+          payment_intent_id:btn.dataset.manualCompletePayout,
+          payout_transaction_reference:ref,
+          note:'Passkey-confirmed payout from Predict UG admin queue'
         });
-        toast('Payout completed');
-        await loadAdmin();
-        render();
-      }catch(e){toast(e.message||'Could not complete payout',true)}
+        if(state.user?.id!==userId||!state.isAdmin)return;
+        toast('Payout recorded. This action does not send money.');
+        try{await loadAdmin();if(state.user?.id===userId&&state.isAdmin)render()}
+        catch{toast('Payout recorded. Dashboard refresh failed; refresh the admin page.',true)}
+      }catch(e){if(state.user?.id===userId)toast(e.message||'Could not complete payout',true)}
+      finally{if(btn.isConnected)btn.disabled=false}
     };
   });
 
