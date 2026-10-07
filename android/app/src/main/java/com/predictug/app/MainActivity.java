@@ -38,11 +38,14 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashSet;
 
 public class MainActivity extends ComponentActivity {
-    private static final String APP_ORIGIN = "https://appassets.androidplatform.net";
-    private static final String APP_URL = APP_ORIGIN + "/assets/index.html";
+    private static final String BUNDLED_APP_ORIGIN = "https://appassets.androidplatform.net";
+    private static final String BUNDLED_APP_URL = BUNDLED_APP_ORIGIN + "/assets/index.html";
+    private static final String LIVE_APP_ORIGIN = "https://predict-ug-app.onrender.com";
+    private static final String LIVE_APP_URL = LIVE_APP_ORIGIN + "/?android=1";
 
     private WebView webView;
     private boolean pageFinishedForShare = false;
@@ -50,6 +53,7 @@ public class MainActivity extends ComponentActivity {
     private String pendingSharedTitle = null;
     private Uri pendingSharedImageUri = null;
     private boolean sharedImageProcessing = false;
+    private boolean bundledFallbackStarted = false;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -129,7 +133,7 @@ public class MainActivity extends ComponentActivity {
             WebViewCompat.addWebMessageListener(
                     webView,
                     "PredictUGIntegrity",
-                    Collections.singleton(APP_ORIGIN),
+                    new HashSet<>(Arrays.asList(BUNDLED_APP_ORIGIN, LIVE_APP_ORIGIN)),
                     (view, message, sourceOrigin, isMainFrame, replyProxy) -> {
                         if (!isMainFrame
                                 || !AppOriginPolicy.isInternal(
@@ -167,7 +171,18 @@ public class MainActivity extends ComponentActivity {
                                             BuildConfig.VERSION_NAME,
                                             "Predict UG startup watchdog",
                                             "WebView boot state after 15s: " + String.valueOf(value)
+                                                    + ", url=" + String.valueOf(url)
                                     );
+                                    Uri finished = Uri.parse(String.valueOf(url));
+                                    if (AppOriginPolicy.isLive(
+                                            finished.getScheme(),
+                                            finished.getHost()
+                                    ) && !bundledFallbackStarted) {
+                                        loadBundledFallback(
+                                                "Live Predict UG did not finish starting. Opening the bundled fallback."
+                                        );
+                                        return;
+                                    }
                                     Toast.makeText(
                                             MainActivity.this,
                                             "Predict UG startup is taking too long. Tap Retry in the app.",
@@ -190,16 +205,28 @@ public class MainActivity extends ComponentActivity {
                     String description = error == null
                             ? "Unknown WebView load error"
                             : String.valueOf(error.getDescription());
+                    Uri failedUrl = request.getUrl();
                     NativeCrashReporter.reportNonFatal(
                             MainActivity.this,
                             "android-webview",
                             BuildConfig.VERSION_NAME,
                             "WebView main-frame load error",
-                            description
+                            description + ", url=" + String.valueOf(failedUrl)
                     );
+                    if (failedUrl != null
+                            && AppOriginPolicy.isLive(
+                                    failedUrl.getScheme(),
+                                    failedUrl.getHost()
+                            )
+                            && !bundledFallbackStarted) {
+                        loadBundledFallback(
+                                "Live Predict UG is unavailable. Opening the bundled offline fallback."
+                        );
+                        return;
+                    }
                     Toast.makeText(
                             MainActivity.this,
-                            "Predict UG could not load its local app shell. Reopen the app.",
+                            "Predict UG could not load its app shell. Reopen the app.",
                             Toast.LENGTH_LONG
                     ).show();
                 }
@@ -283,8 +310,15 @@ public class MainActivity extends ComponentActivity {
         if (savedInstanceState != null) {
             webView.restoreState(savedInstanceState);
         } else {
-            webView.loadUrl(APP_URL);
+            webView.loadUrl(LIVE_APP_URL);
         }
+    }
+
+    private void loadBundledFallback(String message) {
+        if (bundledFallbackStarted || webView == null || isFinishing()) return;
+        bundledFallbackStarted = true;
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        webView.loadUrl(BUNDLED_APP_URL);
     }
 
     private static String trimShared(CharSequence value, int max) {
