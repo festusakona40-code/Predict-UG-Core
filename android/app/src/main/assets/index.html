@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.62. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.63. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#f7f8fa"/>
@@ -179,8 +179,9 @@
     .market-status-pill{font-size:.7rem;padding:5px 8px;border-radius:999px;border:1px solid #1c3b31;color:#9fb6ac;background:#0a1714;text-transform:capitalize}
     @media(max-width:800px){.detail-grid{grid-template-columns:1fr}.detail-grid>aside{order:-1}.tradebox{position:static}.sheet.full{height:97vh}.detail-head .detail-title{font-size:1.55rem}}
   
+
     /* Predict UG light market theme — shared by web and bundled Android. */
-    :root{color-scheme:light;--bg:#f7f8fa;--surface:#ffffff;--surface2:#f0f3f5;--line:#dce2e7;--text:#17211d;--muted:#5d6b64;--green:#087f52;--green2:#066a44;--blue:#245ccb;--red:#b42332;--amber:#8a5800;--shadow:0 8px 28px rgba(23,33,29,.06)}
+    :root{color-scheme:light;--bg:#ffffff;--surface:#ffffff;--surface2:#f5f5f5;--line:#e6e6e6;--text:#191919;--muted:#666666;--green:#0ac285;--green2:#09ad77;--blue:#191919;--red:#b42332;--amber:#8a5800;--shadow:0 8px 28px rgba(23,33,29,.06)}
     html,body{background:var(--bg);color:var(--text)}
     body{font-size:1rem;line-height:1.5}
     .app{max-width:1240px}
@@ -194,40 +195,40 @@
     .btn,.input,.chip,.tab,.market-mini,.navbtn span,.eyebrow,.meta,.detail-sub,.auth-note,.quote-row,.trade-lead{font-size:.875rem}
     .btn{min-height:44px}.btn.small{min-height:40px}.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
     .btn.primary:hover{background:var(--green2)}.btn.danger{background:#fff1f2;border-color:#edb4bc;color:var(--red)}
-    .input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(8,127,82,.12)}
+    .input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(10,194,133,.16)}
     button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
     .homehero{background:#fff;border-color:var(--line);padding:20px 24px;border-radius:16px}
     .homehero:after{display:none}.homehero h1{font-size:clamp(1.7rem,4vw,2.35rem);line-height:1.15;letter-spacing:-.04em;margin-bottom:8px}
     .homehero p{font-size:1rem;color:var(--muted)}
     .home-kicker,.feed-kicker,.media-label,.event-card .event-series{color:var(--green);font-size:.75rem}
     .hero-kpi,.quiet-badge,.source-pill{background:#f4f7f5;border-color:var(--line);color:var(--muted)}
-    .market-toolbar{background:rgba(247,248,250,.98);top:70px}
-    .chip{min-height:44px}.chip.active{background:#e8f5ee;border-color:#087f52;color:#066a44;font-weight:800}
+    .market-toolbar{background:rgba(255,255,255,.98);top:70px}
+    .chip{min-height:44px}.chip.active{background:#e8f5ee;border-color:#0ac285;color:#09ad77;font-weight:800}
     .grid{gap:16px}.market-title{font-size:1.1rem;line-height:1.4;letter-spacing:-.015em}
-    .market-price,.yes,.market-mini.y,.outcome-btn.active.y,.risk-card.win .risk-number,.review-side,.result-chip.open,.result-chip.won,.lifecycle-step.done{color:#087348}
+    .market-price,.yes,.market-mini.y,.outcome-btn.active.y,.risk-card.win .risk-number,.review-side,.result-chip.open,.result-chip.won,.lifecycle-step.done{color:#087f5b}
     .market-price{font-size:1.9rem}.market-price small{font-size:.75rem}
     .market-mini{min-height:48px;padding:12px;font-size:.875rem}.market-mini b{font-size:1rem}
-    .market-mini.y,.outcome-btn.y{background:#edf8f1;border-color:#b8dec8;color:#087348}
-    .market-mini.n,.outcome-btn.n{background:#edf3ff;border-color:#c4d4f5;color:#245ccb}
-    .market-mini.y:hover,.market-mini.y:focus-visible,.outcome-btn.active.y{background:#dff2e7;border-color:#087f52;color:#066a44}
-    .market-mini.n:hover,.market-mini.n:focus-visible,.outcome-btn.active.n{background:#e0ebff;border-color:#245ccb;color:#204fae}
-    .outcome-btn.active.n{box-shadow:inset 0 0 0 1px #245ccb}.no,.review-side.no{color:#245ccb}
-    .bar{background:#e7ece9;height:4px}.bar>span{background:#087f52}
+    .market-mini.y,.outcome-btn.y{background:#e8faf4;border-color:#b8dec8;color:#087f5b}
+    .market-mini.n,.outcome-btn.n{background:#f5f5f5;border-color:#e6e6e6;color:#191919}
+    .market-mini.y:hover,.market-mini.y:focus-visible,.outcome-btn.active.y{background:#dff2e7;border-color:#0ac285;color:#09ad77}
+    .market-mini.n:hover,.market-mini.n:focus-visible,.outcome-btn.active.n{background:#e9e9e9;border-color:#191919;color:#191919}
+    .outcome-btn.active.n{box-shadow:inset 0 0 0 1px #191919}.no,.review-side.no{color:#191919}
+    .bar{background:#e7ece9;height:4px}.bar>span{background:#0ac285}
     .market-card .meta,.event-card .event-bottom,.trade-divider{border-color:var(--line)}
-    .navbtn{min-height:48px;color:var(--muted)}.navbtn.active{background:#edf8f1;color:#066a44;box-shadow:inset 0 2px 0 #087f52}
+    .navbtn{min-height:48px;color:var(--muted)}.navbtn.active{background:#e8faf4;color:#09ad77;box-shadow:inset 0 2px 0 #0ac285}
     .sheet{background:var(--bg)}.close{background:#e9eeeb;color:var(--text);width:44px;height:44px}
     .detail-breadcrumb,.detail-breadcrumb strong,.detail-breadcrumb i,.trade-formula{color:var(--muted)}
     .detail-breadcrumb{font-size:.875rem}.detail-fact,.market-status-pill,.rules-summary-item small,.outcome-btn .outcome-chance{font-size:.875rem}
     .resolution-card p{color:var(--text)}.lifecycle-step{color:var(--muted);font-size:.875rem}
-    .lifecycle-step.active{background:#e8f5ee;border-color:var(--green);color:#066a44}
-    .tab{font-size:.875rem;min-height:44px}.tab.active{background:#e8f5ee;color:#066a44;border-color:#b8dec8}
-    .risk-card.win{background:#edf8f1;border-color:#b8dec8}.risk-card.loss{background:#fff1f2;border-color:#edb4bc}
+    .lifecycle-step.active{background:#e8f5ee;border-color:var(--green);color:#09ad77}
+    .tab{font-size:.875rem;min-height:44px}.tab.active{background:#e8f5ee;color:#09ad77;border-color:#b8dec8}
+    .risk-card.win{background:#e8faf4;border-color:#b8dec8}.risk-card.loss{background:#fff1f2;border-color:#edb4bc}
     .risk-card.loss .risk-number,.result-chip.lost{color:var(--red)}
     .risk-card small,.trade-formula,.review-side,.result-chip{font-size:.8125rem}
-    .review-side{background:#edf8f1}.review-side.no{background:#edf3ff}
-    .result-chip.void,.result-chip.closed{color:var(--muted);background:#f0f3f5}
-    .statuschip.ok{color:#066a44;border-color:#b8dec8}.statuschip.warn{color:#805100;border-color:#dfc58e;background:#fff8e8}
-    .spark{background:#fff}.chat-msg.assistant{background:#fff}.chat-msg.user{background:#edf8f1}
+    .review-side{background:#e8faf4}.review-side.no{background:#f5f5f5}
+    .result-chip.void,.result-chip.closed{color:var(--muted);background:#f5f5f5}
+    .statuschip.ok{color:#09ad77;border-color:#b8dec8}.statuschip.warn{color:#805100;border-color:#dfc58e;background:#fff8e8}
+    .spark{background:#fff}.chat-msg.assistant{background:#fff}.chat-msg.user{background:#e8faf4}
     .toast{background:#e6f5ec;color:#065d3b;border-color:#a8d7bd}.toast.err{background:#fff1f2;color:#9f2030;border-color:#edb4bc}
     .merchant-quick{background:var(--green);color:#fff}
     .eyebrow,.meta,.market-price small,.event-card .event-bottom{color:var(--muted)}
@@ -237,7 +238,9 @@
     @media(max-width:520px){.market-card{padding:16px}.market-title{font-size:1.05rem}.homehero h1{font-size:1.7rem}.homehero p{font-size:1rem}.header-actions{gap:5px}.btn.small{padding:7px 9px}}
     @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
-  </style>
+    /* Observed Kalshi brand and trading palette: white, mint, neutral NO. */
+    .btn.primary,.merchant-quick{background:#28cc95;border-color:#28cc95;color:#fff}.outcome-btn.active.y{background:#0ac285;border-color:#0ac285;color:#fff}.outcome-btn.active.n{background:#e9e9e9;border-color:#bdbdbd;color:#191919;box-shadow:inset 0 0 0 1px #bdbdbd}
+</style>
 </head>
 <body>
 <div id="app" class="app">
@@ -302,8 +305,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.62';
-const APP_VERSION_CODE=64;
+const APP_BUILD='0.7.63';
+const APP_VERSION_CODE=65;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
