@@ -64,7 +64,7 @@ public class MainActivity extends ComponentActivity {
                 .build();
 
         webView = new WebView(this);
-        webView.setBackgroundColor(Color.rgb(7, 20, 38));
+        webView.setBackgroundColor(Color.WHITE);
         setContentView(webView);
         processPendingSharedImage();
 
