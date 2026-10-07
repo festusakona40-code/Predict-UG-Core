@@ -461,8 +461,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.71';
-const APP_VERSION_CODE=73;
+const APP_BUILD='0.7.72';
+const APP_VERSION_CODE=74;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -2777,7 +2777,7 @@ async function loadAdmin(){
     rpc('admin_merchant_connection_status'),
     rpc('admin_security_health')
   ]);
-  state.admin=a;
+  state.admin=a;state.adminError='';
   state.ceo=c;
   state.manualMomo=m||[];
   state.merchantEvents=e||[];
@@ -2797,7 +2797,15 @@ async function loadAdmin(){
 }
 function renderAdmin(){
   if(!state.isAdmin){$('#view').innerHTML='<div class="empty">Admin access required.</div>';return}
-  if(!state.admin){$('#view').innerHTML='<div class="loading">Loading admin control room…</div>';loadAdmin().then(render);return}
+  if(!state.admin){
+    $('#view').innerHTML=state.adminError?'<div class="empty" role="status">'+esc(state.adminError)+'</div><button class="btn primary" id="retryAdminLoad">Retry admin</button>':'<div class="loading">Loading admin control room…</div>';
+    if($('#retryAdminLoad'))$('#retryAdminLoad').onclick=()=>{state.adminError='';render()};
+    if(!state.adminLoading&&!state.adminError){
+      state.adminLoading=true;
+      loadAdmin().then(()=>{state.adminLoading=false;if(state.tab==='admin')render()}).catch(()=>{state.adminLoading=false;state.adminError='Admin could not refresh. Check your connection and retry.';if(state.tab==='admin')render()});
+    }
+    return;
+  }
   const a=state.admin,r=a.production_readiness||{},b=a.build_completion||{},c=state.ceo||{},t=state.businessTraction||{},tu=t.users||{},tf=t.activation_funnel||{},ta=t.forecast_activity||{},ti=t.market_inventory||{},tg=t.growth||{},tr=t.release||{},tcb=t.activation_by_client_build||[];
   const cl=state.cashLaunch||{},mc=state.merchantConnection||{};
   const sh=state.securityHealth||{},sb=sh.security_boundaries||{},lp=sh.native_leaked_password_protection||{},pm=sh.application_password_mitigation||{};
