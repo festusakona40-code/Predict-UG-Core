@@ -7,11 +7,19 @@ import org.junit.Test;
 
 public class AppOriginPolicyTest {
     @Test
-    public void internalAssetOriginIsStrictHttpsHostMatch() {
+    public void trustedOriginsRequireExactHttpsHostMatch() {
         assertTrue(AppOriginPolicy.isInternal("https", "appassets.androidplatform.net"));
         assertTrue(AppOriginPolicy.isInternal("HTTPS", "APPASSETS.ANDROIDPLATFORM.NET"));
+        assertTrue(AppOriginPolicy.isInternal("https", "predict-ug-app.onrender.com"));
+        assertTrue(AppOriginPolicy.isInternal("HTTPS", "PREDICT-UG-APP.ONRENDER.COM"));
+
+        assertTrue(AppOriginPolicy.isLive("https", "predict-ug-app.onrender.com"));
+        assertTrue(AppOriginPolicy.isBundled("https", "appassets.androidplatform.net"));
+
         assertFalse(AppOriginPolicy.isInternal("http", "appassets.androidplatform.net"));
-        assertFalse(AppOriginPolicy.isInternal("https", "predict-ug-app.onrender.com"));
+        assertFalse(AppOriginPolicy.isInternal("http", "predict-ug-app.onrender.com"));
+        assertFalse(AppOriginPolicy.isInternal("https", "predict-ug-app.onrender.com.evil.example"));
+        assertFalse(AppOriginPolicy.isInternal("https", "evilpredict-ug-app.onrender.com"));
         assertFalse(AppOriginPolicy.isInternal(null, null));
     }
 
@@ -28,6 +36,9 @@ public class AppOriginPolicyTest {
         ));
         assertFalse(AppOriginPolicy.shouldBlockUntrustedSubframe(
                 "https", "appassets.androidplatform.net", false
+        ));
+        assertFalse(AppOriginPolicy.shouldBlockUntrustedSubframe(
+                "https", "predict-ug-app.onrender.com", false
         ));
         assertFalse(AppOriginPolicy.shouldBlockUntrustedSubframe(
                 "https", "example.com", true
