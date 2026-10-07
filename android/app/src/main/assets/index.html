@@ -396,7 +396,7 @@ button:focus-visible,a:focus-visible{outline:3px solid #1877f2;outline-offset:3p
 
 
 .home-discovery{margin:24px 0;border:1px solid var(--k-line);border-radius:16px;background:#fff;padding:16px}.home-discovery summary{cursor:pointer;font-weight:750;color:#1464cc;min-height:28px}.home-discovery-content{padding-top:4px}
-</style>
+.admin-disclosure{margin:18px 0;padding:16px;border:1px solid var(--k-line);border-radius:16px;background:#fff}.admin-disclosure>summary{cursor:pointer;font-weight:750;color:#1464cc;min-height:28px}.admin-disclosure .section-title{margin-top:16px}</style>
 </head>
 <body>
 <div id="app" class="app">
@@ -461,8 +461,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.69';
-const APP_VERSION_CODE=71;
+const APP_BUILD='0.7.70';
+const APP_VERSION_CODE=72;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -1022,7 +1022,7 @@ function installAuthListener(){
   if(authListenerInstalled||authRestoreFailed)return;
   authListenerInstalled=true;
   supabase.auth.onAuthStateChange((event,session)=>{
-    state.session=session||null;state.user=session?.user||null;state.isAdmin=false;render();
+    const previousUserId=state.user?.id;state.session=session||null;state.user=session?.user||null;if(previousUserId!==state.user?.id){state.notifications=[];state.notificationsLoaded=false;state.notificationsError='';state.unreadNotifications=0;state.admin=null;state.ceo=null;state.portfolio=null}state.isAdmin=false;render();
     if(state.user){setTimeout(async()=>{try{state.isAdmin=!!(await rpc('is_admin'));await Promise.all([loadBalance(),loadUnreadNotifications(),loadBehaviorPrefs(),loadBetaMission()]);state.markets=personalizeMarkets(state.markets);render();const legalOk=await ensureLegalAcceptance();if(legalOk)maybeShowFirstUseGuide()}catch{}},0)}
     else{state.balance=null;state.unreadNotifications=0}
   });
@@ -1085,10 +1085,11 @@ async function loadBalance(){
 }
 async function loadUnreadNotifications(){
   if(!state.user){state.unreadNotifications=0;return}
+  const userId=state.user.id;
   try{
-    const {count,error}=await supabase.from('notifications').select('id',{count:'exact',head:true}).eq('is_read',false);
+    const {count,error}=await supabase.from('notifications').select('id',{count:'exact',head:true}).eq('is_read',false).eq('user_id',userId);
     if(error)throw error;
-    state.unreadNotifications=Number(count||0);
+    if(state.user?.id===userId)state.unreadNotifications=Number(count||0);
   }catch{}
 }
 async function syncPaymentReturn(){
@@ -2689,12 +2690,48 @@ function renderWatchlist(){
   if(!state.watchlist.length){$('#view').innerHTML='<section class="hero"><h1>Saved markets</h1><p>Your saved markets.</p></section><div class="empty">No saved open markets yet.</div>';loadWatchlist().then(()=>{if(state.watchlist.length)render()});return}
   $('#view').innerHTML='<section class="hero"><h1>Saved markets</h1><p>Your saved markets.</p></section><div class="grid">'+state.watchlist.map(marketCard).join('')+'</div>';
 }
-async function loadNotifications(){if(!state.user)return;const {data,error}=await supabase.from('notifications').select('*').order('created_at',{ascending:false}).limit(100);if(error)throw error;state.notifications=data||[]}
+async function loadNotifications(){
+  const userId=state.user?.id;if(!userId)return;
+  try{
+    const data=await rpc('notification_inbox',{p_limit:100});
+    if(state.user?.id!==userId)return;
+    state.notifications=data||[];state.notificationsLoaded=true;state.notificationsError='';
+    await loadUnreadNotifications();
+  }catch(error){if(state.user?.id===userId)state.notificationsError='Could not load updates. Check your connection and try again.';throw error}
+}
+function updateNotificationBadge(){
+  const btn=$('#notifBtn');if(!btn)return;
+  btn.classList.toggle('hidden',!state.user);
+  if(state.user)btn.innerHTML='🔔'+(state.unreadNotifications?'<span class="notif-dot">'+Math.min(99,state.unreadNotifications)+'</span>':'');
+}
+let notificationRefreshBusy=false;
+async function refreshNotificationUpdates(){
+  if(notificationRefreshBusy||!state.user||!state.online||document.visibilityState!=='visible')return;
+  notificationRefreshBusy=true;
+  try{
+    if(state.tab==='notifications')await loadNotifications();else await loadUnreadNotifications();
+    updateNotificationBadge();
+    if(state.tab==='notifications'&&!state.loading)renderNotifications();
+  }catch{if(state.tab==='notifications'&&!state.loading)renderNotifications()}
+  finally{notificationRefreshBusy=false}
+}
+setInterval(refreshNotificationUpdates,30000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshNotificationUpdates()});
 function renderNotifications(){
   if(!state.user){$('#view').innerHTML='<section class="hero"><h1>Notifications</h1><p>Sign in to see updates about your predictions and account.</p></section><button class="btn primary" id="notificationSignIn">Sign in</button>';$('#notificationSignIn').onclick=showAuth;return}
-  if(!state.notifications.length){$('#view').innerHTML='<section class="hero"><h1>Notifications</h1></section><div class="empty">No notifications.</div>';loadNotifications().then(()=>{if(state.notifications.length)render()});return}
-  $('#view').innerHTML='<section class="hero"><h1>Notifications</h1><p>Market and account updates.</p></section><button class="btn small ghost" id="readAll">Mark all read</button><div class="timeline" style="margin-top:12px">'+state.notifications.map(n=>'<div class="item" data-notif="'+n.id+'" style="'+(!n.is_read?'border-color:var(--k-blue)':'')+'"><b>'+esc(n.title)+'</b><br>'+esc(n.body)+'<br><small>'+dt(n.created_at)+'</small></div>').join('')+'</div>';
-  $('#readAll').onclick=async()=>{try{await rpc('mark_all_notifications_read');await loadNotifications();await loadUnreadNotifications();render();toast('Notifications marked read')}catch(e){toast(e.message,true)}};
+  const rows=state.notifications||[];
+  $('#view').innerHTML='<section class="hero"><h1>Notifications</h1><p>Updates about markets you follow, results and your account.</p></section>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" id="refreshNotifications">Refresh updates</button>'+
+    (rows.some(n=>!n.is_read)?'<button class="btn small ghost" id="readAll">Mark all read</button>':'')+'</div>'+
+    (state.notificationsError?'<div class="empty" role="status">'+esc(state.notificationsError)+'</div>':'')+
+    (!rows.length&&!state.notificationsError?'<div class="empty">You are all caught up. Save a market to receive relevant updates here.</div>':'')+
+    '<div class="timeline" style="margin-top:12px">'+rows.map(n=>'<div class="item" style="'+(!n.is_read?'border-color:var(--k-blue)':'')+'"><b>'+esc(n.title)+'</b>'+(!n.is_read?' <span class="statuschip">New</span>':'')+'<p>'+esc(n.body)+'</p><small>'+dt(n.created_at)+'</small><div style="display:flex;gap:8px;margin-top:10px">'+
+      (n.market_id?'<button class="btn small" data-notification-market="'+esc(n.market_id)+'">View market</button>':'')+
+      (!n.is_read?'<button class="btn small ghost" data-notification-read="'+esc(n.id)+'">Mark read</button>':'')+'</div></div>').join('')+'</div>';
+  $('#refreshNotifications').onclick=async()=>{const btn=$('#refreshNotifications');btn.disabled=true;try{await loadNotifications()}catch{}finally{if(state.tab==='notifications')renderNotifications();updateNotificationBadge()}};
+  if($('#readAll'))$('#readAll').onclick=async()=>{const btn=$('#readAll');btn.disabled=true;try{await rpc('mark_all_notifications_read');await loadNotifications();renderNotifications();updateNotificationBadge();toast('Notifications marked read')}catch{toast('Could not mark updates read. Try again.',true);if(btn.isConnected)btn.disabled=false}};
+  document.querySelectorAll('[data-notification-read]').forEach(btn=>btn.onclick=async()=>{btn.disabled=true;try{const changed=await rpc('mark_notification_read',{p_notification_id:btn.dataset.notificationRead});if(!changed)throw Error('Update unavailable');await loadNotifications();if(state.tab==='notifications')renderNotifications();updateNotificationBadge()}catch{toast('Could not mark this update read. Try again.',true);if(btn.isConnected)btn.disabled=false}});
+  document.querySelectorAll('[data-notification-market]').forEach(btn=>btn.onclick=()=>openMarket(btn.dataset.notificationMarket,{openSource:'notification'}));
 }
 async function loadLeaderboard(){state.leaderboard=await rpc('forecasting_leaderboard',{p_limit:50})||[]}
 function renderLeaderboard(){
@@ -2703,7 +2740,7 @@ function renderLeaderboard(){
 }
 async function loadAdmin(){
   if(!state.isAdmin)return;
-  const [a,c,m,e,d,support,errors,recovery,aiProviders,autonomy,mtnStatus,treasury,sportsbookRisk,probabilityEngine,businessTraction,cashLaunch,merchantConnection,securityHealth]=await Promise.all([
+  const [a,c,m,e,d,support,errors,recovery,aiProviders,autonomy,treasury,sportsbookRisk,probabilityEngine,businessTraction,cashLaunch,merchantConnection,securityHealth]=await Promise.all([
     rpc('admin_ops_dashboard'),
     rpc('ceo_dashboard',{p_days:30}),
     rpc('admin_manual_momo_queue',{p_limit:100}),
@@ -2714,7 +2751,6 @@ async function loadAdmin(){
     rpc('admin_recovery_status'),
     rpc('admin_ai_provider_status'),
     rpc('admin_autonomy_status'),
-    rpc('admin_mtn_momo_status'),
     rpc('admin_platform_treasury_status'),
     rpc('admin_sportsbook_risk_status'),
     rpc('admin_probability_engine_status'),
@@ -2733,7 +2769,6 @@ async function loadAdmin(){
   state.recoveryStatus=recovery||{};
   state.aiProviders=aiProviders||[];
   state.autonomy=autonomy||{};
-  state.mtnStatus=mtnStatus||{};
   state.treasury=treasury||{};
   state.sportsbookRisk=sportsbookRisk||{};
   state.probabilityEngine=probabilityEngine||{};
@@ -2748,7 +2783,7 @@ function renderAdmin(){
   const a=state.admin,r=a.production_readiness||{},b=a.build_completion||{},c=state.ceo||{},t=state.businessTraction||{},tu=t.users||{},tf=t.activation_funnel||{},ta=t.forecast_activity||{},ti=t.market_inventory||{},tg=t.growth||{},tr=t.release||{},tcb=t.activation_by_client_build||[];
   const cl=state.cashLaunch||{},mc=state.merchantConnection||{};
   const sh=state.securityHealth||{},sb=sh.security_boundaries||{},lp=sh.native_leaked_password_protection||{},pm=sh.application_password_mitigation||{};
-  $('#view').innerHTML='<section class="hero"><h1>Predict UG Ops</h1><p>Core product, agents, settlement and launch controls.</p></section>'+
+  $('#view').innerHTML='<section class="hero"><h1>Admin / CEO</h1><p>Business overview, customer support and merchant operations.</p></section>'+
     '<div class="statgrid"><div class="stat"><small>Build done</small><b>'+Number(b.done||0)+'</b></div><div class="stat"><small>Readiness</small><b>'+Number(r.readiness_score||0)+'/100</b></div><div class="stat"><small>E2E</small><b>'+esc(a.latest_e2e?.status||'—')+'</b></div><div class="stat"><small>Recovery</small><b>'+esc(state.recoveryStatus?.status||'—')+'</b></div></div>'+
     '<div class="section-title"><h2>Customer & business traction</h2><span class="statuschip">aggregate · QA excluded</span></div>'+
     '<div class="card">'+
@@ -2777,6 +2812,7 @@ function renderAdmin(){
       ((t.prediction_category_mix||[]).length?'<details style="margin-top:10px"><summary class="auth-note" style="cursor:pointer">Prediction category mix</summary><div class="timeline" style="margin-top:8px">'+t.prediction_category_mix.map(x=>'<div class="item"><b>'+esc(x.category)+'</b><br><small>'+Number(x.predictions||0)+' predictions · '+Number(x.users||0)+' user(s) · '+ugx(x.forecast_credit_volume_ugx||0)+' forecast credits</small></div>').join('')+'</div></details>':'')+
       (tcb.length?'<details style="margin-top:10px"><summary class="auth-note" style="cursor:pointer">Activation by client / build</summary><div class="timeline" style="margin-top:8px">'+tcb.map(x=>'<div class="item"><b>'+esc(x.client_surface||'unknown')+' · '+esc(x.app_build||'unknown')+(x.app_version_code?' · code '+Number(x.app_version_code):'')+'</b><br><small>'+Number(x.users||0)+' user(s) · '+Number(x.app_open_users||0)+' opens · '+Number(x.market_view_users||0)+' market viewers · '+Number(x.starter_market_users||0)+' starter users · '+Number(x.prediction_submitted_users||0)+' predictors</small></div>').join('')+'</div></details>':'')+
     '</div>'+
+    '<details class="admin-disclosure"><summary>System health & security</summary>'+
     '<div class="section-title"><h2>Autonomy status</h2></div>'+
     '<div class="card">'+
       '<div class="statgrid">'+
@@ -2798,8 +2834,10 @@ function renderAdmin(){
       '<div class="meta"><span>HIBP outage fallback</span><b>'+esc(pm.outage_fallback||'—')+'</b></div>'+
       '<p class="auth-note" style="margin-top:10px">'+esc(lp.evidence_note||'Native leaked-password protection gate has not been cleared.')+'</p>'+
     '</div>'+
+    '</details>'+
     '<div class="section-title"><h2>Launch blockers</h2></div><div class="timeline">'+((r.blockers||[]).length?r.blockers.map(x=>'<div class="item">'+esc(x)+'</div>').join(''):'<div class="item">No blockers.</div>')+'</div>'+    '<div class="section-title"><h2>Sportsbook pricing & risk</h2></div>'+
-    '<div class="card"><div class="statgrid"><div class="stat"><small>Model</small><b>Dynamic fixed odds</b></div><div class="stat"><small>Risk health</small><b>'+esc(state.sportsbookRisk?.latest_audit?.health_status||'—')+'</b></div><div class="stat"><small>Near limit</small><b>'+Number(state.sportsbookRisk?.latest_audit?.near_limit_markets||0)+'</b></div><div class="stat"><small>Cash reserve</small><b>'+ugx(state.sportsbookRisk?.cash_book_reserve_ugx||0)+'</b></div></div><p class="auth-note" style="margin-top:10px">All enabled market categories use category margins plus live exposure adjustments. Accepted odds are locked per ticket. Real cash stays fail-closed while the cash reserve/limits or other launch gates are incomplete.</p></div>'+        '<div class="section-title"><h2>Probability Lab</h2><span class="statuschip">real-world validation</span></div>'+
+    '<div class="card"><div class="statgrid"><div class="stat"><small>Model</small><b>Dynamic fixed odds</b></div><div class="stat"><small>Risk health</small><b>'+esc(state.sportsbookRisk?.latest_audit?.health_status||'—')+'</b></div><div class="stat"><small>Near limit</small><b>'+Number(state.sportsbookRisk?.latest_audit?.near_limit_markets||0)+'</b></div><div class="stat"><small>Cash reserve</small><b>'+ugx(state.sportsbookRisk?.cash_book_reserve_ugx||0)+'</b></div></div><p class="auth-note" style="margin-top:10px">All enabled market categories use category margins plus live exposure adjustments. Accepted odds are locked per ticket. Real cash stays fail-closed while the cash reserve/limits or other launch gates are incomplete.</p></div>'+        '<details class="admin-disclosure"><summary>Probability validation & recovery</summary>'+
+    '<div class="section-title"><h2>Probability Lab</h2><span class="statuschip">real-world validation</span></div>'+
     '<div class="card">'+
       '<div class="statgrid">'+
         '<div class="stat"><small>Model</small><b>'+esc(state.probabilityEngine?.model_version||'—')+'</b></div>'+
@@ -2824,7 +2862,11 @@ function renderAdmin(){
       '<div class="card"><div class="meta"><span>Status</span><b>'+esc(state.recoveryStatus?.status||'unknown')+'</b></div>'+
       '<div class="meta"><span>Last snapshot</span><b>'+esc(state.recoveryStatus?.checked_at?dt(state.recoveryStatus.checked_at):'current')+'</b></div>'+
       '<small>'+esc(JSON.stringify(state.recoveryStatus?.snapshot||{}).slice(0,700))+'</small></div></details>'+
+    '</details>'+
+    '<details class="admin-disclosure"><summary>Create a market</summary>'+
     '<div class="section-title"><h2>Create market</h2></div><div class="card"><input class="input" id="admTitle" placeholder="Market title"><div style="height:8px"></div><select class="input" id="admCat">'+state.categories.map(x=>'<option value="'+esc(x.category_key)+'">'+esc(x.label)+'</option>').join('')+'</select><div style="height:8px"></div><input class="input" id="admClose" type="datetime-local"><div style="height:8px"></div><textarea class="input" id="admRule" rows="3" placeholder="Clear resolution rule"></textarea><div style="height:8px"></div><input class="input" id="admSource" placeholder="Source URL (required for politics)"><div style="height:8px"></div><button class="btn primary" id="admCreate">Create open YES/NO market</button></div>'+
+    '</details>'+
+    '<details class="admin-disclosure"><summary>Optional AI providers</summary>'+
     '<div class="section-title"><h2>AI market providers</h2></div>'+
     '<div class="card">'+
       '<p class="auth-note">Predict UG tries OpenAI first, then configured fallbacks. Keys are stored in Supabase Vault and are never displayed after saving.</p>'+
@@ -2850,6 +2892,7 @@ function renderAdmin(){
       '</div>'+
       '<p class="auth-note" style="margin-top:10px">Recommended order: Gemini → OpenRouter Free → Groq → Cloudflare Workers AI. The deterministic Market Factory continues if every LLM is unavailable.</p>'+
     '</div>'+
+    '</details>'+
     '<div class="section-title"><h2>MTN + Airtel merchant cash rails</h2><button class="btn small ghost" id="refreshCashReadiness">Refresh</button></div>'+
     '<div class="card">'+
       '<p class="auth-note">Predict UG uses the existing MTN and Airtel merchant codes only. Direct MTN/Airtel developer APIs, sandbox and production API onboarding are not part of the customer cash flow.</p>'+
@@ -2871,6 +2914,7 @@ function renderAdmin(){
       ((cl.blockers||[]).length?'<div class="timeline" style="margin-top:10px">'+cl.blockers.map(x=>'<div class="item"><small>'+esc(String(x).replace(/_/g,' '))+'</small></div>').join('')+'</div>':'')+
       '<p class="auth-note" style="margin-top:10px">'+(cl.cash_launch_ready?'Financial controls report ready, but activation still requires explicit approved launch action.':'Physical, financial or compliance proof is still incomplete. Cash flags remain fail-closed.')+'</p>'+
     '</div>'+
+    '<details class="admin-disclosure"><summary>Merchant phone setup</summary>'+
     '<div class="section-title"><h2>Merchant phone automation</h2></div>'+
     '<div class="card">'+
       '<p class="auth-note">Use this same Android phone as the merchant verifier. Predict UG keeps the merchant codes on the server; the phone only forwards matching MTN/Airtel transaction SMS. Use Nomad Gateway in SMS-only mode — do not enable call or notification forwarding.</p>'+
@@ -2896,7 +2940,8 @@ function renderAdmin(){
         ).join('')
         :'<div class="empty">No merchant phones paired yet.</div>')+
       '</div>'+
-    '</div>'+    '<div class="section-title"><h2>Manual MoMo queue</h2></div>'+
+    '</div>'+    '</details>'+
+    '<div class="section-title"><h2>Payments needing review</h2></div>'+
     '<div class="admin-list">'+((state.manualMomo||[]).length
       ?state.manualMomo.map(x=>
         '<div class="item"><b>'+esc(x.network)+' '+esc(x.direction.toUpperCase())+' · '+ugx(x.amount_ugx)+'</b><br>'+
@@ -2948,8 +2993,10 @@ function renderAdmin(){
         :'<div class="empty">No client error reports.</div>')+
       '</div>'+
     '</details>'+
+    '<details class="admin-disclosure"><summary>Background agent findings</summary>'+
     '<div class="section-title"><h2>Agent findings</h2></div><div class="admin-list">'+((a.open_agent_findings||[]).length?a.open_agent_findings.slice(0,20).map(x=>'<div class="item"><b>'+esc(x.summary)+'</b><br><small>'+esc(x.agent_key)+' · '+esc(x.severity)+' · '+dt(x.created_at)+'</small></div>').join(''):'<div class="empty">No open findings.</div>')+'</div>'+
-    '<div class="section-title"><h2>CEO snapshot</h2></div><div class="card"><div class="meta"><span>Users</span><b>'+Number(c.totals?.users||0)+'</b></div><div class="meta"><span>Open markets</span><b>'+Number(c.totals?.open_markets||0)+'</b></div><div class="meta"><span>News items</span><b>'+Number(c.totals?.news_items||0)+'</b></div><div class="meta"><span>Sportsbook net result</span><b>'+ugx(state.treasury?.sportsbook_net_result_ugx??state.treasury?.realized_platform_revenue_ugx??0)+'</b></div><div class="meta"><span>Customer funds owed</span><b>'+ugx(state.treasury?.total_customer_liability_ugx||0)+'</b></div><div class="meta"><span>Unsettled market stakes</span><b>'+ugx(state.treasury?.unsettled_market_stakes_ugx||0)+'</b></div><p class="auth-note" style="margin-top:10px">Fixed-odds sportsbook result is stakes received minus winning payouts. Customer balances and unsettled liabilities remain reserved for users.</p></div>';
+    '</details>'+
+    '<div class="section-title"><h2>Business finances</h2></div><div class="card"><div class="meta"><span>Open markets</span><b>'+Number(c.totals?.open_markets||0)+'</b></div><div class="meta"><span>Sportsbook net result</span><b>'+ugx(state.treasury?.sportsbook_net_result_ugx??state.treasury?.realized_platform_revenue_ugx??0)+'</b></div><div class="meta"><span>Customer funds owed</span><b>'+ugx(state.treasury?.total_customer_liability_ugx||0)+'</b></div><div class="meta"><span>Unsettled market stakes</span><b>'+ugx(state.treasury?.unsettled_market_stakes_ugx||0)+'</b></div><p class="auth-note" style="margin-top:10px">Fixed-odds sportsbook result is stakes received minus winning payouts. Customer balances and unsettled liabilities remain reserved for users.</p></div>';
   if($('#refreshCashReadiness'))$('#refreshCashReadiness').onclick=async()=>{await loadAdmin();render();};
   $('#admCreate').onclick=async()=>{try{const title=$('#admTitle').value.trim(),cat=$('#admCat').value,close=$('#admClose').value,rule=$('#admRule').value.trim(),source=$('#admSource').value.trim();if(!title||!close||!rule)throw new Error('Title, close time and rule are required');await rpc('create_market',{p_title:title,p_category:cat,p_description:'',p_close_time:new Date(close).toISOString(),p_resolution_rule:rule,p_outcomes:[{label:'YES',seed_liquidity_ugx:50000},{label:'NO',seed_liquidity_ugx:50000}],p_source_name:source?'Primary source':null,p_source_url:source||null,p_platform_share_bps:900});toast('Market created');await loadMarkets();await loadAdmin();render()}catch(e){toast(e.message,true)}};
 
