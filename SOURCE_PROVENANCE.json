@@ -1,13 +1,13 @@
 {
   "schema_version": 2,
-  "generated_at_utc": "2026-10-07T13:36:29.109Z",
+  "generated_at_utc": "2026-10-07T13:42:31.718Z",
   "source_repository": "festusakona40-code/Predict-Ug",
   "source_visibility": "private",
-  "source_commit": "f30e94e4c3e724a1371241eef905fc5b32efc75e",
+  "source_commit": "4319cb491d878820ed9f39439e4869cda9fb7547",
   "public_repository": "festusakona40-code/Predict-UG-Core",
   "sync_parent_public_commit": "1af6748a1e461fd1c81308aa7aa7dfd442efbddf",
-  "consumer_version": "0.7.74",
-  "consumer_version_code": 76,
+  "consumer_version": "0.7.75",
+  "consumer_version_code": 77,
   "export_policy": "allowlist_only",
   "export_manifest": "PUBLIC_EXPORT_MANIFEST.json",
   "production_money_enabled": false,
@@ -28,8 +28,7 @@
   "artifact_id": null,
   "artifact_digest": null,
   "synchronization_tests": {
-    "stale_portfolio_account_response": "passed",
-    "stale_payment_account_response": "passed",
-    "stale_market_response": "passed"
+    "web_native_regression_tests": 14,
+    "source_tests": "passed"
   }
 }
