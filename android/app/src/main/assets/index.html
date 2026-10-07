@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.64. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.65. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#ffffff"/>
@@ -301,6 +301,69 @@
     .lifecycle-step.active{background:var(--k-foreground);color:var(--k-text);border-color:var(--k-line-strong)}
     .chat-msg.assistant{background:var(--k-surface)}.chat-msg.user{background:var(--k-greenTint)}
 
+
+    /* Smartphone layout: 360–430px, touch targets and keyboard-safe sheets. */
+    :root{--topbar-height:64px;--visible-height:100dvh}
+    @media(max-width:899px){
+      html,body{width:100%;overflow-x:clip}
+      .app{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+      .topbar{flex-wrap:wrap;gap:8px;padding:calc(10px + env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) 10px max(14px,env(safe-area-inset-left))}
+      .brand{flex-shrink:0;white-space:nowrap;font-size:1.05rem;gap:8px}
+      .brand .logo{width:30px;height:30px}
+      .header-actions{flex:1;min-width:0;gap:4px}
+      .header-actions .btn{min-height:44px;max-width:100%;padding:8px 10px}
+      #refreshBtn,#notifBtn{min-width:44px}
+      #installBtn,#apkDownloadBtn{display:none}
+      .container{padding:14px}
+      .homehero{padding:14px;border-radius:14px;margin-bottom:10px}
+      .homehero h1{font-size:1.5rem;line-height:1.2;margin-bottom:6px}
+      .homehero p{font-size:.875rem;line-height:1.45}
+      .home-kicker{font-size:.65rem;margin-bottom:8px}
+      .home-intro-actions{margin-top:10px;gap:6px}
+      .market-toolbar{top:var(--topbar-height);padding-top:8px;padding-bottom:3px}
+      .searchrow{grid-template-columns:minmax(0,1fr) auto;gap:8px}
+      .input{font-size:16px;min-width:0;min-height:48px}
+      .chips{gap:6px;scroll-padding-inline:4px;overscroll-behavior-x:contain}
+      .chip,.btn.small,.tab,.quick-stake,.quick-prompt{min-height:44px}
+      .event-rail{grid-auto-columns:minmax(190px,72%);gap:10px;overscroll-behavior-x:contain}
+      .event-card{min-height:130px;padding:12px}
+      .event-card h3{font-size:.9375rem}
+      .section-title{gap:8px;align-items:flex-start}
+      .section-title>span{font-size:.75rem;text-align:right;max-width:45%}
+      .market-card{padding:14px}
+      .market-main-row{gap:10px}
+      .market-title{font-size:1rem;line-height:1.4}
+      .market-price{font-size:1.5rem;min-width:58px}
+      .market-mini{min-height:48px;padding:12px}
+      .bottomnav{padding:6px max(8px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
+      .navbtn{min-height:56px;padding:8px 4px;border-radius:0}
+      .navbtn span{font-size:.75rem}
+      .modal{height:var(--visible-height,100dvh);max-height:100dvh;align-items:flex-end;overscroll-behavior:contain}
+      .sheet{width:100%;max-height:calc(var(--visible-height,100dvh) - env(safe-area-inset-top));padding:16px 16px calc(20px + env(safe-area-inset-bottom));overscroll-behavior:contain;scroll-padding-block:20px 100px;-webkit-overflow-scrolling:touch}
+      .sheet.full{height:calc(var(--visible-height,100dvh) - env(safe-area-inset-top));max-height:calc(var(--visible-height,100dvh) - env(safe-area-inset-top));border-radius:0}
+      .sheet h2{font-size:1.35rem;line-height:1.3}
+      .detail-head .detail-title{font-size:1.4rem;line-height:1.25;margin-right:0;overflow-wrap:anywhere}
+      .detail-breadcrumb span{max-width:45vw}
+      .detail-facts{gap:6px}
+      .detail-fact{font-size:.75rem;max-width:100%;overflow-wrap:anywhere}
+      .detail-grid{grid-template-columns:minmax(0,1fr)}
+      .detail-grid>*,.tradebox{min-width:0}
+      .tradebox{position:static;padding:14px}
+      .outcome-btn{min-height:72px;padding:12px}
+      .outcome-btn .outcome-chance{font-size:.75rem}
+      .outcome-btn .outcome-odds{font-size:1.2rem}
+      .risk-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .risk-card{min-width:0;padding:10px}
+      .risk-number{font-size:1rem;overflow-wrap:anywhere}
+      .statgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .stat{min-width:0;padding:10px}.stat b{font-size:1rem;overflow-wrap:anywhere}
+      .quote-row{gap:10px}.quote-row b{text-align:right}
+      .compact-info{align-items:flex-start}.compact-info>.btn{flex-shrink:0}
+      .toast{bottom:calc(84px + env(safe-area-inset-bottom));max-width:calc(100vw - 28px);width:max-content;text-align:center}
+      html.sheet-open,html.sheet-open body{overflow:hidden}
+    }
+    @media(max-width:359px){.header-actions{flex-basis:100%}.risk-grid,.statgrid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -366,8 +429,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.64';
-const APP_VERSION_CODE=66;
+const APP_BUILD='0.7.65';
+const APP_VERSION_CODE=67;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -1367,7 +1430,7 @@ function renderMarkets(){
 
     (!state.user?'<div class="compact-info"><div><strong>New to prediction markets?</strong><small>Start with a familiar question and practice credits. Every market shows its resolution rule before confirmation.</small></div><button class="btn small primary" id="homeSignIn">Sign in</button></div>':'')+
 
-    '<div class="card" style="margin-top:18px"><div class="auth-note">Predict UG public beta · practice credits are not cash.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn small primary" id="footerHowItWorks">How it works</button><button class="btn small ghost" id="homePrivacy">Privacy</button><button class="btn small ghost" id="homeTerms">Terms</button><button class="btn small ghost" id="homeSuggestMarket">Suggest a market</button><button class="btn small ghost" id="homeSupport">Support</button></div></div>';
+    '<div class="card" style="margin-top:18px"><div class="auth-note">Predict UG public beta · practice credits are not cash.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn small primary" id="footerHowItWorks">How it works</button><button class="btn small ghost" id="homePrivacy">Privacy</button><button class="btn small ghost" id="homeTerms">Terms</button><button class="btn small ghost" id="homeSuggestMarket">Suggest a market</button><button class="btn small ghost" id="homeSupport">Support</button><button class="btn small" id="homeInstallApp">Get app</button></div></div>';
 
   document.querySelectorAll('[data-event]').forEach(el=>el.onclick=()=>openEvent(el.dataset.event));
   document.querySelectorAll('[data-university-market]').forEach(el=>el.onclick=()=>openMarket(el.dataset.universityMarket));
@@ -1383,6 +1446,7 @@ function renderMarkets(){
   if($('#homeTerms'))$('#homeTerms').onclick=()=>openHosted('/terms.html');
   if($('#homeSuggestMarket'))$('#homeSuggestMarket').onclick=showMarketSuggestion;
   if($('#homeSupport'))$('#homeSupport').onclick=()=>openHosted('/support.html');
+  if($('#homeInstallApp'))$('#homeInstallApp').onclick=()=>{const install=$('#installBtn');if(install&&!install.classList.contains('hidden'))install.click();else forceAppUpdate()};
   if($('#searchBtn'))$('#searchBtn').onclick=async()=>{state.search=$('#searchInput').value.trim();await loadMarkets();render()};
   if($('#searchInput'))$('#searchInput').onkeydown=e=>{if(e.key==='Enter')$('#searchBtn').click()};
   document.querySelectorAll('[data-feed-sort]').forEach(el=>el.onclick=()=>{
@@ -3368,8 +3432,8 @@ function showAuth(){
       '<h2>Welcome to Predict UG</h2>'+
       '<p class="auth-note">No email needed. Enter your phone number and password. If the phone number is new, Predict UG creates the account automatically.</p>'+
       '<div class="auth-wrap">'+
-        '<input class="input" id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="Phone number">'+
-        '<input class="input" id="password" type="password" autocomplete="current-password" placeholder="Password">'+
+        '<input class="input" id="phone" type="tel" inputmode="tel" autocomplete="tel" aria-label="Phone number" placeholder="Phone number">'+
+        '<input class="input" id="password" type="password" autocomplete="current-password" aria-label="Password" placeholder="Password">'+
         '<input class="input" id="referralCode" inputmode="text" autocomplete="off" maxlength="10" placeholder="Referral code (optional)" value="'+esc(referralPrefill)+'">'+
         '<button class="btn primary" id="continueAuth">Continue</button>'+
         '<div id="authStatus" class="auth-note" style="min-height:22px"></div>'+
@@ -3605,4 +3669,31 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){stopMarketRealtime(
 window.addEventListener('popstate',async()=>{const id=linkedMarketId();if(id){await openMarket(id,{updateUrl:false})}else{stopMarketRealtime();$('#overlay').innerHTML='';state.market=null}});
 bootstrap().catch(e=>{reportClientError(e.message||'Bootstrap failed',e.stack||'',{kind:'bootstrap'});window.__predictUgShowStartupFailure(e.message||'Predict UG could not load');});
 </script>
+
+<script>
+/* Measure the actual phone header and visual viewport, including keyboard resize. */
+(function(){
+  const root=document.documentElement,bar=document.querySelector('.topbar'),overlay=document.getElementById('overlay');
+  const measure=()=>{
+    if(bar)root.style.setProperty('--topbar-height',Math.ceil(bar.getBoundingClientRect().height)+'px');
+    const height=window.visualViewport?.height||window.innerHeight;
+    root.style.setProperty('--visible-height',Math.round(height)+'px');
+  };
+  if(window.ResizeObserver&&bar)new ResizeObserver(measure).observe(bar);
+  window.addEventListener('resize',measure);
+  window.visualViewport?.addEventListener('resize',measure);
+  new MutationObserver(()=>{
+    const open=!!overlay.querySelector('.modal');
+    root.classList.toggle('sheet-open',open);
+    overlay.querySelectorAll('.sheet').forEach(sheet=>{
+      sheet.setAttribute('role','dialog');sheet.setAttribute('aria-modal','true');
+      sheet.querySelectorAll('button.close').forEach(button=>button.setAttribute('aria-label','Close dialog'));
+    });
+    measure();
+  }).observe(overlay,{childList:true,subtree:true});
+  if(bar)bar.querySelector('#refreshBtn')?.setAttribute('aria-label','Refresh markets');
+  measure();
+})();
+</script>
+
 </body></html>
