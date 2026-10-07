@@ -6,7 +6,7 @@
   "policy": "allowlist_only",
   "exact_copy_files": {
     "android/app/src/consumer/AndroidManifest.xml": "387774fb32dcc536413dc5ed3aa360a93aef9582",
-    "android/app/src/main/assets/index.html": "a377264c511e0a46e9c554b4c36bb0ea6e3ec038",
+    "android/app/src/main/assets/index.html": "5f43dc95db632a620fa0ee1f07b1c929765cdd1e",
     "android/app/src/main/java/com/predictug/app/AppOriginPolicy.java": "0f78df6b3f1411d498c7488bc08a86b644f1ab81",
     "android/app/src/main/java/com/predictug/app/MainActivity.java": "321c09fc69b4481055758cbe1a7adfa8bdfb3983",
     "android/app/src/main/java/com/predictug/app/NativeCrashReporter.java": "4d1cc7a8d5f9a975fc1e448061c1e98b238850ed",
