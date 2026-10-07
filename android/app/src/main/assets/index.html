@@ -244,18 +244,18 @@
     /* Measured from Kalshi's rendered light frontend, 2026-10-07. */
     :root{
       color-scheme:light;
-      --k-brand:#28cc95;--k-brand-secondary:#003221;
-      --k-surface:#fff;--k-surface-soft:rgba(255,255,255,.96);
-      --k-foreground:rgba(0,0,0,.05);--k-hover:rgba(128,128,128,.02);
-      --k-overlay:rgba(0,0,0,.4);--k-inverse:#1a1a1a;
-      --k-text:rgba(0,0,0,.9);--k-muted:rgba(0,0,0,.55);--k-disabled:rgba(0,0,0,.3);
-      --k-line:rgba(0,0,0,.1);--k-line-soft:rgba(0,0,0,.06);--k-line-strong:rgba(0,0,0,.2);
-      --k-green:#0ac285;--k-greenHover:#08a370;--k-greenStrong:#067450;
-      --k-greenTint:rgba(10,194,133,.08);--k-greenPressed:rgba(10,194,133,.16);
-      --k-red:#d91616;--k-redTint:rgba(217,22,22,.06);--k-redPressed:rgba(217,22,22,.1);
-      --k-blue:#265cff;--k-blueTint:rgba(38,92,255,.08);
-      --k-orange:#ff6a00;--k-orangeTint:rgba(255,106,0,.08);--k-orangeStrong:#994000;
-      --k-purple:#aa00ff;--k-yellow:#ffd600;--k-teal:#00b5d9;
+      --k-brand:#1877f2;--k-brand-secondary:#0f3d7a;
+      --k-surface:#f0f2f5;--k-surface-soft:rgba(255,255,255,.96);
+      --k-foreground:#ffffff;--k-hover:#e4e6eb;
+      --k-overlay:rgba(0,0,0,.45);--k-inverse:#1c1e21;
+      --k-text:#1c1e21;--k-muted:#65676b;--k-disabled:rgba(28,30,33,.38);
+      --k-line:#d9dce1;--k-line-soft:#e8eaed;--k-line-strong:#bcc0c4;
+      --k-green:#20a464;--k-greenHover:#16834e;--k-greenStrong:#0d6b3f;
+      --k-greenTint:rgba(32,164,100,.12);--k-greenPressed:rgba(32,164,100,.2);
+      --k-red:#e41e3f;--k-redTint:rgba(228,30,63,.1);--k-redPressed:rgba(228,30,63,.18);
+      --k-blue:#1877f2;--k-blueTint:rgba(24,119,242,.12);
+      --k-orange:#f57c00;--k-orangeTint:rgba(245,124,0,.12);--k-orangeStrong:#a54f00;
+      --k-purple:#8b5cf6;--k-yellow:#f7b928;--k-teal:#0aa7a7;
       --bg:var(--k-surface);--surface:var(--k-surface);--surface2:var(--k-foreground);
       --text:var(--k-text);--muted:var(--k-muted);--line:var(--k-line);
       --green:var(--k-green);--green2:var(--k-greenHover);--red:var(--k-red);--blue:var(--k-blue);--amber:var(--k-orange);
@@ -369,6 +369,33 @@
 :root{--app-canvas:#eef2f5;--bg:var(--app-canvas)}
 html,body,.app{background:var(--app-canvas)}
 .market-toolbar{background:var(--app-canvas)}
+
+/* Facebook-inspired brand controls and clear card hierarchy. */
+:root{--app-canvas:#f0f2f5;--bg:var(--app-canvas)}
+html,body,.app,.market-toolbar{background:var(--app-canvas)}
+.card,.market-card,.event-card,.media-card,.proof-card,.input,.sheet,.ai-box{background:#fff}
+.logo{background:var(--k-brand);color:#fff}
+.btn.primary,.merchant-quick{background:var(--k-brand);border-color:var(--k-brand);color:#fff}
+.btn.primary:hover{background:#1464cc;border-color:#1464cc}
+.navbtn.active,.chip.active{background:var(--k-blueTint);color:#1464cc;border-color:var(--k-blue)}
+.home-kicker,.feed-kicker,.event-series{color:#1464cc}
+.homehero{background:linear-gradient(145deg,#e7f0ff,#fff);border-color:#d4e3fb}
+.market-card:hover,.event-card:hover{background:#fff;border-color:#a7c8f5}
+
+
+/* Clear prediction choices, consistent spacing and visible keyboard focus. */
+.market-card{padding:20px;border-radius:18px;box-shadow:0 2px 8px rgba(28,30,33,.035)}
+.market-actions{gap:10px;margin-top:16px}
+.market-mini{min-height:48px;border-radius:12px;padding:12px;font-weight:750}
+.market-mini.y{color:#0d6b3f;background:#e9f6ef;border:1px solid #b8dec9}
+.market-mini.n{color:#b51632;background:#fff0f3;border:1px solid #f3c5ce}
+.market-mini.y:hover{background:#d9eee3}.market-mini.n:hover{background:#ffe1e8}
+button:focus-visible,a:focus-visible{outline:3px solid #1877f2;outline-offset:3px}
+.section-title,.market-feed-header{margin-top:28px}
+@media(max-width:760px){.market-card{padding:16px}.homehero{padding:18px}.homehero h1{font-size:2rem;line-height:1.12}.market-actions{margin-top:12px}}
+
+
+.home-discovery{margin:24px 0;border:1px solid var(--k-line);border-radius:16px;background:#fff;padding:16px}.home-discovery summary{cursor:pointer;font-weight:750;color:#1464cc;min-height:28px}.home-discovery-content{padding-top:4px}
 </style>
 </head>
 <body>
@@ -434,8 +461,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.67';
-const APP_VERSION_CODE=69;
+const APP_BUILD='0.7.69';
+const APP_VERSION_CODE=71;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -1370,14 +1397,15 @@ function renderMarkets(){
     const seen=new Set();
     for(const m of localMarkets){
       const cat=String(m?.category||m?.category_key||'Other');
-      if(seen.has(cat))continue;
+      if(seen.has(cat)||closingSoon.some(x=>x.market_id===m.market_id))continue;
       seen.add(cat);
       diverseTopPicks.push(m);
       if(diverseTopPicks.length>=5)break;
     }
   }
   const diverseIds=new Set(diverseTopPicks.map(m=>m.market_id));
-  const remainingLocalMarkets=unfilteredHome?localMarkets.filter(m=>!diverseIds.has(m.market_id)):localMarkets;
+  const closingIds=new Set(closingSoon.map(m=>m.market_id));
+  const remainingLocalMarkets=unfilteredHome?localMarkets.filter(m=>!diverseIds.has(m.market_id)&&!closingIds.has(m.market_id)):localMarkets;
   const ugTrends=(state.ugandaTrends||[]).slice(0,8);
   const ugDemand=(state.ugandaDemand||[]).slice(0,6);
   const social=(state.ugandaSocialRadar||[]).slice(0,6);
@@ -1410,28 +1438,22 @@ function renderMarkets(){
       '<div class="chips" aria-label="Market feed sort"><button class="chip '+(state.feedSort==='trending'?'active':'')+'" data-feed-sort="trending">For you</button><button class="chip '+(state.feedSort==='live'?'active':'')+'" data-feed-sort="live">Live</button><button class="chip '+(state.feedSort==='closing'?'active':'')+'" data-feed-sort="closing">Closing soon</button><button class="chip '+(state.feedSort==='active'?'active':'')+'" data-feed-sort="active">Most active</button></div>'+
     '</section>'+
 
-    (events.length?'<div class="section-title"><div><span class="feed-kicker">Events</span><h2>Explore by event</h2></div><small style="color:var(--muted)">Series → event → market</small></div><div class="event-rail">'+events.map(eventHubCard).join('')+'</div>':'')+
-
-    (showUniversities?'<div class="section-title"><div><span class="feed-kicker">Campus</span><h2>Universities & campuses</h2></div><small style="color:var(--muted)">'+Number(state.universityRegistryCount||universities.length).toLocaleString('en-UG')+' NCHE-verified institutions</small></div><div class="event-rail">'+universities.map(universityDirectoryCard).join('')+'</div>':'')+
-
     (closingSoon.length?'<div class="market-feed-header"><div><span class="feed-kicker">Time sensitive</span><h2>Closing soon</h2></div><small style="color:var(--muted)">Short-horizon markets</small></div><div class="grid">'+closingSoon.map(m=>marketCard(m,'closing_soon')).join('')+'</div>':'')+
 
     (diverseTopPicks.length?'<div class="market-feed-header"><div><span class="feed-kicker">Featured</span><h2>Top picks across Uganda</h2></div><small style="color:var(--muted)">One strong market from each category</small></div><div class="grid">'+diverseTopPicks.map(m=>marketCard(m,'top_picks')).join('')+'</div>':'')+
     '<div class="market-feed-header"><div><span class="feed-kicker">'+(unfilteredHome?'Explore':'Results')+'</span><h2>'+(unfilteredHome?'All Uganda markets':'Uganda markets')+'</h2></div><button class="btn small ghost" data-tab="media">Open Pulse</button></div>'+
     (remainingLocalMarkets.length?'<div class="grid">'+remainingLocalMarkets.map(m=>marketCard(m,'all_markets')).join('')+'</div>':'<div class="empty">No Uganda markets match your filters right now.</div>')+
 
+    '<details class="home-discovery"><summary>Explore events & universities</summary><div class="home-discovery-content">'+
+    (events.length?'<div class="section-title"><div><span class="feed-kicker">Events</span><h2>Explore by event</h2></div><small style="color:var(--muted)">Browse related questions</small></div><div class="event-rail">'+events.map(eventHubCard).join('')+'</div>':'')+
+
+    (showUniversities?'<div class="section-title"><div><span class="feed-kicker">Campus</span><h2>Universities & campuses</h2></div><small style="color:var(--muted)">'+Number(state.universityRegistryCount||universities.length).toLocaleString('en-UG')+' NCHE-verified institutions</small></div><div class="event-rail">'+universities.map(universityDirectoryCard).join('')+'</div>':'')+
+
+    '</div></details>'+
+
     (recentResults.length?'<div class="section-title"><div><span class="feed-kicker">Trust</span><h2>Recently resolved</h2></div><span class="statuschip ok">Official evidence</span></div><div class="proof-grid">'+recentResults.map(r=>'<div class="proof-card"><div class="eyebrow"><span>'+esc(r.category||'Market')+'</span><span>'+dt(r.resolved_at)+'</span></div><h3>'+esc(short(r.title))+'</h3><div class="quote-row"><span>Result</span><b>'+esc(r.result_label||r.status)+'</b></div><div class="quote-row"><span>Source</span><b>'+esc(r.source_name||'Published source')+'</b></div><button class="btn small ghost" style="width:100%;margin-top:10px" data-market="'+esc(r.market_id)+'">View evidence</button></div>').join('')+'</div>':'')+
 
-    (globalMarkets.length?'<div class="section-title"><div><span class="feed-kicker">Reference</span><h2>Global benchmarks</h2></div><small style="color:var(--muted)">Wider prediction-market context</small></div><div class="grid">'+globalMarkets.map(m=>marketCard(m,'global_benchmarks')).join('')+'</div>':'')+
-
-    ((ugTrends.length||ugDemand.length)?'<div class="card" style="margin-top:18px"><div class="section-title" style="margin-top:0"><div><span class="feed-kicker">Signals</span><h2>Uganda Pulse</h2></div><button class="btn small ghost" data-tab="media">See all</button></div>'+
-      (ugDemand.length?'<div class="chips" style="margin-bottom:8px">'+ugDemand.map(x=>'<span class="chip">'+esc(x.category)+' · '+Number(x.demand_score||0).toFixed(0)+'</span>').join('')+'</div>':'')+
-      (ugTrends.length?'<div class="media-grid">'+ugTrends.slice(0,3).map(x=>'<div class="media-card"><div class="media-label">'+esc(x.category||x.item_type)+' · '+esc(x.platform||'Uganda')+'</div><h3>'+esc(x.label)+'</h3><p>'+Number(x.signal_score||0).toFixed(0)+' signal · '+esc(x.confidence||'')+'</p>'+(x.why_hot?'<small>'+esc(x.why_hot)+'</small>':'')+'</div>').join('')+'</div>':'')+
-    '</div>':'')+
-
-    (consumption.length?'<div class="section-title"><div><span class="feed-kicker">Culture</span><h2>What Uganda is listening to</h2></div></div><div class="chips">'+consumption.map(x=>'<span class="chip">'+esc(String(x.platform||'').replaceAll('_',' ').toUpperCase())+' #'+Number(x.rank_position||0)+' · '+esc(x.subject)+(x.artist?' — '+esc(x.artist):'')+'</span>').join('')+'</div>':'')+
-
-    (social.length?'<div class="section-title"><div><span class="feed-kicker">Attention</span><h2>TikTok + social radar</h2></div><small style="color:var(--muted)">Reference signals only</small></div><div class="chips">'+social.map(x=>'<span class="chip">'+esc(x.subject)+' · '+metricShort(x.metric_value)+' '+esc(x.metric_type)+(x.attention_score!=null?' · '+Number(x.attention_score).toFixed(0)+' attention':'')+'</span>').join('')+'</div>':'')+
+    '<div class="compact-info"><div><strong>What is happening in Uganda?</strong><small>Explore news and trends in Pulse.</small></div><button class="btn small" data-tab="media">Open Pulse</button></div>'+
 
     (!state.user?'<div class="compact-info"><div><strong>New to prediction markets?</strong><small>Start with a familiar question and practice credits. Every market shows its resolution rule before confirmation.</small></div><button class="btn small primary" id="homeSignIn">Sign in</button></div>':'')+
 
@@ -1660,7 +1682,7 @@ function drawMarket(){
   const intelExternal=intel.external_market_signals||[];
   const intelEvidence=intel.official_evidence||[];
   const intelligencePanel=
-    '<div class="section-title"><h2>Live intelligence</h2><span class="statuschip">Sources, not advice</span></div>'+
+    '<details class="home-discovery"><summary>Related news & market context</summary>'+
     '<div class="card">'+
       '<p class="auth-note" style="margin-top:0">'+esc(intel.note||'Live sources are context only.')+'</p>'+
       (intelEvidence.length?'<h3 style="font-size:.95rem">Official evidence</h3><div class="timeline">'+intelEvidence.slice(0,5).map(x=>
@@ -1676,7 +1698,7 @@ function drawMarket(){
         '<a class="item" href="'+esc(x.source_url||'#')+'" target="_blank" rel="noopener" style="display:block;text-decoration:none"><b>'+esc(x.provider)+'</b>: '+esc(short(x.title))+'<br><span>YES market price: '+(x.yes_probability==null?'—':Number(x.yes_probability).toFixed(1)+'%')+'</span><br><small>Attributed external market signal · '+dt(x.last_seen_at)+'</small></a>'
       ).join('')+'</div>':'')+
       (!intelEvidence.length&&!intelNews.length&&!intelCreators.length&&!intelExternal.length?'<div class="empty">No closely related live sources found yet.</div>':'')+
-    '</div>';
+    '</div></details>';
   const adminPanel=state.isAdmin?(state.online?'<div class="item" style="margin-top:10px"><b>Admin lifecycle</b><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px">'+
     '<button class="btn small" id="adminStatusBtn">Set status</button>'+
     '<button class="btn small" id="adminEvidenceBtn">Add evidence</button>'+
@@ -2663,13 +2685,13 @@ async function loadWatchlist(){
   const ids=(data||[]).map(x=>x.market_id);const all=await rpc('sportsbook_market_feed',{p_category:null,p_search:null,p_limit:100,p_uganda_first:false});state.watchlist=(all||[]).filter(x=>ids.includes(x.market_id))
 }
 function renderWatchlist(){
-  if(!state.user){$('#view').innerHTML='<section class="hero"><h1>Watchlist</h1><p>Sign in to save markets you care about.</p></section><button class="btn primary" id="watchSignIn">Sign in</button>';$('#watchSignIn').onclick=showAuth;return}
-  if(!state.watchlist.length){$('#view').innerHTML='<section class="hero"><h1>Watchlist</h1><p>Your saved markets.</p></section><div class="empty">No saved open markets yet.</div>';loadWatchlist().then(()=>{if(state.watchlist.length)render()});return}
-  $('#view').innerHTML='<section class="hero"><h1>Watchlist</h1><p>Your saved markets.</p></section><div class="grid">'+state.watchlist.map(marketCard).join('')+'</div>';
+  if(!state.user){$('#view').innerHTML='<section class="hero"><h1>Saved markets</h1><p>Sign in to save markets you care about.</p></section><button class="btn primary" id="watchSignIn">Sign in</button>';$('#watchSignIn').onclick=showAuth;return}
+  if(!state.watchlist.length){$('#view').innerHTML='<section class="hero"><h1>Saved markets</h1><p>Your saved markets.</p></section><div class="empty">No saved open markets yet.</div>';loadWatchlist().then(()=>{if(state.watchlist.length)render()});return}
+  $('#view').innerHTML='<section class="hero"><h1>Saved markets</h1><p>Your saved markets.</p></section><div class="grid">'+state.watchlist.map(marketCard).join('')+'</div>';
 }
 async function loadNotifications(){if(!state.user)return;const {data,error}=await supabase.from('notifications').select('*').order('created_at',{ascending:false}).limit(100);if(error)throw error;state.notifications=data||[]}
 function renderNotifications(){
-  if(!state.user){$('#view').innerHTML='<section class="hero"><h1>Notifications</h1><p>Sign in to view notifications.</p></section>';return}
+  if(!state.user){$('#view').innerHTML='<section class="hero"><h1>Notifications</h1><p>Sign in to see updates about your predictions and account.</p></section><button class="btn primary" id="notificationSignIn">Sign in</button>';$('#notificationSignIn').onclick=showAuth;return}
   if(!state.notifications.length){$('#view').innerHTML='<section class="hero"><h1>Notifications</h1></section><div class="empty">No notifications.</div>';loadNotifications().then(()=>{if(state.notifications.length)render()});return}
   $('#view').innerHTML='<section class="hero"><h1>Notifications</h1><p>Market and account updates.</p></section><button class="btn small ghost" id="readAll">Mark all read</button><div class="timeline" style="margin-top:12px">'+state.notifications.map(n=>'<div class="item" data-notif="'+n.id+'" style="'+(!n.is_read?'border-color:var(--k-blue)':'')+'"><b>'+esc(n.title)+'</b><br>'+esc(n.body)+'<br><small>'+dt(n.created_at)+'</small></div>').join('')+'</div>';
   $('#readAll').onclick=async()=>{try{await rpc('mark_all_notifications_read');await loadNotifications();await loadUnreadNotifications();render();toast('Notifications marked read')}catch(e){toast(e.message,true)}};
@@ -3662,7 +3684,7 @@ document.addEventListener('click',async e=>{
     return;
   }
   if(t?.dataset.market){const card=t.closest('.market-card');openMarket(t.dataset.market,{openSource:card?.dataset.openSource||'market_card'});return}
-  if(t?.dataset.category!==undefined){state.category=t.dataset.category;trackBehavior('category_view',{category:state.category||null});await loadMarkets();render();return}
+  if(t?.dataset.category!==undefined){state.category=t.dataset.category;trackBehavior('category_view',{category:state.category||null});await loadMarkets();render();document.querySelector('.market-toolbar')?.scrollIntoView({behavior:'smooth',block:'start'});return}
 });
 let deferredInstallPrompt=null;
 const INSTALL_ORIGIN='https://rnvyrlmrwhfauuskyhje.supabase.co/functions/v1/predict-ug-live';
@@ -3689,8 +3711,16 @@ if('caches' in window){
 $('#authBtn').onclick=profileMenu;
 $('#inviteBtn').onclick=showInvite;
 $('#merchantQuickConnect').onclick=quickConnectMerchantPhone;
-$('#notifBtn').onclick=async()=>{state.tab='notifications';if(state.user)await loadNotifications();render()};
-$('#balanceBtn').onclick=async()=>{state.tab='portfolio';if(state.user)await loadPortfolio();render()};
+async function openAccountShortcut(tab,load){
+  const request=(state.navigationRequest||0)+1;
+  state.navigationRequest=request;state.tab=tab;state.loading=true;
+  $('#overlay').innerHTML='';render();window.scrollTo({top:0,behavior:'smooth'});
+  try{if(state.user)await load()}
+  catch(error){if(state.navigationRequest===request)toast('Could not refresh this screen. Check your connection and tap Refresh.',true)}
+  finally{if(state.navigationRequest===request){state.loading=false;render()}}
+}
+$('#notifBtn').onclick=()=>openAccountShortcut('notifications',loadNotifications);
+$('#balanceBtn').onclick=()=>openAccountShortcut('portfolio',loadPortfolio);
 $('#refreshBtn').onclick=refreshAll;
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){stopMarketRealtime();$('#overlay').innerHTML='';if(state.market){state.market=null;setMarketUrl(null,true)}}});
 window.addEventListener('popstate',async()=>{const id=linkedMarketId();if(id){await openMarket(id,{updateUrl:false})}else{stopMarketRealtime();$('#overlay').innerHTML='';state.market=null}});
