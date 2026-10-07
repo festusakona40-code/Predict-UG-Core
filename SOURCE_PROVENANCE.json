@@ -1,13 +1,13 @@
 {
   "schema_version": 2,
-  "generated_at_utc": "2026-10-07T13:42:31.718Z",
+  "generated_at_utc": "2026-10-07T13:50:17.494Z",
   "source_repository": "festusakona40-code/Predict-Ug",
   "source_visibility": "private",
-  "source_commit": "4319cb491d878820ed9f39439e4869cda9fb7547",
+  "source_commit": "09cca033be425b1825eeeb51eadfd9cbd083fc58",
   "public_repository": "festusakona40-code/Predict-UG-Core",
   "sync_parent_public_commit": "1af6748a1e461fd1c81308aa7aa7dfd442efbddf",
-  "consumer_version": "0.7.75",
-  "consumer_version_code": 77,
+  "consumer_version": "0.7.76",
+  "consumer_version_code": 78,
   "export_policy": "allowlist_only",
   "export_manifest": "PUBLIC_EXPORT_MANIFEST.json",
   "production_money_enabled": false,
@@ -26,9 +26,5 @@
   "public_ci_conclusion": "pending",
   "artifact_name": "predict-ug-public-consumer",
   "artifact_id": null,
-  "artifact_digest": null,
-  "synchronization_tests": {
-    "web_native_regression_tests": 14,
-    "source_tests": "passed"
-  }
+  "artifact_digest": null
 }
