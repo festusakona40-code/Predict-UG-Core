@@ -461,8 +461,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.74';
-const APP_VERSION_CODE=76;
+const APP_BUILD='0.7.75';
+const APP_VERSION_CODE=77;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -1117,32 +1117,41 @@ async function syncPaymentReturn(){
   }catch(e){toast('Payment status check failed',true)}
 }
 async function loadEventHub(){
-  const key='event-hub:'+(state.category||'all');
+  const category=state.category||'';
+  const request=(state.eventHubRequest||0)+1;state.eventHubRequest=request;
+  const current=()=>state.eventHubRequest===request&&(state.category||'')===category;
+  const key='event-hub:'+(category||'all');
   try{
     const data=await rpc('uganda_event_hub',{
-      p_category:state.category||null,
+      p_category:category||null,
       p_limit:14
     });
+    if(!current())return;
     state.marketEvents=Array.isArray(data?.events)?data.events:[];
     cacheWrite(key,data);
   }catch(e){
+    if(!current())return;
     const cached=cacheRead(key);
     state.marketEvents=Array.isArray(cached?.value?.events)?cached.value.events:[];
   }
 }
 async function loadUniversityDirectory(){
   const search=String(state.search||'').trim();
+  const request=(state.directoryRequest||0)+1;state.directoryRequest=request;
+  const current=()=>state.directoryRequest===request&&String(state.search||'').trim()===search;
   const key='university-directory:'+(search||'all');
   try{
     const data=await rpc('uganda_university_market_directory',{
       p_search:search||null,
       p_limit:search?30:18
     });
+    if(!current())return;
     state.universityDirectory=Array.isArray(data?.institutions)?data.institutions:[];
     state.universityRegistryCount=Number(data?.active_registry_count||state.universityDirectory.length||0);
     state.universityDirectorySource=String(data?.source_name||'National Council for Higher Education Uganda');
     cacheWrite(key,data);
   }catch(e){
+    if(!current())return;
     const cached=cacheRead(key);
     const data=cached?.value||{};
     state.universityDirectory=Array.isArray(data?.institutions)?data.institutions:[];
@@ -1213,12 +1222,17 @@ async function bootstrap(){
   if(linked)await openMarket(linked,{updateUrl:false});
 }
 async function loadMarkets(){
-  const key='feed:'+(state.category||'all')+':'+(state.search||'');
+  const category=state.category||'',search=state.search||'';
+  const request=(state.feedRequest||0)+1;state.feedRequest=request;
+  const current=()=>state.feedRequest===request&&(state.category||'')===category&&(state.search||'')===search;
+  const key='feed:'+(category||'all')+':'+(state.search||'');
   try{
-    const rows=await rpc('uganda_sportsbook_market_feed',{p_category:state.category||null,p_search:state.search||null,p_limit:80,p_uganda_first:true})||[];
+    const rows=await rpc('uganda_sportsbook_market_feed',{p_category:category||null,p_search:search||null,p_limit:80,p_uganda_first:true})||[];
+    cacheWrite(key,rows);
+    if(!current())return;
     state.markets=personalizeMarkets(rows);
     await Promise.all([loadEventHub(),loadUniversityDirectory()]);
-    cacheWrite(key,rows);
+    if(!current())return;
     if(state.status?.offline_cache){
       const next={...(state.status||{})};
       delete next.offline_cache;
@@ -1226,11 +1240,12 @@ async function loadMarkets(){
       state.status=next;
     }
   }catch(e){
+    if(!current())return;
     const exact=cacheRead(key);
     const bootstrapCache=cacheRead('bootstrap:all:');
     const baseRows=exact?.value||bootstrapCache?.value?.markets||state.markets||[];
     if(!Array.isArray(baseRows)||!baseRows.length)throw e;
-    state.markets=personalizeMarkets(filterMarketRows(baseRows,state.category,state.search));
+    state.markets=personalizeMarkets(filterMarketRows(baseRows,category,search));
     state.status={...(state.status||{}),offline_cache:true,offline_saved_at:exact?.saved_at||bootstrapCache?.saved_at||null};
   }
 }
