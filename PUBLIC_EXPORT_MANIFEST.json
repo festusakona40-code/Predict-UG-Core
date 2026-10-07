@@ -2,11 +2,11 @@
   "schema_version": 1,
   "source_repository": "festusakona40-code/Predict-Ug",
   "public_repository": "festusakona40-code/Predict-UG-Core",
-  "source_commit": "3dcdbbc26c9bc72bd1fd1b8d170deea8fee2d765",
+  "source_commit": "34f4abed566e2ca4aebe463d89657a242211e4f5",
   "policy": "allowlist_only",
   "exact_copy_files": {
     "android/app/src/consumer/AndroidManifest.xml": "387774fb32dcc536413dc5ed3aa360a93aef9582",
-    "android/app/src/main/assets/index.html": "e76f2b43c9c3f41be8cec1f734b1f09705dad355",
+    "android/app/src/main/assets/index.html": "43973706bab413dbc1df1e36c420af61d3fc4724",
     "android/app/src/main/java/com/predictug/app/AppOriginPolicy.java": "0f78df6b3f1411d498c7488bc08a86b644f1ab81",
     "android/app/src/main/java/com/predictug/app/MainActivity.java": "ba6bf25ffad1f354db2c616b8073f8159efbdf57",
     "android/app/src/main/java/com/predictug/app/NativeCrashReporter.java": "4d1cc7a8d5f9a975fc1e448061c1e98b238850ed",
