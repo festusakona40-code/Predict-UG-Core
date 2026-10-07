@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.55. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.60. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#071426"/>
@@ -61,14 +61,14 @@
     .hidden{display:none!important}
     @media(min-width:900px){.bottomnav{position:sticky;top:63px;bottom:auto;border-top:0;border-bottom:1px solid rgba(255,255,255,.06);padding:7px}.bottomnav .inner{grid-template-columns:repeat(4,130px);justify-content:center}.app{padding-bottom:20px}}
     .homehero{background:linear-gradient(135deg,rgba(51,214,159,.16),rgba(97,168,255,.08) 48%,rgba(255,255,255,.025));border:1px solid rgba(125,255,211,.16);border-radius:24px;padding:22px;margin-bottom:14px;overflow:hidden;position:relative}.homehero:after{content:'';position:absolute;width:180px;height:180px;border-radius:50%;right:-70px;top:-90px;background:rgba(51,214,159,.11);filter:blur(8px)}.homehero h1{font-size:clamp(1.8rem,6vw,3rem);letter-spacing:-.055em;margin:0 0 8px;max-width:760px}.homehero p{color:var(--muted);max-width:720px;margin:0}.hero-kpis{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.hero-kpi{padding:8px 11px;border:1px solid rgba(255,255,255,.08);border-radius:999px;background:rgba(0,0,0,.16);font-size:.78rem}
-    .market-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.market-price{font-size:1.75rem;font-weight:900;letter-spacing:-.05em;color:#8cf2cd;white-space:nowrap}.market-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.market-mini{border:1px solid var(--line);border-radius:11px;padding:8px 10px;background:rgba(255,255,255,.02);font-size:.82rem}.market-mini.y{color:#8cf2cd}.market-mini.n{color:#ff9da2}
+    .market-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.market-price{font-size:1.75rem;font-weight:900;letter-spacing:-.05em;color:#8cf2cd;white-space:nowrap}.market-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.market-mini{border:1px solid var(--line);border-radius:11px;padding:10px;background:rgba(255,255,255,.02);font-size:.82rem;width:100%;text-align:left;cursor:pointer;appearance:none}.market-mini:hover,.market-mini:focus-visible{border-color:rgba(255,255,255,.28);outline:none}.market-mini.y{color:#8cf2cd}.market-mini.y:hover,.market-mini.y:focus-visible{border-color:rgba(51,214,159,.5);background:rgba(51,214,159,.08)}.market-mini.n{color:#ff9da2}.market-mini.n:hover,.market-mini.n:focus-visible{border-color:rgba(255,107,114,.5);background:rgba(255,107,114,.07)}
     .media-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.media-card{border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.022);padding:14px;min-height:145px}.media-card h3{margin:7px 0 8px;font-size:1rem;line-height:1.35}.media-card p{margin:0;color:var(--muted);font-size:.86rem;line-height:1.45}.media-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#7ff0c8}.source-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.source-pill{font-size:.72rem;border:1px solid var(--line);border-radius:999px;padding:5px 8px;color:var(--muted)}
     .ai-shell{max-width:820px;margin:0 auto}.ai-box{background:linear-gradient(180deg,rgba(18,39,65,.92),rgba(10,24,42,.96));border:1px solid rgba(97,168,255,.22);border-radius:22px;padding:18px}.ai-answer{white-space:pre-wrap;line-height:1.55;margin-top:14px;border-top:1px solid var(--line);padding-top:14px}.quick-prompts{display:flex;gap:8px;overflow:auto;padding:8px 0 2px;scrollbar-width:none}.quick-prompt{white-space:nowrap;border:1px solid var(--line);background:rgba(255,255,255,.025);color:var(--muted);border-radius:999px;padding:7px 10px;font-size:.78rem}
     @media(max-width:820px){.media-grid{grid-template-columns:1fr}.homehero{padding:18px}.topbar{padding:calc(12px + env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) 12px max(14px,env(safe-area-inset-left))}.container{padding:14px}.market-price{font-size:1.5rem}}
     .chat-thread{display:grid;gap:10px;max-height:52vh;overflow:auto;padding:6px 2px 12px}.chat-msg{max-width:90%;border:1px solid var(--line);border-radius:16px;padding:11px 13px;line-height:1.48;white-space:pre-wrap}.chat-msg.user{justify-self:end;background:rgba(51,214,159,.10);border-color:rgba(51,214,159,.25)}.chat-msg.assistant{justify-self:start;background:rgba(255,255,255,.025)}.chat-msg small{display:block;color:var(--muted);margin-top:7px}.quick-stakes{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:8px 0}.quick-stake{border:1px solid var(--line);background:rgba(255,255,255,.025);color:var(--text);border-radius:10px;padding:8px}
     .result-chip{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:.72rem;font-weight:800;border:1px solid var(--line)}.result-chip.open{color:#8cf2cd;background:rgba(51,214,159,.08)}.result-chip.won{color:#8cf2cd;background:rgba(51,214,159,.10)}.result-chip.lost{color:#ff9da2;background:rgba(255,98,109,.08)}.result-chip.void,.result-chip.closed{color:#c5cfdd;background:rgba(255,255,255,.04)}.notif-dot{display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:999px;background:#ff626d;color:white;font-size:.68rem;text-align:center;margin-left:4px;padding:0 4px}
 
-    /* Consumer polish pass: cleaner hierarchy, calmer cards, faster market scanning. */
+    /* Consumer polish pass: aligned with the Android v0.7.49 market-discovery hierarchy. */
     body{background:linear-gradient(180deg,#07110f 0,#081511 42%,#07110f 100%)}
     .app{max-width:1040px}
     .topbar{background:rgba(7,17,15,.94);border-bottom-color:rgba(255,255,255,.055);padding-top:calc(12px + env(safe-area-inset-top));padding-bottom:12px}
@@ -115,7 +115,7 @@
     .market-price small{display:block;font-size:.63rem;letter-spacing:.045em;color:var(--muted);font-weight:800;margin-top:5px;text-transform:uppercase}
     .bar{height:4px;background:#193129;margin-top:13px}
     .market-actions{gap:7px;margin-top:11px}
-    .market-mini{display:flex;align-items:center;justify-content:space-between;gap:8px;border-radius:10px;padding:9px 11px;background:#0a1714;font-size:.78rem;font-weight:800}
+    .market-mini{display:flex;align-items:center;justify-content:space-between;gap:8px;border-radius:10px;padding:9px 11px;background:#0a1714;font-size:.78rem;font-weight:800;width:100%;text-align:left;appearance:none}
     .market-mini.y{border-color:rgba(53,210,154,.27);background:rgba(53,210,154,.055);color:#9cf0d2}
     .market-mini.n{border-color:rgba(255,107,114,.22);background:rgba(255,107,114,.035);color:#ffabb0}
     .market-mini b{font-size:.86rem}
@@ -128,12 +128,12 @@
     .statuschip{background:#0a1714;border-color:#1b372e}
     .compact-info{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;border:1px solid #173129;background:#0a1714;border-radius:14px;margin:14px 0}
     .compact-info strong{display:block;font-size:.9rem;margin-bottom:2px}.compact-info small{color:var(--muted);line-height:1.35}
+    .proof-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+    .proof-card{border:1px solid #173129;border-radius:13px;background:#0a1714;padding:12px}
+    .proof-card h3{font-size:.92rem;line-height:1.35;margin:7px 0 10px}
     @media(max-width:820px){.market-toolbar{top:55px}.homehero{padding:18px}.container{padding:13px}.market-main-row{gap:10px}.market-price{font-size:1.4rem}}
+    @media(max-width:560px){.proof-grid{grid-template-columns:1fr}}
     @media(max-width:520px){.homehero h1{font-size:2rem}.homehero p{font-size:.91rem}.market-toolbar .searchrow{grid-template-columns:1fr auto}.market-card{padding:14px}.market-title{font-size:1rem}.market-card .meta{gap:8px}}
-    @media(min-width:900px){.market-toolbar{top:122px}}
-
-    /* Market detail polish: consumer-first hierarchy without changing pricing/accounting. */
-    .sheet.full{height:96vh;background:#07110f}
     .detail-breadcrumb{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 10px;color:#789086;font-size:.7rem}
     .detail-breadcrumb span{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .detail-breadcrumb strong{color:#b7c9c1;font-weight:850}
@@ -178,24 +178,6 @@
     .detail-section-title h2{font-size:1.02rem}
     .market-status-pill{font-size:.7rem;padding:5px 8px;border-radius:999px;border:1px solid #1c3b31;color:#9fb6ac;background:#0a1714;text-transform:capitalize}
     @media(max-width:800px){.detail-grid{grid-template-columns:1fr}.detail-grid>aside{order:-1}.tradebox{position:static}.sheet.full{height:97vh}.detail-head .detail-title{font-size:1.55rem}}
-
-    /* Portfolio polish: make practice credits unmistakable and positions easier to scan. */
-    .portfolio-head{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(220px,.8fr);gap:12px;margin-bottom:16px}
-    .portfolio-balance-card{padding:18px;border:1px solid #1b3b31;border-radius:18px;background:linear-gradient(145deg,rgba(53,210,154,.10),rgba(255,255,255,.015))}
-    .portfolio-balance-card small{color:var(--muted);font-size:.75rem}.portfolio-balance{font-size:clamp(1.8rem,7vw,2.7rem);font-weight:950;letter-spacing:-.05em;margin:6px 0 3px}
-    .portfolio-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-    .portfolio-stat{padding:14px;border:1px solid #18382f;border-radius:14px;background:#0a1714}
-    .portfolio-stat small{color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.07em}.portfolio-stat b{display:block;font-size:1.15rem;margin-top:5px}
-    .position-list{display:grid;gap:9px}
-    .position-card{width:100%;text-align:left;color:inherit;border:1px solid #18382f;background:#0a1714;border-radius:14px;padding:13px}
-    .position-card:hover{border-color:#285543;background:#0d1e19}.position-card:focus-visible{outline:2px solid #35d29a;outline-offset:2px}
-    .position-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.position-side{font-size:.75rem;font-weight:900}
-    .position-title{display:block;margin:8px 0 9px;font-size:.98rem;line-height:1.35}
-    .position-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-    .position-metric{font-size:.71rem;color:var(--muted)}.position-metric b{display:block;color:var(--text);font-size:.82rem;margin-top:2px;overflow:hidden;text-overflow:ellipsis}
-    .practice-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid rgba(244,191,85,.25);background:rgba(244,191,85,.055);border-radius:13px;padding:11px 12px;margin-bottom:15px}
-    .practice-banner b{font-size:.82rem}.practice-banner small{color:var(--muted)}
-    @media(max-width:700px){.portfolio-head{grid-template-columns:1fr}.portfolio-stats{grid-template-columns:repeat(3,1fr)}.position-metrics{grid-template-columns:1fr 1fr}.position-metric:last-child{grid-column:1/-1}}
   </style>
 </head>
 <body>
@@ -261,8 +243,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.55';
-const APP_VERSION_CODE=61;
+const APP_BUILD='0.7.60';
+const APP_VERSION_CODE=62;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -284,7 +266,7 @@ function clearStoredAuthSession(){
   }catch{}
 }
 
-const state={tab:'markets',session:null,user:null,isAdmin:false,status:null,categories:[],markets:[],marketEvents:[],universityDirectory:[],universityRegistryCount:0,universityDirectorySource:'',ugandaTrends:[],ugandaDemand:[],ugandaSocialRadar:[],ugandaConsumption:[],ugandaPulse:[],recentResults:[],socialSourceStatus:null,socialClaims:[],socialClaimNote:'',digitalProfile:null,category:'',search:'',feedSort:'trending',market:null,portfolio:null,watchlist:[],notifications:[],leaderboard:[],trends:[],stories:[],creators:[],externalSignals:[],weatherSignals:[],statementSignals:[],officialData:[],admin:null,ceo:null,businessTraction:null,aiProviders:[],autonomy:null,loading:false,online:navigator.onLine,realtimeStatus:'idle',realtimeMarketId:null,balance:null,balanceMode:'forecast_credit',unreadNotifications:0,behaviorPrefs:[],behaviorSessionId:null};
+const state={tab:'markets',session:null,user:null,isAdmin:false,status:null,categories:[],markets:[],marketEvents:[],universityDirectory:[],universityRegistryCount:0,universityDirectorySource:'',ugandaTrends:[],ugandaDemand:[],ugandaSocialRadar:[],ugandaConsumption:[],recentResults:[],ugandaPulse:[],socialSourceStatus:null,socialClaims:[],socialClaimNote:'',digitalProfile:null,category:'',search:'',feedSort:'trending',market:null,portfolio:null,watchlist:[],notifications:[],leaderboard:[],trends:[],stories:[],creators:[],externalSignals:[],weatherSignals:[],statementSignals:[],officialData:[],admin:null,ceo:null,businessTraction:null,aiProviders:[],autonomy:null,loading:false,online:navigator.onLine,realtimeStatus:'idle',realtimeMarketId:null,balance:null,balanceMode:'forecast_credit',unreadNotifications:0,betaMission:null,behaviorPrefs:[],behaviorSessionId:null,paymentHistory:[],cashLaunch:null,merchantConnection:null,securityHealth:null};
 
 const $=s=>document.querySelector(s);
 const esc=(s='')=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
@@ -400,10 +382,6 @@ async function showMarketSuggestion(prefill={}){
     const source=$('#suggestSource').value.trim();
     const timeframe=$('#suggestTimeframe').value.trim();
     const reason=$('#suggestReason').value.trim();
-    if(question.length<20||source.length<3||timeframe.length<3){
-      status.textContent='Add a clear future question, verification source and timeframe.';
-      return;
-    }
     btn.disabled=true;status.textContent='Sending for review…';
     try{
       const result=await rpc('submit_market_suggestion',{p_question:question,p_resolution_source:source,p_timeframe:timeframe,p_reason:reason||null});
@@ -473,17 +451,19 @@ function personalizeMarkets(rows){
   })).sort((a,b)=>b.s-a.s||a.i-b.i).map(x=>x.m);
 }
 const FIRST_USE_GUIDE_KEY='predictug_first_use_guide_v1';
+function firstUseGuideStorageKey(){
+  return FIRST_USE_GUIDE_KEY+':'+String(state.user?.id||'anonymous');
+}
 function firstUseGuideSeen(){
-  try{return localStorage.getItem(FIRST_USE_GUIDE_KEY)==='1'}catch{return false}
+  try{return localStorage.getItem(firstUseGuideStorageKey())==='1'}catch{return false}
 }
 function markFirstUseGuideSeen(){
-  try{localStorage.setItem(FIRST_USE_GUIDE_KEY,'1')}catch{}
+  try{localStorage.setItem(firstUseGuideStorageKey(),'1')}catch{}
 }
 function maybeShowFirstUseGuide(){
   if(!state.user||firstUseGuideSeen())return false;
   if($('#overlay')?.children?.length)return false;
-  markFirstUseGuideSeen();
-  showHowItWorks();
+  showHowItWorks(true);
   trackBehavior('screen_view',{metadata:{screen:'first_use_guide',trigger:'first_authenticated_session'}});
   return true;
 }
@@ -491,44 +471,66 @@ function maybeShowFirstUseGuide(){
 function starterMarketCandidate(){
   const rows=Array.isArray(state.markets)?state.markets:[];
   const eligible=rows.filter(m=>m?.market_id&&!m?.external_benchmark&&!isPoliticalCategory(m?.category||m?.category_key));
-  return eligible.find(m=>/sport|football|soccer/i.test(String(m?.category||m?.category_key||'')+' '+String(m?.title||'')))
-    ||eligible[0]
+  const score=m=>{
+    const cat=String(m?.category||m?.category_key||'').toLowerCase();
+    const title=String(m?.title||'').toLowerCase();
+    const verified=String(m?.data_status||'')==='verified';
+    const closeMs=Date.parse(m?.close_time||'');
+    const days=Number.isFinite(closeMs)?Math.max(0,(closeMs-Date.now())/86400000):999;
+    if(/sport|football|soccer/.test(cat+' '+title))return 0;
+    if(cat==='weather'&&verified&&days<=7)return 1;
+    if(cat==='entertainment'&&days<=14)return 2;
+    if(verified&&days<=14)return 3;
+    if(cat==='entertainment')return 4;
+    if(verified)return 5;
+    return 6;
+  };
+  return eligible.slice().sort((a,b)=>{
+    const rank=score(a)-score(b);
+    if(rank)return rank;
+    const ac=Date.parse(a?.close_time||'')||Number.MAX_SAFE_INTEGER;
+    const bc=Date.parse(b?.close_time||'')||Number.MAX_SAFE_INTEGER;
+    return ac-bc;
+  })[0]
     ||rows.find(m=>m?.market_id&&!isPoliticalCategory(m?.category||m?.category_key))
     ||null;
 }
 async function openStarterMarket(source='guide'){
   const starter=starterMarketCandidate();
   if(!starter){$('#overlay').innerHTML='';toast('No starter market is open right now. Try the market feed.');return false}
+  if(source==='how_it_works'||source==='first_use_guide')markFirstUseGuideSeen();
   $('#overlay').innerHTML='';
   trackBehavior('starter_market_opened',{
     category:starter.category||starter.category_key||null,
     marketId:starter.market_id,
-    metadata:{source,football:/sport|football|soccer/i.test(String(starter.category||starter.category_key||'')+' '+String(starter.title||''))}
+    metadata:{source,football:/sport|football|soccer/i.test(String(starter.category||starter.category_key||'')+' '+String(starter.title||'')),weather:String(starter.category||starter.category_key||'').toLowerCase()==='weather'}
   });
   await openMarket(starter.market_id);
   return true;
 }
 
-function showHowItWorks(){
-  trackBehavior('screen_view',{metadata:{screen:'how_it_works'}});
+function showHowItWorks(firstUse=false){
+  trackBehavior('screen_view',{metadata:{screen:'how_it_works',first_use:firstUse}});
   $('#overlay').innerHTML=
     '<div class="modal"><div class="sheet" style="max-width:560px">'+
       '<button class="close" id="howClose">✕</button>'+
       '<div class="media-label">Predict UG in plain language</div><h2>Pick YES or NO. Know the rule before you predict.</h2>'+
       '<div class="timeline" style="margin-top:12px">'+
-        '<div class="item"><b>1 · Choose a question</b><br><small>Start with something familiar—football is a good first choice for many users. You can also explore entertainment, business, campus, weather and other Uganda-relevant markets.</small></div>'+
+        '<div class="item"><b>1 · Choose a question</b><br><small>Start with something familiar. Football is prioritised when a verified fixture is available; otherwise Predict UG can guide you to a short-horizon Uganda Weather market or another verified local question.</small></div>'+
         '<div class="item"><b>2 · YES or NO</b><br><small>The percentage is the market probability. Decimal odds and your possible return are shown before you confirm.</small></div>'+
         '<div class="item"><b>3 · Practice first</b><br><small>The public beta uses practice credits unless your account explicitly shows approved cash mode. Practice credits cannot be withdrawn.</small></div>'+
         '<div class="item"><b>4 · Settlement is rule-based</b><br><small>Every market has a published resolution rule and source. Predict UG does not settle a market just because AI or users think an outcome happened.</small></div>'+
       '</div>'+
-      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG is a prediction/forecasting platform. The current public beta is designed to let users learn the product with practice credits. Practice credits are not cash and cannot be withdrawn. Any future cash mode remains separately gated by approvals, eligibility and responsible-use controls.</p></div>'+
+      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.60 · bundled frontend</p></div>'+
       '<div class="auth-wrap" style="margin-top:12px"><button class="btn primary" id="howStart">Try a starter market</button><button class="btn ghost" id="howDone">Browse all markets</button><button class="btn ghost" id="howFeedback">Something is confusing</button></div>'+
     '</div></div>';
-  $('#howClose').onclick=$('#howDone').onclick=()=>$('#overlay').innerHTML='';
+  $('#howClose').onclick=()=>{$('#overlay').innerHTML='';trackBehavior('first_use_guide_dismissed',{metadata:{first_use:firstUse}})};
+  $('#howDone').onclick=()=>{if(firstUse)markFirstUseGuideSeen();trackBehavior('first_use_guide_browse_all',{metadata:{first_use:firstUse}});$('#overlay').innerHTML=''};
   const starter=starterMarketCandidate();
   if($('#howStart')){
-    $('#howStart').textContent=starter&&/sport|football|soccer/i.test(String(starter.category||starter.category_key||'')+' '+String(starter.title||''))?'Try a football market':'Try a starter market';
-    $('#howStart').onclick=()=>openStarterMarket('how_it_works');
+    const starterCat=String(starter?.category||starter?.category_key||'').toLowerCase();
+    $('#howStart').textContent=starter&&/sport|football|soccer/i.test(starterCat+' '+String(starter.title||''))?'Try a football market':starterCat==='weather'?'Try a Weather market':'Try a starter market';
+    $('#howStart').onclick=()=>openStarterMarket(firstUse?'first_use_guide':'how_it_works');
   }
   $('#howFeedback').onclick=()=>{trackBehavior('screen_view',{metadata:{screen:'support_from_how_it_works'}});openHosted('/support.html')};
 }
@@ -797,16 +799,17 @@ function installAuthListener(){
   authListenerInstalled=true;
   supabase.auth.onAuthStateChange((event,session)=>{
     state.session=session||null;state.user=session?.user||null;state.isAdmin=false;render();
-    if(state.user){setTimeout(async()=>{try{state.isAdmin=!!(await rpc('is_admin'));await Promise.all([loadBalance(),loadUnreadNotifications(),loadBehaviorPrefs()]);state.markets=personalizeMarkets(state.markets);render();const legalOk=await ensureLegalAcceptance();if(legalOk&&!maybeOpenPendingSharedClaim())maybeShowFirstUseGuide()}catch{}},0)}
+    if(state.user){setTimeout(async()=>{try{state.isAdmin=!!(await rpc('is_admin'));await Promise.all([loadBalance(),loadUnreadNotifications(),loadBehaviorPrefs(),loadBetaMission()]);state.markets=personalizeMarkets(state.markets);render();const legalOk=await ensureLegalAcceptance();if(legalOk)maybeShowFirstUseGuide()}catch{}},0)}
     else{state.balance=null;state.unreadNotifications=0}
   });
 }
 
-async function ensureLegalAcceptance(){
+async function ensureLegalAcceptance(surface='startup'){
   if(!state.user)return true;
   try{
     const legal=await rpc('my_legal_acceptance_status');
     if(legal?.complete)return true;
+    trackBehavior('legal_gate_shown',{metadata:{surface}});
     $('#overlay').innerHTML=
       '<div class="modal"><div class="sheet" style="max-width:500px">'+
         '<h2>Before you continue</h2>'+
@@ -820,21 +823,25 @@ async function ensureLegalAcceptance(){
           '<div id="legalStatus" class="auth-note"></div>'+
         '</div>'+
       '</div></div>';
-    $('#legalTerms').onclick=()=>openHosted('/terms.html');
-    $('#legalPrivacy').onclick=()=>openHosted('/privacy.html');
-    $('#legalSignout').onclick=async()=>{await supabase.auth.signOut();$('#overlay').innerHTML='';await loadSession();render()};
+    $('#legalTerms').onclick=()=>{trackBehavior('legal_terms_opened',{metadata:{surface}});openHosted('/terms.html')};
+    $('#legalPrivacy').onclick=()=>{trackBehavior('legal_privacy_opened',{metadata:{surface}});openHosted('/privacy.html')};
+    $('#legalSignout').onclick=async()=>{trackBehavior('legal_gate_signout',{metadata:{surface}});await supabase.auth.signOut();$('#overlay').innerHTML='';await loadSession();render()};
     $('#legalAccept').onclick=async()=>{
       const status=$('#legalStatus');
-      if(!state.online){status.textContent='Offline: reconnect before accepting legal documents.';return}
-      if(!$('#legalAgree').checked){status.textContent='Tick the agreement box to continue.';return}
+      if(!state.online){trackBehavior('legal_acceptance_blocked',{metadata:{reason:'offline'}});status.textContent='Offline: reconnect before accepting legal documents.';return}
+      if(!$('#legalAgree').checked){trackBehavior('legal_acceptance_blocked',{metadata:{reason:'agreement_not_checked'}});status.textContent='Tick the agreement box to continue.';return}
+      trackBehavior('legal_acceptance_attempted',{metadata:{surface}});
       const btn=$('#legalAccept');btn.disabled=true;status.textContent='Saving…';
       try{
         const saved=await rpc('accept_current_legal_documents',{p_source:'app'});
         if(!saved?.complete)throw new Error('Acceptance could not be saved');
+        trackBehavior('legal_acceptance_completed',{metadata:{surface}});
         $('#overlay').innerHTML='';
+        await loadBetaMission();
+        render();
         toast('Terms accepted');
-        setTimeout(()=>{if(!maybeOpenPendingSharedClaim())maybeShowFirstUseGuide()},180);
-      }catch(e){status.textContent=e.message||'Could not save acceptance';btn.disabled=false}
+        if(surface==='startup')setTimeout(()=>maybeShowFirstUseGuide(),180);
+      }catch(e){trackBehavior('legal_acceptance_failed',{metadata:{message:String(e?.message||'unknown').slice(0,120)}});status.textContent=e.message||'Could not save acceptance';btn.disabled=false}
     };
     return false;
   }catch(e){
@@ -967,7 +974,7 @@ async function bootstrap(){
     }
     render();
     if(state.user){
-      Promise.all([loadBalance(),loadUnreadNotifications()]).then(render).catch(()=>{});
+      Promise.all([loadBalance(),loadUnreadNotifications(),loadBetaMission()]).then(render).catch(()=>{});
       setTimeout(async()=>{const legalOk=await ensureLegalAcceptance();if(legalOk)maybeShowFirstUseGuide()},0);
     }
   }
@@ -1025,7 +1032,7 @@ function render(){
   renderNav();
   $('#authBtn').textContent=state.user?(state.isAdmin?'Admin':'Profile'):'Sign in';
   const inviteBtn=$('#inviteBtn');
-  if(inviteBtn)inviteBtn.classList.add('hidden');
+  if(inviteBtn)inviteBtn.classList.toggle('hidden',!state.user);
   const merchantQuick=$('#merchantQuickConnect');
   if(merchantQuick)merchantQuick.classList.toggle('hidden',!(state.user&&state.isAdmin));
   const balanceBtn=$('#balanceBtn');
@@ -1059,18 +1066,18 @@ function statusHtml(){
     '<span class="statuschip">'+(state.markets?.length||0)+' open markets</span>'+
     '</div>';
 }
-function marketCard(m){
+function marketCard(m,openSource='market_card'){
   const y=Number(m.yes_probability||0), n=Number(m.no_probability||0);
   const origin=String(m.market_origin||'');
   const originLabel=String(m.trend_badge||'')||(origin==='uganda_creator'?'Uganda creator':origin==='external_benchmark'?'Global benchmark':'Uganda');
   const displayTitle=String(m.title||'').replace(/^\[SHADOW\]\s*/i,'');
   const trust=m.data_status==='verified'?'Verified source':m.data_status==='source_attached'?'Source attached':'Resolution source';
   const yesOdds=oddsText(m.yes_odds,y),noOdds=oddsText(m.no_odds,n);
-  return '<article class="card market-card" role="button" tabindex="0" aria-label="Open market: '+esc(displayTitle)+'" data-market="'+m.market_id+'">'+
+  return '<article class="card market-card" data-market="'+m.market_id+'" data-open-source="'+esc(openSource)+'">'+
     '<div class="eyebrow"><span>'+esc(m.category)+' · '+esc(originLabel)+'</span><span>'+dt(m.close_time)+'</span></div>'+
     '<div class="market-main-row"><div class="market-title">'+esc(displayTitle)+'</div><div class="market-price">'+pct(y)+'<small>YES chance</small></div></div>'+
     '<div class="bar"><span style="width:'+Math.max(0,Math.min(100,y))+'%"></span></div>'+
-    '<div class="market-actions"><div class="market-mini y"><span>YES</span><b>'+yesOdds+'</b></div><div class="market-mini n"><span>NO</span><b>'+noOdds+'</b></div></div>'+
+    '<div class="market-actions"><button type="button" class="market-mini y" data-market="'+m.market_id+'" data-market-side="YES" aria-label="Choose YES"><span>YES</span><b>'+yesOdds+'</b></button><button type="button" class="market-mini n" data-market="'+m.market_id+'" data-market-side="NO" aria-label="Choose NO"><span>NO</span><b>'+noOdds+'</b></button></div>'+
     '<div class="meta"><span class="trust-mark">✓ '+esc(trust)+(Number(m.total_pool_ugx||0)>0?' · '+Number(m.total_pool_ugx||0).toLocaleString('en-UG')+' credits active':'')+'</span><span>'+(m.watched?'★ Saved':'View market →')+'</span></div>'+
   '</article>';
 }
@@ -1136,27 +1143,52 @@ function renderMarkets(){
   const mode=state.status?.trading_mode||'forecast_credit';
   const starterMarket=starterMarketCandidate();
   const starterIsFootball=!!starterMarket&&/sport|football|soccer/i.test(String(starterMarket.category||starterMarket.category_key||'')+' '+String(starterMarket.title||''));
+  const starterCategory=String(starterMarket?.category||starterMarket?.category_key||'').toLowerCase();
+  const starterLabel=starterIsFootball?'Try football':starterCategory==='weather'?'Try Weather':starterCategory==='entertainment'?'Try a creator market':'Try a market';
   const localBase=(state.markets||[]).filter(m=>!m.external_benchmark);
   const localMarkets=[...localBase];
-  if(state.feedSort==='closing'){
+  if(state.feedSort==='live'){
+    const now=Date.now();
+    const live=localMarkets.filter(m=>String(m.status||'open').toLowerCase()==='open'&&(!m.close_time||new Date(m.close_time).getTime()>now));
+    localMarkets.splice(0,localMarkets.length,...live);
+  }else if(state.feedSort==='closing'){
     localMarkets.sort((a,b)=>new Date(a.close_time)-new Date(b.close_time));
   }else if(state.feedSort==='active'){
     localMarkets.sort((a,b)=>Number(b.total_pool_ugx||0)-Number(a.total_pool_ugx||0));
   }
-  const feedHeading=state.feedSort==='closing'
-    ?{kicker:'Upcoming',title:'Closing soon'}
-    :state.feedSort==='active'
-      ?{kicker:'Activity',title:'Most active'}
-      :{kicker:'Trending',title:'Uganda now'};
+  const feedHeading=state.feedSort==='live'
+    ?{kicker:'Live',title:'Open now'}
+    :state.feedSort==='closing'
+      ?{kicker:'Upcoming',title:'Closing soon'}
+      :state.feedSort==='active'
+        ?{kicker:'Activity',title:'Most active'}
+        :{kicker:'For you',title:'Uganda now'};
   const globalMarkets=(state.markets||[]).filter(m=>m.external_benchmark);
+  const unfilteredHome=!state.category&&!state.search;
+  const closingSoon=unfilteredHome?localMarkets.filter(m=>{const ms=Date.parse(m?.close_time||'');const d=ms-Date.now();return Number.isFinite(ms)&&d>0&&d<=72*3600000}).slice().sort((a,b)=>Date.parse(a.close_time)-Date.parse(b.close_time)).slice(0,3):[];
+  const diverseTopPicks=[];
+  if(unfilteredHome){
+    const seen=new Set();
+    for(const m of localMarkets){
+      const cat=String(m?.category||m?.category_key||'Other');
+      if(seen.has(cat))continue;
+      seen.add(cat);
+      diverseTopPicks.push(m);
+      if(diverseTopPicks.length>=5)break;
+    }
+  }
+  const diverseIds=new Set(diverseTopPicks.map(m=>m.market_id));
+  const remainingLocalMarkets=unfilteredHome?localMarkets.filter(m=>!diverseIds.has(m.market_id)):localMarkets;
   const ugTrends=(state.ugandaTrends||[]).slice(0,8);
   const ugDemand=(state.ugandaDemand||[]).slice(0,6);
   const social=(state.ugandaSocialRadar||[]).slice(0,6);
-  const recent=(state.recentResults||[]).slice(0,6);
+  const consumption=(state.ugandaConsumption||[]).filter(x=>x.scope==='uganda_local_chart').slice(0,8);
+  const recentResults=(state.recentResults||[]).slice(0,4);
   const events=(state.marketEvents||[]).slice(0,12);
   const universities=(state.universityDirectory||[]).slice(0,18);
   const showUniversities=universities.length&&(!state.category||/campus|education|university/i.test(String(state.category)));
-  const consumption=(state.ugandaConsumption||[]).filter(x=>x.scope==='uganda_local_chart').slice(0,8);
+  const mission=state.user&&state.balanceMode!=='cash'&&state.betaMission?state.betaMission:null;
+  const missionComplete=!!mission?.complete;
   const metricShort=n=>{n=Number(n||0);return n>=1000000?(n/1000000).toFixed(n>=10000000?1:2)+'M':n>=1000?(n/1000).toFixed(0)+'K':n.toLocaleString('en-UG')};
 
   $('#view').innerHTML=
@@ -1166,29 +1198,32 @@ function renderMarkets(){
       '<p>Choose a real-world question, pick YES or NO, and see the rule, odds and possible return before you confirm.</p>'+
       '<div class="home-intro-actions">'+
         '<button class="btn small primary" id="homeHowItWorks">How it works</button>'+
-        (starterMarket?'<button class="btn small ghost" id="starterMarketBtn">'+(starterIsFootball?'Try football':'Try a market')+'</button>':'')+
+        (starterMarket?'<button class="btn small ghost" id="starterMarketBtn">'+starterLabel+'</button>':'')+
         '<span class="quiet-badge">'+(mode==='cash'?'Cash mode':'Practice credits')+' · '+(state.online?'Live':'Offline cache')+'</span>'+
       '</div>'+
     '</section>'+
 
+    (mission&&!missionComplete?'<section class="card" style="margin:12px 0 14px;border-color:rgba(53,210,154,.28);background:linear-gradient(145deg,rgba(53,210,154,.08),#0b1915)"><div class="section-title" style="margin:0 0 10px"><div><span class="feed-kicker">Getting started</span><h2 style="margin:3px 0 0">Make your first 3 predictions</h2></div><span class="statuschip">'+Math.min(mission.trades,mission.goal)+' / '+mission.goal+'</span></div><p class="auth-note" style="margin:0 0 12px">Use practice credits to learn the flow. There is no cash reward — the goal is simply to understand YES/NO, odds and settlement.</p><div style="height:8px;border-radius:999px;background:#07110f;overflow:hidden;margin-bottom:12px"><div style="height:100%;width:'+Math.min(100,(mission.trades/mission.goal)*100)+'%;background:#35d29a"></div></div><div class="auth-wrap"><button class="btn small primary" id="betaMissionBtn">Make prediction '+Math.min(mission.goal,mission.trades+1)+'</button><button class="btn small ghost" id="betaMissionHow">How predictions work</button></div></section>':'')+
+    (missionComplete?'<section class="card" style="margin:12px 0 14px;border-color:rgba(91,161,255,.30);background:linear-gradient(145deg,rgba(91,161,255,.08),#0b151f)"><div class="section-title" style="margin:0 0 8px"><div><span class="feed-kicker">Starter mission complete</span><h2 style="margin:3px 0 0">You have made your first 3 predictions</h2></div><span class="statuschip ok">3 / 3</span></div><p class="auth-note" style="margin:0 0 12px">Keep exploring Uganda markets or invite someone to try Predict UG with practice credits. Referral tracking has no cash or credit reward.</p><div class="auth-wrap"><button class="btn small primary" id="betaMissionInvite">Invite someone</button><button class="btn small ghost" id="betaMissionExplore">Explore markets</button></div></section>':'')+
     '<section class="market-toolbar">'+
       '<div class="searchrow"><input class="input" id="searchInput" value="'+esc(state.search)+'" placeholder="Search Predict UG"><button class="btn primary" id="searchBtn">Search</button></div>'+
       '<div class="chips"><button class="chip '+(!state.category?'active':'')+'" data-category="">All</button>'+state.categories.map(c=>'<button class="chip '+(state.category===c.category_key?'active':'')+'" data-category="'+esc(c.category_key)+'">'+esc(c.label)+'</button>').join('')+'</div>'+
-      '<div class="chips" aria-label="Market feed sort"><button class="chip '+(state.feedSort==='trending'?'active':'')+'" data-feed-sort="trending">Trending</button><button class="chip '+(state.feedSort==='closing'?'active':'')+'" data-feed-sort="closing">Closing soon</button><button class="chip '+(state.feedSort==='active'?'active':'')+'" data-feed-sort="active">Most active</button></div>'+
+      '<div class="chips" aria-label="Market feed sort"><button class="chip '+(state.feedSort==='trending'?'active':'')+'" data-feed-sort="trending">For you</button><button class="chip '+(state.feedSort==='live'?'active':'')+'" data-feed-sort="live">Live</button><button class="chip '+(state.feedSort==='closing'?'active':'')+'" data-feed-sort="closing">Closing soon</button><button class="chip '+(state.feedSort==='active'?'active':'')+'" data-feed-sort="active">Most active</button></div>'+
     '</section>'+
 
     (events.length?'<div class="section-title"><div><span class="feed-kicker">Events</span><h2>Explore by event</h2></div><small style="color:var(--muted)">Series → event → market</small></div><div class="event-rail">'+events.map(eventHubCard).join('')+'</div>':'')+
 
     (showUniversities?'<div class="section-title"><div><span class="feed-kicker">Campus</span><h2>Universities & campuses</h2></div><small style="color:var(--muted)">'+Number(state.universityRegistryCount||universities.length).toLocaleString('en-UG')+' NCHE-verified institutions</small></div><div class="event-rail">'+universities.map(universityDirectoryCard).join('')+'</div>':'')+
 
-    '<div class="market-feed-header"><div><span class="feed-kicker">'+esc(feedHeading.kicker)+'</span><h2>'+esc(feedHeading.title)+'</h2></div><button class="btn small ghost" data-tab="media">Open Pulse</button></div>'+
-    (localMarkets.length?'<div class="grid">'+localMarkets.map(marketCard).join('')+'</div>':'<div class="empty">No Uganda markets match your filters right now.</div>')+
+    (closingSoon.length?'<div class="market-feed-header"><div><span class="feed-kicker">Time sensitive</span><h2>Closing soon</h2></div><small style="color:var(--muted)">Short-horizon markets</small></div><div class="grid">'+closingSoon.map(m=>marketCard(m,'closing_soon')).join('')+'</div>':'')+
 
-    (globalMarkets.length?'<div class="section-title"><div><span class="feed-kicker">Reference</span><h2>Global benchmarks</h2></div><small style="color:var(--muted)">Wider prediction-market context</small></div><div class="grid">'+globalMarkets.map(marketCard).join('')+'</div>':'')+
+    (diverseTopPicks.length?'<div class="market-feed-header"><div><span class="feed-kicker">Featured</span><h2>Top picks across Uganda</h2></div><small style="color:var(--muted)">One strong market from each category</small></div><div class="grid">'+diverseTopPicks.map(m=>marketCard(m,'top_picks')).join('')+'</div>':'')+
+    '<div class="market-feed-header"><div><span class="feed-kicker">'+(unfilteredHome?'Explore':'Results')+'</span><h2>'+(unfilteredHome?'All Uganda markets':'Uganda markets')+'</h2></div><button class="btn small ghost" data-tab="media">Open Pulse</button></div>'+
+    (remainingLocalMarkets.length?'<div class="grid">'+remainingLocalMarkets.map(m=>marketCard(m,'all_markets')).join('')+'</div>':'<div class="empty">No Uganda markets match your filters right now.</div>')+
 
-    (recent.length?'<div class="section-title"><div><span class="feed-kicker">Trust</span><h2>Recently resolved</h2></div><small style="color:var(--muted)">Evidence-backed results</small></div><div class="media-grid">'+recent.map(x=>
-      '<button class="media-card" data-result-market="'+esc(x.market_id)+'" style="text-align:left;color:inherit;border:0;width:100%;cursor:pointer"><div class="media-label">'+esc(x.category||'Market')+' · '+esc(x.result_label||x.status||'Resolved')+'</div><h3>'+esc(short(x.title))+'</h3><p>'+esc(x.source_name||'Verified source')+' · '+Number(x.evidence_count||0)+' evidence source'+(Number(x.evidence_count||0)===1?'':'s')+'</p><small>Resolved '+dt(x.resolved_at)+'</small></button>'
-    ).join('')+'</div>':'')+
+    (recentResults.length?'<div class="section-title"><div><span class="feed-kicker">Trust</span><h2>Recently resolved</h2></div><span class="statuschip ok">Official evidence</span></div><div class="proof-grid">'+recentResults.map(r=>'<div class="proof-card"><div class="eyebrow"><span>'+esc(r.category||'Market')+'</span><span>'+dt(r.resolved_at)+'</span></div><h3>'+esc(short(r.title))+'</h3><div class="quote-row"><span>Result</span><b>'+esc(r.result_label||r.status)+'</b></div><div class="quote-row"><span>Source</span><b>'+esc(r.source_name||'Published source')+'</b></div><button class="btn small ghost" style="width:100%;margin-top:10px" data-market="'+esc(r.market_id)+'">View evidence</button></div>').join('')+'</div>':'')+
+
+    (globalMarkets.length?'<div class="section-title"><div><span class="feed-kicker">Reference</span><h2>Global benchmarks</h2></div><small style="color:var(--muted)">Wider prediction-market context</small></div><div class="grid">'+globalMarkets.map(m=>marketCard(m,'global_benchmarks')).join('')+'</div>':'')+
 
     ((ugTrends.length||ugDemand.length)?'<div class="card" style="margin-top:18px"><div class="section-title" style="margin-top:0"><div><span class="feed-kicker">Signals</span><h2>Uganda Pulse</h2></div><button class="btn small ghost" data-tab="media">See all</button></div>'+
       (ugDemand.length?'<div class="chips" style="margin-bottom:8px">'+ugDemand.map(x=>'<span class="chip">'+esc(x.category)+' · '+Number(x.demand_score||0).toFixed(0)+'</span>').join('')+'</div>':'')+
@@ -1205,11 +1240,14 @@ function renderMarkets(){
 
   document.querySelectorAll('[data-event]').forEach(el=>el.onclick=()=>openEvent(el.dataset.event));
   document.querySelectorAll('[data-university-market]').forEach(el=>el.onclick=()=>openMarket(el.dataset.universityMarket));
-  document.querySelectorAll('[data-result-market]').forEach(el=>el.onclick=()=>openMarket(el.dataset.resultMarket));
   if($('#homeHowItWorks'))$('#homeHowItWorks').onclick=showHowItWorks;
   if($('#footerHowItWorks'))$('#footerHowItWorks').onclick=showHowItWorks;
   if($('#starterMarketBtn'))$('#starterMarketBtn').onclick=()=>openStarterMarket('home_polish');
-  if($('#homeSignIn'))$('#homeSignIn').onclick=showAuth;
+  if($('#betaMissionBtn'))$('#betaMissionBtn').onclick=()=>{trackBehavior('beta_mission_cta',{metadata:{trades:Number(state.betaMission?.trades||0),goal:Number(state.betaMission?.goal||3)}});openStarterMarket('beta_mission')};
+  if($('#betaMissionHow'))$('#betaMissionHow').onclick=()=>{trackBehavior('screen_view',{metadata:{screen:'how_it_works',trigger:'beta_mission'}});showHowItWorks(false)};
+  if($('#betaMissionInvite'))$('#betaMissionInvite').onclick=()=>{trackBehavior('beta_mission_invite',{metadata:{trades:Number(state.betaMission?.trades||0)}});showInvite()};
+  if($('#betaMissionExplore'))$('#betaMissionExplore').onclick=()=>{trackBehavior('beta_mission_explore',{metadata:{trades:Number(state.betaMission?.trades||0)}});document.querySelector('.market-toolbar')?.scrollIntoView({behavior:'smooth',block:'start'})};
+    if($('#homeSignIn'))$('#homeSignIn').onclick=showAuth;
   if($('#homePrivacy'))$('#homePrivacy').onclick=()=>openHosted('/privacy.html');
   if($('#homeTerms'))$('#homeTerms').onclick=()=>openHosted('/terms.html');
   if($('#homeSuggestMarket'))$('#homeSuggestMarket').onclick=showMarketSuggestion;
@@ -1222,7 +1260,7 @@ function renderMarkets(){
     render();
   });
 }
-async function openMarket(id,{updateUrl=true}={}){
+async function openMarket(id,{updateUrl=true,preselectLabel=null,openSource='feed'}={}){
   const key='market:'+id;
   let page=null;
   try{
@@ -1243,8 +1281,9 @@ async function openMarket(id,{updateUrl=true}={}){
     page={...(cached.value||{}),__offline_cache:true,__offline_saved_at:cached.saved_at};
     toast('Offline: showing last synced market ('+cachedAgeLabel(cached)+')');
   }
+  if(preselectLabel)page.__preselect_label=String(preselectLabel).toUpperCase();
   state.market=page;
-  trackBehavior('market_view',{category:page?.market?.category||page?.market?.category_key,marketId:id});
+  trackBehavior('market_view',{category:page?.market?.category||page?.market?.category_key,marketId:id,metadata:{open_source:openSource,preselected_side:preselectLabel?String(preselectLabel).toUpperCase():null}});
   if(updateUrl&&linkedMarketId()!==id)setMarketUrl(id);
   drawMarket();
   if(state.online&&!isClosed(page.market))startMarketRealtime(id);else stopMarketRealtime();
@@ -1461,7 +1500,7 @@ function drawMarket(){
     '<div class="detail-grid"><div>'+
       '<div class="card detail-card probability-card"><div class="section-title"><h2>Market probability</h2><span class="statuschip">'+(yes?pct(yes.display_probability):'—')+' YES</span></div>'+historySvg(d)+'</div>'+
       rulesSummaryHtml(m,d)+
-
+      '<div class="card detail-card resolution-card" style="margin-top:12px"><h3>Verification source</h3><p>'+esc(m.source_name||'Source not attached')+'</p><div class="meta"><span>Outcome evidence</span>'+(m.source_url?'<a href="'+esc(m.source_url)+'" target="_blank" rel="noopener">Open source ↗</a>':'')+'</div></div>'+
       ((d.resolution?.clarifications||[]).length?'<div class="section-title"><h2>Clarifications</h2></div><div class="timeline">'+d.resolution.clarifications.map(c=>'<div class="item">'+esc(c.clarification_text)+'<br><small>'+dt(c.created_at)+'</small></div>').join('')+'</div>':'')+
       resolutionPanel+
       intelligencePanel+
@@ -1497,6 +1536,7 @@ function drawMarket(){
     const profitText=(net>=0?'+':'')+quoteValue(q,net);
     $('#quoteBox').innerHTML=
       '<div class=\"quote-row\"><span>You chose</span><b>'+esc(chosen.label)+' @ '+odds.toFixed(2)+'</b></div>'+
+      '<div class=\"quote-row\"><span>You pay</span><b>'+esc(quoteValue(q,q.stake_ugx||Number($('#stakeInput')?.value||0)))+'</b></div>'+
       '<div class=\"risk-grid\"><div class=\"risk-card win\"><small>If you are right</small><div class=\"risk-number\">'+esc(returnText)+'</div><div class=\"auth-note\">fixed potential return</div></div>'+
       '<div class=\"risk-card loss\"><small>If you are wrong</small><div class=\"risk-number\">− '+esc(lossText)+'</div><div class=\"auth-note\">full stake lost · return 0</div></div></div>'+
       '<div class=\"quote-row\"><span>Potential profit</span><b>'+esc(profitText)+'</b></div>'+
@@ -1540,13 +1580,24 @@ function drawMarket(){
       trackBehavior('prediction_submitted',{category:m.category||m.category_key,marketId:m.id,metadata:{side:chosen.label,mode:q?.mode||'forecast_credit'}});
       loadBehaviorPrefs().then(()=>{state.markets=personalizeMarkets(state.markets)}).catch(()=>{});
       const review=$('#tradeReviewOverlay');if(review)review.remove();
-      await loadBalance();
-      toast(q?.mode==='cash'?'Cash prediction placed':'Practice prediction placed');
+      await Promise.all([loadBalance(),loadBetaMission()]);
+      const missionTrades=Number(state.betaMission?.trades||0);
+      const placedLabel=q?.mode==='cash'?'Cash prediction placed':'Practice prediction placed';
+      toast(missionTrades>=3?(placedLabel+' · first 3 complete!'):(placedLabel+' · '+missionTrades+'/3 starter predictions'));
       state.market=await rpc('market_page',{p_market_id:m.id});
       drawMarket();
       await loadMarkets();
     }catch(e){
-      toast(e.message||'Trade failed',true);
+      const msg=String(e?.message||'');
+      if(msg.toLowerCase().includes('terms and privacy acceptance required')){
+        const review=$('#tradeReviewOverlay');if(review)review.remove();
+        trackBehavior('legal_gate_recovered_from_prediction',{category:m.category||m.category_key,marketId:m.id});
+        toast('Please review the current Terms and Privacy Policy before placing this prediction.',true);
+        await ensureLegalAcceptance('prediction');
+        if($('#placeBtn'))$('#placeBtn').disabled=false;
+        return;
+      }
+      toast(msg||'Trade failed',true);
       if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent=q?.mode==='cash'?'Place cash prediction':'Place practice prediction'}
       if($('#placeBtn'))$('#placeBtn').disabled=false;
     }
@@ -1598,6 +1649,12 @@ function drawMarket(){
     }
   };
   document.querySelectorAll('.outcome-btn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.outcome-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');chosen={id:b.dataset.outcome,label:b.dataset.label};trackBehavior('prediction_started',{category:m.category||m.category_key,marketId:m.id,metadata:{side:chosen.label}});updateQuote()});
+  if(d.__preselect_label){
+    const wanted=String(d.__preselect_label).toUpperCase();
+    delete d.__preselect_label;
+    const quick=[...document.querySelectorAll('.outcome-btn')].find(b=>String(b.dataset.label||'').toUpperCase()===wanted);
+    if(quick){trackBehavior('market_side_preselected',{category:m.category||m.category_key,marketId:m.id,metadata:{side:wanted}});quick.click()}
+  }
   $('#stakeInput').oninput=()=>{clearTimeout(quoteTimer);quoteTimer=setTimeout(updateQuote,280)};
   document.querySelectorAll('[data-stake]').forEach(b=>b.onclick=()=>{$('#stakeInput').value=b.dataset.stake;updateQuote()});
   $('#placeBtn').onclick=reviewPrediction;
@@ -1673,52 +1730,6 @@ async function loadDiscover(){
   state.officialData=b?.official_data||[];
 }
 
-const SHARED_CLAIM_KEY='predictug_pending_shared_claim_v1';
-function sharedClaimPlatform(value){
-  const text=String(value||'').toLowerCase();
-  if(/(?:^|\W)(?:x\.com|twitter\.com)(?:\W|$)/.test(text))return 'x';
-  if(text.includes('tiktok.com'))return 'tiktok';
-  if(text.includes('instagram.com'))return 'instagram';
-  if(text.includes('youtube.com')||text.includes('youtu.be'))return 'youtube';
-  if(text.includes('facebook.com')||text.includes('fb.watch'))return 'facebook';
-  if(text.includes('whatsapp'))return 'whatsapp_status';
-  return 'other';
-}
-function savePendingSharedClaim(payload){
-  const p=payload&&typeof payload==='object'?payload:{text:String(payload||'')};
-  const text=String(p.text||'').trim().slice(0,6000);
-  if(!text)return false;
-  const saved={text,platform:String(p.platform||sharedClaimPlatform(text)||'other'),title:String(p.title||'').slice(0,240),source:String(p.source||'shared'),received_at_ms:Number(p.received_at_ms||Date.now())};
-  try{localStorage.setItem(SHARED_CLAIM_KEY,JSON.stringify(saved));return true}catch{return false}
-}
-function readPendingSharedClaim(){
-  try{
-    const raw=localStorage.getItem(SHARED_CLAIM_KEY);
-    if(!raw)return null;
-    const p=JSON.parse(raw);
-    if(!p||!String(p.text||'').trim())return null;
-    return p;
-  }catch{return null}
-}
-function clearPendingSharedClaim(){
-  try{localStorage.removeItem(SHARED_CLAIM_KEY)}catch{}
-}
-function maybeOpenPendingSharedClaim(){
-  const p=readPendingSharedClaim();
-  if(!p||!state.user)return false;
-  clearPendingSharedClaim();
-  state.tab='media';
-  render();
-  setTimeout(()=>showSocialClaimChecker(p),0);
-  return true;
-}
-window.__predictUgReceiveSharedClaim=(payload)=>{
-  if(!savePendingSharedClaim(payload))return false;
-  if(state.user)maybeOpenPendingSharedClaim();
-  else toast('Shared post received. Sign in to analyze it.');
-  return true;
-};
-
 function claimAuthorityName(id){
   const key=String(id||'');
   const names={
@@ -1772,13 +1783,7 @@ function claimMarketLabel(x){
   return labels[raw]||raw.replaceAll('_',' ');
 }
 
-async function showSocialClaimChecker(prefill={}){
-  const prefillText=String(prefill?.text||'').trim().slice(0,6000);
-  if(!state.user){
-    if(prefillText)savePendingSharedClaim(prefill);
-    showAuth();
-    return;
-  }
+async function showSocialClaimChecker(){
   if(!state.user){showAuth();return}
   $('#overlay').innerHTML=
     '<div class="modal"><div class="sheet" style="max-width:620px">'+
@@ -1805,11 +1810,6 @@ async function showSocialClaimChecker(prefill={}){
       '</div>'+
       '<div id="claimCheckResults" style="margin-top:14px"></div>'+
     '</div></div>';
-  const initialPlatform=String(prefill?.platform||sharedClaimPlatform(prefillText)||'other');
-  if($('#claimCheckText')&&prefillText)$('#claimCheckText').value=prefillText;
-  if($('#claimCheckPlatform')&&[...$('#claimCheckPlatform').options].some(o=>o.value===initialPlatform)){
-    $('#claimCheckPlatform').value=initialPlatform;
-  }
   $('#claimCheckClose').onclick=()=>{$('#overlay').innerHTML=''};
   $('#claimCheckRun').onclick=async()=>{
     const btn=$('#claimCheckRun');
@@ -1902,12 +1902,6 @@ function renderMedia(){
   const sourceStatus=p=>{
     const x=socialPlatforms.find(s=>String(s.platform).toLowerCase()===String(p).toLowerCase());
     if(!x)return 'reference research';
-    if(x.ingestion_status==='verified_settlement_active'){
-      const n=Number(x.settlement_account_count||0);
-      return n+' verified feed'+(n===1?'':'s')+' · deterministic settlement';
-    }
-    if(x.ingestion_status==='public_research_active')return 'research reference · discovery only';
-    if(x.ingestion_status==='public_research_warming')return 'research warming · discovery only';
     if(x.ingestion_status==='active')return 'live public signal';
     if(x.ingestion_status==='official_access_required')return 'research reference · direct API pending';
     return String(x.ingestion_status||'reference research').replaceAll('_',' ');
@@ -1944,7 +1938,7 @@ function renderMedia(){
       '<a class="media-card" href="'+esc(x.source_url||'#')+'" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="media-label">'+esc(String(x.platform||'music').replaceAll('_',' ').toUpperCase())+' · '+esc(x.scope==='uganda_local_chart'?'Uganda chart':'Ugandan artist momentum')+'</div><h3>'+esc(x.subject)+(x.artist&&x.artist!==x.subject?' — '+esc(x.artist):'')+'</h3><p>#'+Number(x.rank_position||0)+(x.metric_type==='views_week'?' · '+metricShort(x.metric_value)+' weekly views':x.metric_type==='monthly_listeners'?' · '+metricShort(x.metric_value)+' monthly listeners':'')+'</p><div class="source-row"><span class="source-pill">'+esc(x.source_name||'public chart')+'</span><span class="source-pill">reference only</span></div></a>'
     ).join('')+'</div>':'<div class="empty">Consumption radar is refreshing.</div>')+
     '<div class="section-title"><h2>TikTok, X & creator discovery</h2><span class="statuschip">research ≠ settlement evidence</span></div>'+
-    '<p class="auth-note">Verified registered YouTube feeds can settle upload-activity markets. TikTok, X and Instagram ranking research helps discover what Ugandans follow, but it cannot determine outcomes or settlements until official account-level access is available.</p>'+
+    '<p class="auth-note">Direct TikTok/X ingestion is used only when approved platform access is available. Until then, public ranking snapshots help discover what Ugandans follow; they do not determine outcomes or settlements.</p>'+
     (socialPlatforms.length?'<div class="chips" style="margin-bottom:10px">'+socialPlatforms.map(x=>'<span class="chip">'+esc(String(x.platform).toUpperCase())+' · '+esc(sourceStatus(x.platform))+'</span>').join('')+'</div>':'')+
     (socialRadar.length?'<div class="media-grid">'+socialRadar.map(x=>
       '<a class="media-card" href="'+esc(x.source_url||'#')+'" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="media-label">'+esc(String(x.platform||'social').toUpperCase())+' · reference snapshot</div><h3>'+esc(x.subject||x.handle||'Uganda creator')+'</h3><p>'+esc(x.metric_type||'public metric')+' '+metricShort(x.metric_value)+(x.engagement_rate_pct!=null?' · '+Number(x.engagement_rate_pct).toFixed(2)+'% engagement':'')+(x.attention_score!=null?' · attention '+Number(x.attention_score).toFixed(0):'')+'</p>'+(x.why_relevant?'<small>'+esc(x.why_relevant)+'</small>':'')+'<div class="source-row"><span class="source-pill">'+esc(x.source_name||'public research')+'</span><span class="source-pill">'+esc(x.confidence||'reference')+'</span></div></a>'
@@ -1977,12 +1971,38 @@ function renderMedia(){
 
 function renderDiscover(){renderMedia()}
 
+async function loadPaymentHistory(){
+  if(!state.user){state.paymentHistory=[];return}
+  try{
+    const data=await paymentApi('activity',{limit:10});
+    state.paymentHistory=Array.isArray(data?.items)?data.items:(Array.isArray(data?.intents)?data.intents:[]);
+  }catch(e){
+    state.paymentHistory=[];
+    reportClientError(e.message||'Could not load payment activity',e.stack||'',{kind:'payment_history_load'});
+  }
+}
 async function loadPortfolio(){
   if(!state.user)return;
   const p=await rpc('my_portfolio');
   state.portfolio=p||{};
   state.portfolio.secondaryPositions=[];
   state.portfolio.secondaryOrders=[];
+  if(state.portfolio.trading_mode==='cash')await loadPaymentHistory();
+  else state.paymentHistory=[];
+}
+
+async function loadBetaMission(){
+  if(!state.user){state.betaMission=null;return}
+  try{
+    const data=await rpc('my_positions');
+    const positions=Array.isArray(data?.positions)?data.positions:[];
+    const trades=positions.reduce((sum,p)=>sum+Math.max(0,Number(p?.trade_count||0)),0);
+    const goal=3;
+    state.betaMission={trades,goal,complete:trades>=goal,remaining:Math.max(0,goal-trades)};
+  }catch(e){
+    state.betaMission=null;
+    reportClientError(e.message||'Could not load beta mission',e.stack||'',{kind:'beta_mission_load'});
+  }
 }
 
 async function cashOutSimple(pos){
@@ -2300,7 +2320,7 @@ function cashFlowModal(kind){
           try{await navigator.clipboard.writeText(code);toast('Merchant code copied')}
           catch{toast('Merchant code: '+code)}
         };
-        $('#depositRefLater').onclick=()=>{$('#overlay').innerHTML='';toast('Deposit created. Submit the real transaction ID when payment is complete.')};
+        $('#depositRefLater').onclick=async()=>{$('#overlay').innerHTML='';toast('Deposit created. Submit the real transaction ID when payment is complete.');await loadPaymentHistory();render()};
         $('#submitDepositRef').onclick=async()=>{
           const tx=String($('#depositTxRef').value||'').trim();
           if(tx.length<5){toast('Enter the real Mobile Money transaction ID',true);return}
@@ -2312,7 +2332,7 @@ function cashFlowModal(kind){
             });
             $('#overlay').innerHTML='';
             toast('Deposit submitted for merchant verification.');
-            await loadPortfolio();await loadBalance();render();
+            await loadPortfolio();await loadPaymentHistory();await loadBalance();render();
           }catch(e){
             submit.disabled=false;submit.textContent='Submit for verification';
             toast(e.message||'Could not submit transaction ID',true);
@@ -2345,7 +2365,7 @@ function cashFlowModal(kind){
             });
             $('#overlay').innerHTML='';
             toast(network+' withdrawal queued. Funds are locked until payout verification.');
-            await loadPortfolio();await loadBalance();render();
+            await loadPortfolio();await loadPaymentHistory();await loadBalance();render();
           }catch(e){
             confirm.disabled=false;confirm.textContent='Confirm withdrawal';
             toast(e.message||'Withdrawal could not be started',true);
@@ -2368,6 +2388,24 @@ async function runCashWithdrawalFlow(){
   if(!state.online){toast('Offline: reconnect before withdrawing.',true);return}
   cashFlowModal('withdrawal');
 }
+function paymentCustomerStatusLabel(value){
+  const s=String(value||'').toLowerCase();
+  const labels={deposit_requested:'Deposit requested',waiting_for_payment:'Waiting for payment',verifying_payment:'Verifying payment',deposited:'Deposited',deposit_failed:'Deposit failed',deposit_reversed:'Deposit reversed',withdrawal_requested:'Withdrawal requested',payout_pending:'Payout pending',paid_out:'Paid out',funds_returned:'Funds returned',withdrawal_failed_review_required:'Withdrawal needs review'};
+  return labels[s]||String(value||'Pending').replace(/_/g,' ');
+}
+function paymentActivityHtml(){
+  const items=Array.isArray(state.paymentHistory)?state.paymentHistory:[];
+  if(!items.length)return '<div class="empty" style="margin-top:10px">No Mobile Money activity yet.</div>';
+  return '<div class="timeline" style="margin-top:10px">'+items.map(x=>{
+    const direction=String(x.direction||'').toLowerCase();
+    const title=direction==='withdrawal'?'Withdrawal':'Deposit';
+    const status=paymentCustomerStatusLabel(x.customer_status||x.payment_status);
+    const provider=String(x.provider||'').toLowerCase()==='airtel-money'?'Airtel':'MTN';
+    const verified=(direction==='deposit'&&x.deposit_credit_confirmed===true)||(direction==='withdrawal'&&x.withdrawal_payout_confirmed===true)||(direction==='withdrawal'&&x.withdrawal_release_confirmed===true);
+    const note=x.failure_reason?'<br><small>'+esc(x.failure_reason)+'</small>':'';
+    return '<div class="item"><div class="eyebrow"><span>'+title+' · '+provider+'</span><span class="statuschip '+(verified?'':'warn')+'">'+esc(status)+'</span></div><b>'+ugx(x.amount_ugx||0)+'</b><br><small>'+dt(x.created_at)+'</small>'+note+'</div>';
+  }).join('')+'</div>';
+}
 function renderPortfolio(){
   if(!state.user){
     $('#view').innerHTML='<section class="hero"><h1>Portfolio</h1><p>Sign in to see your balance, predictions and results.</p></section><button class="btn primary" id="signInNow">Sign in</button>';
@@ -2386,6 +2424,11 @@ function renderPortfolio(){
   const won=settled.filter(x=>['won','win','settled_won'].includes(statusOf(x))).length;
   const lost=settled.filter(x=>['lost','loss','settled_lost'].includes(statusOf(x))).length;
   const balance=cashMode?Number(p.cash_wallet?.available_ugx||0):Number(p.profile?.forecast_credit_balance_ugx||0);
+  const committed=openHistory.reduce((sum,x)=>sum+Number(x.total_stake_ugx||0),0);
+  const potentialReturn=openHistory.reduce((sum,x)=>sum+Number(x.quoted_payout_ugx||0),0);
+  const pendingWithdrawal=(Array.isArray(state.paymentHistory)?state.paymentHistory:[])
+    .filter(x=>String(x.direction||'').toLowerCase()==='withdrawal'&&!['paid_out','funds_returned','withdrawal_failed_review_required'].includes(String(x.customer_status||x.payment_status||'').toLowerCase()))
+    .reduce((sum,x)=>sum+Number(x.amount_ugx||0),0);
   const valueText=n=>cashMode?ugx(n):Number(n||0).toLocaleString('en-UG')+' credits';
   const chip=x=>{
     const s=statusOf(x);let cls='open',label='OPEN';
@@ -2395,31 +2438,20 @@ function renderPortfolio(){
     else if(!isOpen(x)){cls='closed';label=s.toUpperCase()}
     return '<span class="result-chip '+cls+'">'+esc(label)+'</span>';
   };
-  const positionCard=x=>{
-    const odds=Number(x.effective_odds_decimal||0)>1?Number(x.effective_odds_decimal).toFixed(2):'—';
-    const potential=valueText(x.quoted_payout_ugx||0);
-    const stake=valueText(x.total_stake_ugx||0);
-    return '<button class="position-card" data-open-market="'+esc(x.market_id)+'">'+
-      '<div class="position-top"><span class="position-side">'+esc(x.outcome_label)+' · '+stake+'</span>'+chip(x)+'</div>'+
-      '<b class="position-title">'+esc(x.market_title)+'</b>'+
-      '<div class="position-metrics"><div class="position-metric">Odds<b>'+odds+'</b></div><div class="position-metric">Potential return<b>'+potential+'</b></div><div class="position-metric">Updated<b>'+dt(x.last_trade_at)+'</b></div></div>'+
-    '</button>';
-  };
   $('#view').innerHTML=
-    '<div class="market-feed-header"><div><span class="feed-kicker">Account</span><h2>Portfolio</h2></div><button class="btn small ghost" id="findMarketBtn">Find a market</button></div>'+
-    '<section class="portfolio-head">'+
-      '<div class="portfolio-balance-card"><small>'+(cashMode?'Available balance':'Practice balance')+'</small><div class="portfolio-balance">'+valueText(balance)+'</div><small>'+(cashMode?'Available for eligible predictions and withdrawals.':'For learning and testing only. Not withdrawable cash.')+'</small></div>'+
-      '<div class="portfolio-stats"><div class="portfolio-stat"><small>Open</small><b>'+openHistory.length+'</b></div><div class="portfolio-stat"><small>Won</small><b>'+won+'</b></div><div class="portfolio-stat"><small>Lost</small><b>'+lost+'</b></div></div>'+
-    '</section>'+
-    (!cashMode?'<div class="practice-banner"><div><b>Practice mode</b><br><small>Every amount on this screen is practice credit, not UGX cash.</small></div><span class="result-chip void">NO CASH</span></div>':'')+
-    '<div class="section-title"><h2>Open predictions</h2></div>'+
-    (openHistory.length?'<div class="position-list">'+openHistory.map(positionCard).join('')+'</div>':'<div class="empty">No open predictions. Pick a market and choose YES or NO.</div>')+
+    '<section class="homehero"><div class="media-label">Your forecasting account</div><h1>Portfolio</h1><p>Your balance, exposure, possible return and settled results in one place.</p>'+
+    '<div class="hero-kpis"><span class="hero-kpi">Available · '+valueText(balance)+'</span><span class="hero-kpi">In predictions · '+valueText(committed)+'</span><span class="hero-kpi">Potential return · '+valueText(potentialReturn)+'</span><span class="hero-kpi">'+(cashMode?'Pending withdrawal · '+valueText(pendingWithdrawal):(openHistory.length+' open · '+won+' won · '+lost+' lost'))+'</span></div></section>'+
+    (!cashMode?'<div class="statusbar"><span class="statuschip warn">Practice credits only · not withdrawable cash</span></div>':'')+
+    '<div class="section-title"><h2>Open predictions</h2><button class="btn small ghost" id="findMarketBtn">Find a market</button></div>'+
+    (openHistory.length?'<div class="timeline">'+openHistory.map(x=>'<button class="item" data-open-market="'+esc(x.market_id)+'" style="width:100%;text-align:left;color:inherit"><div class="eyebrow"><span>'+esc(x.outcome_label)+' · '+ugx(x.total_stake_ugx)+'</span>'+chip(x)+'</div><b style="display:block;margin:7px 0">'+esc(x.market_title)+'</b><small>Odds '+(Number(x.effective_odds_decimal||0)>1?Number(x.effective_odds_decimal).toFixed(2):'—')+' · potential return '+(cashMode?ugx(x.quoted_payout_ugx||0):Number(x.quoted_payout_ugx||0).toLocaleString('en-UG')+' credits')+' · '+dt(x.last_trade_at)+'</small></button>').join('')+'</div>':'<div class="empty">No open predictions. Pick a market and choose YES or NO.</div>')+
+    (active.length?'<div class="section-title"><h2>Exit early</h2></div><div class="timeline">'+active.map(x=>'<div class="item"><b>'+esc(x.market_title)+'</b><br><span>'+esc(x.outcome_label)+' · '+ugx(x.stake_ugx)+'</span><br><small>'+ugx(x.sellable_stake_ugx)+' can be exited</small><br><button class="btn small primary" style="margin-top:8px" data-cashout="'+x.position_id+'">'+(cashMode?'Cash out':'Exit prediction')+'</button></div>').join('')+'</div>':'')+
     '<div class="section-title"><h2>Results</h2></div>'+
-    (settled.length?'<div class="position-list">'+settled.map(positionCard).join('')+'</div>':'<div class="empty">Settled results will appear here.</div>')+
-    (cashMode?'<div class="card" style="margin-top:18px"><div class="section-title" style="margin-top:0"><h2>Wallet</h2><small style="color:var(--muted)">MTN & Airtel Money</small></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn primary" id="cashDepositBtn">Deposit</button><button class="btn" id="cashWithdrawBtn">Withdraw</button></div><p class="auth-note">Deposits are credited only after the backend verifies the Mobile Money transaction. Withdrawals remain locked until payout completion is confirmed.</p></div>':'<div class="card" style="margin-top:18px"><b>Real-money wallet is not active</b><p class="auth-note">Predict UG is using practice credits while live-money launch gates remain off.</p>'+(state.isAdmin?'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn small" id="previewDepositBtn">Preview deposit</button><button class="btn small" id="previewWithdrawBtn">Preview withdrawal</button></div>':'')+'</div>');
+    (settled.length?'<div class="timeline">'+settled.map(x=>'<button class="item" data-open-market="'+esc(x.market_id)+'" style="width:100%;text-align:left;color:inherit"><div class="eyebrow"><span>'+esc(x.outcome_label)+' · '+ugx(x.total_stake_ugx)+'</span>'+chip(x)+'</div><b style="display:block;margin:7px 0">'+esc(x.market_title)+'</b><small>Odds '+(Number(x.effective_odds_decimal||0)>1?Number(x.effective_odds_decimal).toFixed(2):'—')+' · '+dt(x.last_trade_at)+'</small></button>').join('')+'</div>':'<div class="empty">Settled results will appear here.</div>')+
+    (cashMode?'<div class="card" style="margin-top:18px"><div class="section-title" style="margin-top:0"><h2>Wallet</h2><small style="color:var(--muted)">MTN & Airtel Money</small></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn primary" id="cashDepositBtn">Deposit</button><button class="btn" id="cashWithdrawBtn">Withdraw</button></div><p class="auth-note">Deposits are credited only after the backend verifies the Mobile Money transaction. Withdrawals remain locked until payout completion is confirmed.</p><div class="section-title"><h3>Recent Mobile Money activity</h3><button class="btn small ghost" id="refreshPaymentHistory">Refresh</button></div>'+paymentActivityHtml()+'</div>':'<div class="card" style="margin-top:18px"><b>Real-money wallet is not active</b><p class="auth-note">Predict UG is currently using practice credits while live-money launch gates remain off.</p>'+(state.isAdmin?'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn small" id="previewDepositBtn">Preview deposit</button><button class="btn small" id="previewWithdrawBtn">Preview withdrawal</button></div>':'')+'</div>');
   if($('#findMarketBtn'))$('#findMarketBtn').onclick=()=>{state.tab='markets';render()};
   if($('#cashDepositBtn'))$('#cashDepositBtn').onclick=runCashDepositFlow;
   if($('#cashWithdrawBtn'))$('#cashWithdrawBtn').onclick=runCashWithdrawalFlow;
+  if($('#refreshPaymentHistory'))$('#refreshPaymentHistory').onclick=async()=>{await loadPaymentHistory();render();};
   if($('#previewDepositBtn'))$('#previewDepositBtn').onclick=()=>previewLockedMoneyFlow('deposit');
   if($('#previewWithdrawBtn'))$('#previewWithdrawBtn').onclick=()=>previewLockedMoneyFlow('withdrawal');
   document.querySelectorAll('[data-open-market]').forEach(b=>b.onclick=()=>openMarket(b.dataset.openMarket));
@@ -2431,25 +2463,9 @@ async function loadWatchlist(){
   const ids=(data||[]).map(x=>x.market_id);const all=await rpc('sportsbook_market_feed',{p_category:null,p_search:null,p_limit:100,p_uganda_first:false});state.watchlist=(all||[]).filter(x=>ids.includes(x.market_id))
 }
 function renderWatchlist(){
-  if(!state.user){
-    $('#view').innerHTML=
-      '<div class="market-feed-header"><div><span class="feed-kicker">Saved</span><h2>Your markets</h2></div></div>'+
-      '<div class="empty">Sign in to save markets and return to them quickly.<div style="margin-top:12px"><button class="btn primary" id="watchSignIn">Sign in</button></div></div>';
-    $('#watchSignIn').onclick=showAuth;
-    return;
-  }
-  if(!state.watchlist.length){
-    $('#view').innerHTML=
-      '<div class="market-feed-header"><div><span class="feed-kicker">Saved</span><h2>Your markets</h2></div><button class="btn small ghost" id="savedBrowse">Browse markets</button></div>'+
-      '<div class="empty">No saved open markets yet.<br><small>Tap “Save this market” on any market you want to follow.</small></div>';
-    $('#savedBrowse').onclick=()=>{state.tab='markets';render()};
-    loadWatchlist().then(()=>{if(state.watchlist.length)render()});
-    return;
-  }
-  $('#view').innerHTML=
-    '<div class="market-feed-header"><div><span class="feed-kicker">Saved</span><h2>Your markets</h2></div><button class="btn small ghost" id="savedBrowse">Browse markets</button></div>'+
-    '<div class="grid">'+state.watchlist.map(marketCard).join('')+'</div>';
-  $('#savedBrowse').onclick=()=>{state.tab='markets';render()};
+  if(!state.user){$('#view').innerHTML='<section class="hero"><h1>Watchlist</h1><p>Sign in to save markets you care about.</p></section><button class="btn primary" id="watchSignIn">Sign in</button>';$('#watchSignIn').onclick=showAuth;return}
+  if(!state.watchlist.length){$('#view').innerHTML='<section class="hero"><h1>Watchlist</h1><p>Your saved markets.</p></section><div class="empty">No saved open markets yet.</div>';loadWatchlist().then(()=>{if(state.watchlist.length)render()});return}
+  $('#view').innerHTML='<section class="hero"><h1>Watchlist</h1><p>Your saved markets.</p></section><div class="grid">'+state.watchlist.map(marketCard).join('')+'</div>';
 }
 async function loadNotifications(){if(!state.user)return;const {data,error}=await supabase.from('notifications').select('*').order('created_at',{ascending:false}).limit(100);if(error)throw error;state.notifications=data||[]}
 function renderNotifications(){
@@ -2465,7 +2481,7 @@ function renderLeaderboard(){
 }
 async function loadAdmin(){
   if(!state.isAdmin)return;
-  const [a,c,m,e,d,support,errors,recovery,aiProviders,autonomy,mtnStatus,treasury,sportsbookRisk,probabilityEngine,businessTraction]=await Promise.all([
+  const [a,c,m,e,d,support,errors,recovery,aiProviders,autonomy,mtnStatus,treasury,sportsbookRisk,probabilityEngine,businessTraction,cashLaunch,merchantConnection,securityHealth]=await Promise.all([
     rpc('admin_ops_dashboard'),
     rpc('ceo_dashboard',{p_days:30}),
     rpc('admin_manual_momo_queue',{p_limit:100}),
@@ -2480,7 +2496,10 @@ async function loadAdmin(){
     rpc('admin_platform_treasury_status'),
     rpc('admin_sportsbook_risk_status'),
     rpc('admin_probability_engine_status'),
-    rpc('admin_business_traction_report',{p_days:30,p_first_user_cohort:20})
+    rpc('admin_business_traction_report',{p_days:30,p_first_user_cohort:20}),
+    rpc('admin_cash_launch_financial_readiness'),
+    rpc('admin_merchant_connection_status'),
+    rpc('admin_security_health')
   ]);
   state.admin=a;
   state.ceo=c;
@@ -2497,28 +2516,39 @@ async function loadAdmin(){
   state.sportsbookRisk=sportsbookRisk||{};
   state.probabilityEngine=probabilityEngine||{};
   state.businessTraction=businessTraction||{};
+  state.cashLaunch=cashLaunch||{};
+  state.merchantConnection=merchantConnection||{};
+  state.securityHealth=securityHealth||{};
 }
 function renderAdmin(){
   if(!state.isAdmin){$('#view').innerHTML='<div class="empty">Admin access required.</div>';return}
   if(!state.admin){$('#view').innerHTML='<div class="loading">Loading admin control room…</div>';loadAdmin().then(render);return}
   const a=state.admin,r=a.production_readiness||{},b=a.build_completion||{},c=state.ceo||{},t=state.businessTraction||{},tu=t.users||{},tf=t.activation_funnel||{},ta=t.forecast_activity||{},ti=t.market_inventory||{},tg=t.growth||{},tr=t.release||{},tcb=t.activation_by_client_build||[];
+  const cl=state.cashLaunch||{},mc=state.merchantConnection||{};
+  const sh=state.securityHealth||{},sb=sh.security_boundaries||{},lp=sh.native_leaked_password_protection||{},pm=sh.application_password_mitigation||{};
   $('#view').innerHTML='<section class="hero"><h1>Predict UG Ops</h1><p>Core product, agents, settlement and launch controls.</p></section>'+
     '<div class="statgrid"><div class="stat"><small>Build done</small><b>'+Number(b.done||0)+'</b></div><div class="stat"><small>Readiness</small><b>'+Number(r.readiness_score||0)+'/100</b></div><div class="stat"><small>E2E</small><b>'+esc(a.latest_e2e?.status||'—')+'</b></div><div class="stat"><small>Recovery</small><b>'+esc(state.recoveryStatus?.status||'—')+'</b></div></div>'+
     '<div class="section-title"><h2>Customer & business traction</h2><span class="statuschip">aggregate · QA excluded</span></div>'+
     '<div class="card">'+
       '<div class="statgrid">'+
-        '<div class="stat"><small>Registered users</small><b>'+Number(tu.registered_total||0).toLocaleString('en-UG')+'</b></div>'+
+        '<div class="stat"><small>Customer users</small><b>'+Number(tu.registered_total||0).toLocaleString('en-UG')+'</b></div>'+
         '<div class="stat"><small>Predictors</small><b>'+Number(tu.predictors_total||0).toLocaleString('en-UG')+'</b></div>'+
         '<div class="stat"><small>Predictions</small><b>'+Number(ta.predictions_total||0).toLocaleString('en-UG')+'</b></div>'+
         '<div class="stat"><small>Forecast credits</small><b>'+ugx(ta.forecast_credit_volume_ugx_in_window||0)+'</b></div>'+
       '</div>'+
       '<div class="meta"><span>Registered → predictor</span><b>'+((Number(tg.registered_to_predictor_rate||0)*100).toFixed(1))+'%</b></div>'+
       '<div class="meta"><span>Observed app users (30d)</span><b>'+Number(tu.behavior_active_in_window||0).toLocaleString('en-UG')+'</b></div>'+
+      '<div class="meta"><span>Legal docs complete</span><b>'+Number(tu.legal_accepted_total||0).toLocaleString('en-UG')+' / '+Number(tu.registered_total||0).toLocaleString('en-UG')+'</b></div>'+
+      '<div class="meta"><span>Legal gate → accept (30d)</span><b>'+((Number(tf.legal_gate_to_accept_rate||0)*100).toFixed(1))+'%</b></div>'+
       '<div class="meta"><span>Starter market users</span><b>'+Number(tf.starter_market_users||0).toLocaleString('en-UG')+'</b></div>'+
       '<div class="meta"><span>Guide → starter</span><b>'+((Number(tf.guide_to_starter_rate||0)*100).toFixed(1))+'%</b></div>'+
+      '<div class="meta"><span>First-use guide → starter</span><b>'+((Number(tf.first_use_guide_to_starter_rate||0)*100).toFixed(1))+'%</b></div>'+
+      '<div class="meta"><span>First-use dismiss / browse</span><b>'+Number(tf.first_use_guide_dismissed_users||0)+' / '+Number(tf.first_use_guide_browse_all_users||0)+'</b></div>'+
       '<div class="meta"><span>Starter → prediction</span><b>'+((Number(tf.starter_to_prediction_rate||0)*100).toFixed(1))+'%</b></div>'+
       '<div class="meta"><span>Market viewers → prediction</span><b>'+((Number(tf.market_view_to_prediction_rate||0)*100).toFixed(1))+'%</b></div>'+
       '<div class="meta"><span>Shares / referrals (30d)</span><b>'+Number(tf.share_users||0)+' / '+Number(tg.referral_claims_in_window||0)+'</b></div>'+
+      '<div class="meta"><span>Market suggestions (30d)</span><b>'+Number(tg.market_suggestions_in_window||0)+' · '+Number(tg.market_suggesters_in_window||0)+' user(s)</b></div>'+
+      '<div class="meta"><span>Suggestion open → submit</span><b>'+((Number(tf.market_suggestion_submit_rate||0)*100).toFixed(1))+'%</b></div>'+
       '<div class="meta"><span>Uganda-local / Uganda feed</span><b>'+Number(ti.uganda_local_or_creator_markets||0)+' / '+Number(ti.uganda_feed_markets||0)+'</b></div>'+
       '<div class="meta"><span>Customer Android</span><b>'+esc(tr.version||'—')+' · code '+Number(tr.version_code||0)+'</b></div>'+
       '<p class="auth-note" style="margin-top:10px">Forecast-credit volume is product-validation activity, not cash revenue. QA accounts, direct identity fields and political personalization are excluded from this report.</p>'+
@@ -2539,6 +2569,12 @@ function renderAdmin(){
         ' · AI queue '+Number(state.autonomy?.internet?.eligible_ai_batch_size||0)+
         ' · Cash launch '+(state.autonomy?.production?.ready_for_cash_launch?'READY':'BLOCKED')+
       '</p>'+
+    '</div>'+
+    '<div class="section-title"><h2>Security health</h2></div>'+
+    '<div class="card">'+
+      '<div class="statgrid"><div class="stat"><small>Security boundaries</small><b>'+(sb.status==='healthy'?'HEALTHY':'CHECK')+'</b></div><div class="stat"><small>Boundary issues</small><b>'+Number(sb.issue_count||0)+'</b></div><div class="stat"><small>Native leaked-password protection</small><b>'+(lp.gate_cleared?'ON':'BLOCKED')+'</b></div><div class="stat"><small>App password screening</small><b>'+(pm.hibp_k_anonymity_screening?'HIBP ACTIVE':'CHECK')+'</b></div></div>'+
+      '<div class="meta"><span>HIBP outage fallback</span><b>'+esc(pm.outage_fallback||'—')+'</b></div>'+
+      '<p class="auth-note" style="margin-top:10px">'+esc(lp.evidence_note||'Native leaked-password protection gate has not been cleared.')+'</p>'+
     '</div>'+
     '<div class="section-title"><h2>Launch blockers</h2></div><div class="timeline">'+((r.blockers||[]).length?r.blockers.map(x=>'<div class="item">'+esc(x)+'</div>').join(''):'<div class="item">No blockers.</div>')+'</div>'+    '<div class="section-title"><h2>Sportsbook pricing & risk</h2></div>'+
     '<div class="card"><div class="statgrid"><div class="stat"><small>Model</small><b>Dynamic fixed odds</b></div><div class="stat"><small>Risk health</small><b>'+esc(state.sportsbookRisk?.latest_audit?.health_status||'—')+'</b></div><div class="stat"><small>Near limit</small><b>'+Number(state.sportsbookRisk?.latest_audit?.near_limit_markets||0)+'</b></div><div class="stat"><small>Cash reserve</small><b>'+ugx(state.sportsbookRisk?.cash_book_reserve_ugx||0)+'</b></div></div><p class="auth-note" style="margin-top:10px">All enabled market categories use category margins plus live exposure adjustments. Accepted odds are locked per ticket. Real cash stays fail-closed while the cash reserve/limits or other launch gates are incomplete.</p></div>'+        '<div class="section-title"><h2>Probability Lab</h2><span class="statuschip">real-world validation</span></div>'+
@@ -2592,15 +2628,26 @@ function renderAdmin(){
       '</div>'+
       '<p class="auth-note" style="margin-top:10px">Recommended order: Gemini → OpenRouter Free → Groq → Cloudflare Workers AI. The deterministic Market Factory continues if every LLM is unavailable.</p>'+
     '</div>'+
-    '<div class="section-title"><h2>MTN + Airtel merchant cash rails</h2></div>'+
+    '<div class="section-title"><h2>MTN + Airtel merchant cash rails</h2><button class="btn small ghost" id="refreshCashReadiness">Refresh</button></div>'+
     '<div class="card">'+
       '<p class="auth-note">Predict UG uses the existing MTN and Airtel merchant codes only. Direct MTN/Airtel developer APIs, sandbox and production API onboarding are not part of the customer cash flow.</p>'+
+      '<div class="statgrid">'+
+        '<div class="stat"><small>Cash launch</small><b>'+(cl.cash_launch_ready?'READY':'BLOCKED')+'</b></div>'+
+        '<div class="stat"><small>Financial controls</small><b>'+(cl.financial_control_ready?'READY':'BLOCKED')+'</b></div>'+
+        '<div class="stat"><small>Operational rails</small><b>'+Number(cl.operational_merchant_rails||0)+' / '+Number(cl.enabled_merchant_rails||0)+'</b></div>'+
+        '<div class="stat"><small>Liquidity proof</small><b>'+ugx(cl.fresh_recorded_merchant_liquidity_ugx||0)+'</b></div>'+
+      '</div>'+
       '<div class="meta"><span>Deposit method</span><b>Merchant code</b></div>'+
       '<div class="meta"><span>Withdrawal method</span><b>Merchant business-wallet payout</b></div>'+
+      '<div class="meta"><span>Required liquidity</span><b>'+ugx(cl.required_liquidity_ugx||0)+'</b></div>'+
+      '<div class="meta"><span>Risk limits funded/configured</span><b>'+(cl.risk_limits_configured?'YES':'NO')+'</b></div>'+
+      '<div class="meta"><span>MTN phone</span><b>'+(mc.mtn?.phone_connected?'CONNECTED':'STALE / OFFLINE')+'</b></div>'+
+      '<div class="meta"><span>Airtel phone</span><b>'+(mc.airtel?.phone_connected?'CONNECTED':'STALE / OFFLINE')+'</b></div>'+
       '<div class="meta"><span>Deposit verification</span><b>Transaction reference + merchant SMS reconciliation</b></div>'+
       '<div class="meta"><span>Duplicate protection</span><b>Enabled</b></div>'+
       '<div class="meta"><span>Direct provider API</span><b>DISABLED</b></div>'+
-      '<p class="auth-note" style="margin-top:10px">Cash feature flags remain fail-closed until the separate Predict UG launch/compliance gates are cleared.</p>'+
+      ((cl.blockers||[]).length?'<div class="timeline" style="margin-top:10px">'+cl.blockers.map(x=>'<div class="item"><small>'+esc(String(x).replace(/_/g,' '))+'</small></div>').join('')+'</div>':'')+
+      '<p class="auth-note" style="margin-top:10px">'+(cl.cash_launch_ready?'Financial controls report ready, but activation still requires explicit approved launch action.':'Physical, financial or compliance proof is still incomplete. Cash flags remain fail-closed.')+'</p>'+
     '</div>'+
     '<div class="section-title"><h2>Merchant phone automation</h2></div>'+
     '<div class="card">'+
@@ -2614,8 +2661,14 @@ function renderAdmin(){
       '<div class="timeline" style="margin-top:12px">'+((state.merchantDevices||[]).length
         ?state.merchantDevices.map(d=>
           '<div class="item"><b>'+esc(d.label)+'</b><br>'+
-          '<small>'+esc(d.network_scope)+' · '+(d.enabled?'paired':'revoked')+' · '+Number(d.event_count||0)+' forwarded'+
-          (d.last_event_at?' · last '+dt(d.last_event_at):'')+'</small>'+
+          '<small>'+esc(d.network_scope)+' · '+(d.enabled
+            ?(!d.last_seen_at?'NOT CONNECTED':((Date.now()-new Date(d.last_seen_at).getTime()>86400000)?'STALE >24H':'connected'))
+            :'revoked')+' · '+Number(d.event_count||0)+' forwarded'+
+          (d.last_seen_at?' · seen '+dt(d.last_seen_at):' · never seen')+
+          (d.last_event_at?' · last event '+dt(d.last_event_at):'')+'</small>'+
+          (d.enabled&&(!d.last_seen_at||(Date.now()-new Date(d.last_seen_at).getTime()>86400000))
+            ?'<br><small style="color:var(--warn)">Reconnect/pair the merchant phone before cash launch. This device is not operational.</small>'
+            :'')+
           (d.enabled?'<br><button class="btn small danger" style="margin-top:8px" data-revoke-device="'+d.device_id+'">Revoke phone</button>':'')+
           '</div>'
         ).join('')
@@ -2675,6 +2728,7 @@ function renderAdmin(){
     '</details>'+
     '<div class="section-title"><h2>Agent findings</h2></div><div class="admin-list">'+((a.open_agent_findings||[]).length?a.open_agent_findings.slice(0,20).map(x=>'<div class="item"><b>'+esc(x.summary)+'</b><br><small>'+esc(x.agent_key)+' · '+esc(x.severity)+' · '+dt(x.created_at)+'</small></div>').join(''):'<div class="empty">No open findings.</div>')+'</div>'+
     '<div class="section-title"><h2>CEO snapshot</h2></div><div class="card"><div class="meta"><span>Users</span><b>'+Number(c.totals?.users||0)+'</b></div><div class="meta"><span>Open markets</span><b>'+Number(c.totals?.open_markets||0)+'</b></div><div class="meta"><span>News items</span><b>'+Number(c.totals?.news_items||0)+'</b></div><div class="meta"><span>Sportsbook net result</span><b>'+ugx(state.treasury?.sportsbook_net_result_ugx??state.treasury?.realized_platform_revenue_ugx??0)+'</b></div><div class="meta"><span>Customer funds owed</span><b>'+ugx(state.treasury?.total_customer_liability_ugx||0)+'</b></div><div class="meta"><span>Unsettled market stakes</span><b>'+ugx(state.treasury?.unsettled_market_stakes_ugx||0)+'</b></div><p class="auth-note" style="margin-top:10px">Fixed-odds sportsbook result is stakes received minus winning payouts. Customer balances and unsettled liabilities remain reserved for users.</p></div>';
+  if($('#refreshCashReadiness'))$('#refreshCashReadiness').onclick=async()=>{await loadAdmin();render();};
   $('#admCreate').onclick=async()=>{try{const title=$('#admTitle').value.trim(),cat=$('#admCat').value,close=$('#admClose').value,rule=$('#admRule').value.trim(),source=$('#admSource').value.trim();if(!title||!close||!rule)throw new Error('Title, close time and rule are required');await rpc('create_market',{p_title:title,p_category:cat,p_description:'',p_close_time:new Date(close).toISOString(),p_resolution_rule:rule,p_outcomes:[{label:'YES',seed_liquidity_ugx:50000},{label:'NO',seed_liquidity_ugx:50000}],p_source_name:source?'Primary source':null,p_source_url:source||null,p_platform_share_bps:900});toast('Market created');await loadMarkets();await loadAdmin();render()}catch(e){toast(e.message,true)}};
 
 
@@ -2843,226 +2897,7 @@ function renderAdmin(){
     };
   });
 
-  const openMtnApiSetup=()=>{
-    $('#overlay').innerHTML=
-      `<div class='modal'><div class='sheet' style='max-width:560px'>
-        <button class='close' id='mtnSetupClose'>✕</button>
-        <h2>MTN MoMo API credentials</h2>
-        <p class='auth-note'>Enter all four MTN values. The API user and API key are shared, while Collections and Disbursements each use their own Primary subscription key.</p>
-        <div class='auth-wrap'>
-          <label class='auth-note'>predict_mtn_api_user</label>
-          <input class='input' id='mtnApiUser' autocomplete='off' placeholder='API user UUID'>
-          <label class='auth-note'>predict_mtn_api_key</label>
-          <input class='input' id='mtnApiKey' type='password' autocomplete='off' placeholder='API key'>
-          <label class='auth-note'>predict_mtn_collection_subscription_key</label>
-          <input class='input' id='mtnCollectionKey' type='password' autocomplete='off' placeholder='Primary Collections subscription key'>
-          <label class='auth-note'>predict_mtn_disbursement_subscription_key</label>
-          <input class='input' id='mtnDisbursementKey' type='password' autocomplete='off' placeholder='Primary Disbursements subscription key'>
-          <button class='btn primary' id='mtnSetupSave'>Save all 4 securely & test both products</button>
-          <div id='mtnSetupStatus' class='auth-note'></div>
-        </div>
-      </div></div>`;
-    $('#mtnSetupClose').onclick=()=>$('#overlay').innerHTML='';
-    $('#mtnSetupSave').onclick=async()=>{
-      const btn=$('#mtnSetupSave'),status=$('#mtnSetupStatus');
-      const apiUser=String($('#mtnApiUser').value||'').trim();
-      const apiKey=String($('#mtnApiKey').value||'').trim();
-      const collectionKey=String($('#mtnCollectionKey').value||'').trim();
-      const disbursementKey=String($('#mtnDisbursementKey').value||'').trim();
-      if(apiUser.length<8||apiKey.length<8||collectionKey.length<8||disbursementKey.length<8){
-        status.textContent='Enter all four MTN credentials.';
-        return;
-      }
-      btn.disabled=true;status.textContent='Saving all 4 values to Vault and testing Collections + Disbursements…';
-      try{
-        await rpc('admin_set_mtn_momo_credentials',{
-          p_collection_subscription_key:collectionKey,
-          p_disbursement_subscription_key:disbursementKey,
-          p_api_user:apiUser,
-          p_api_key:apiKey,
-          p_environment:'sandbox',
-          p_base_url:null,
-          p_target_environment:null
-        });
-        const token=state.session?.access_token;
-        if(!token)throw new Error('Sign in again');
-        const res=await fetch(SUPABASE_URL+'/functions/v1/payment-router?action=mtn-credential-test',{
-          method:'POST',
-          headers:{'content-type':'application/json','authorization':'Bearer '+token},
-          body:'{}'
-        });
-        const data=await res.json().catch(()=>({}));
-        if(!res.ok||!data.ok)throw new Error(data.error||'MTN credential test failed');
-        const collectionsOk=!!data.collections?.token_obtained;
-        const disbursementsOk=!!data.disbursements?.token_obtained;
-        status.textContent='Collections '+(collectionsOk?'✓':'✕')+' · Disbursements '+(disbursementsOk?'✓':'✕');
-        toast(collectionsOk&&disbursementsOk?'MTN Collections + Disbursements connected ✓':'MTN test incomplete',!(collectionsOk&&disbursementsOk));
-        $('#mtnApiUser').value='';$('#mtnApiKey').value='';$('#mtnCollectionKey').value='';$('#mtnDisbursementKey').value='';
-        await loadAdmin();
-        setTimeout(()=>{if($('#overlay'))$('#overlay').innerHTML='';render()},650);
-      }catch(e){
-        status.textContent=e.message||'Could not connect MTN';
-        toast(e.message||'Could not connect MTN',true);
-        btn.disabled=false;
-      }
-    };
-  };
-  if($('#mtnApiSetup'))$('#mtnApiSetup').onclick=openMtnApiSetup;
-  if($('#mtnApiTest'))$('#mtnApiTest').onclick=async()=>{
-    const btn=$('#mtnApiTest'),original=btn.textContent;
-    btn.disabled=true;btn.textContent='Testing both…';
-    try{
-      const token=state.session?.access_token;if(!token)throw new Error('Sign in again');
-      const res=await fetch(SUPABASE_URL+'/functions/v1/payment-router?action=mtn-credential-test',{
-        method:'POST',
-        headers:{'content-type':'application/json','authorization':'Bearer '+token},
-        body:'{}'
-      });
-      const data=await res.json().catch(()=>({}));
-      if(!res.ok||!data.ok)throw new Error(data.error||'MTN credential test failed');
-      toast('MTN Collections ✓ · Disbursements ✓');
-    }catch(e){toast(e.message||'MTN credential test failed',true)}
-    finally{btn.disabled=false;btn.textContent=original}
-  };
-  if($('#mtnSandboxE2E'))$('#mtnSandboxE2E').onclick=async()=>{
-    const btn=$('#mtnSandboxE2E'),original=btn.textContent;
-    btn.disabled=true;btn.textContent='Running MTN sandbox…';
-    try{
-      const token=state.session?.access_token;if(!token)throw new Error('Sign in again');
-      const res=await fetch(SUPABASE_URL+'/functions/v1/payment-router?action=mtn-sandbox-e2e-test',{
-        method:'POST',
-        headers:{'content-type':'application/json','authorization':'Bearer '+token},
-        body:'{}'
-      });
-      const data=await res.json().catch(()=>({}));
-      const collection=data.collection||{};
-      const disbursement=data.disbursement||{};
-      const line=(label,x)=>
-        '<div class="card" style="margin-top:10px"><div class="meta"><span>'+label+'</span><b>'+(x.ok?'PASS ✓':'CHECK')+'</b></div>'+
-        '<div class="meta"><span>POST</span><b>'+esc(String(x.post_status??'—'))+'</b></div>'+
-        '<div class="meta"><span>Status GET</span><b>'+esc(String(x.status_http??'—'))+'</b></div>'+
-        '<div class="meta"><span>MTN status</span><b>'+esc(String(x.transaction_status||'—'))+'</b></div>'+
-        (x.error?'<p class="auth-note">'+esc(x.error)+'</p>':'')+
-        (x.reason?'<p class="auth-note">'+esc(x.reason)+'</p>':'')+
-        '</div>';
-      $('#overlay').innerHTML=
-        '<div class="modal"><div class="sheet" style="max-width:560px">'+
-          '<button class="close" id="mtnSandboxClose">✕</button>'+
-          '<h2>MTN sandbox E2E result</h2>'+
-          '<p class="auth-note">This diagnostic uses MTN sandbox only. Predict UG wallet effect: none.</p>'+
-          line('Collections / RequestToPay',collection)+
-          line('Disbursements / Transfer',disbursement)+
-          '<p class="auth-note" style="margin-top:12px">Environment: '+esc(String(data.environment||'sandbox'))+' · Live money: off</p>'+
-        '</div></div>';
-      $('#mtnSandboxClose').onclick=()=>$('#overlay').innerHTML='';
-      if(!res.ok&&res.status!==207)throw new Error(data.error||'MTN sandbox test failed');
-      toast(data.ok?'MTN sandbox E2E passed ✓':'MTN sandbox test returned a provider check');
-    }catch(e){
-      toast(e.message||'MTN sandbox test failed',true);
-    }finally{
-      if(btn){btn.disabled=false;btn.textContent=original}
-    }
-  };
-  const openMtnProdSetup=()=>{
-    $('#overlay').innerHTML=
-      `<div class='modal'><div class='sheet' style='max-width:580px'>
-        <button class='close' id='mtnProdClose'>✕</button>
-        <h2>MTN Uganda production credentials</h2>
-        <p class='auth-note'>Use values issued through MTN production onboarding / Partner Portal. Do not reuse the sandbox API user or API key unless MTN explicitly tells you to.</p>
-        <div class='auth-wrap'>
-          <label class='auth-note'>Production API user</label>
-          <input class='input' id='mtnProdApiUser' autocomplete='off' placeholder='Production API user'>
-          <label class='auth-note'>Production API key</label>
-          <input class='input' id='mtnProdApiKey' type='password' autocomplete='off' placeholder='Production API key'>
-          <label class='auth-note'>Production Collections subscription key</label>
-          <input class='input' id='mtnProdCollectionKey' type='password' autocomplete='off' placeholder='Primary production Collections key'>
-          <label class='auth-note'>Production Disbursements subscription key</label>
-          <input class='input' id='mtnProdDisbursementKey' type='password' autocomplete='off' placeholder='Primary production Disbursements key'>
-          <label class='auth-note'>Production base URL from MTN onboarding</label>
-          <input class='input' id='mtnProdBaseUrl' autocomplete='off' placeholder='https://...'>
-          <label class='auth-note'>Production transferType from contract (optional until MTN assigns it)</label>
-          <input class='input' id='mtnProdTransferType' autocomplete='off' placeholder='e.g. CUSTOM_PAYMENT only if MTN confirms'>
-          <button class='btn primary' id='mtnProdSave'>Save production credentials securely</button>
-          <div id='mtnProdStatus' class='auth-note'></div>
-        </div>
-      </div></div>`;
-    $('#mtnProdClose').onclick=()=>$('#overlay').innerHTML='';
-    $('#mtnProdSave').onclick=async()=>{
-      const btn=$('#mtnProdSave'),status=$('#mtnProdStatus');
-      const apiUser=String($('#mtnProdApiUser').value||'').trim();
-      const apiKey=String($('#mtnProdApiKey').value||'').trim();
-      const collectionKey=String($('#mtnProdCollectionKey').value||'').trim();
-      const disbursementKey=String($('#mtnProdDisbursementKey').value||'').trim();
-      const baseUrl=String($('#mtnProdBaseUrl').value||'').trim();
-      const transferType=String($('#mtnProdTransferType').value||'').trim();
-      if(apiUser.length<8||apiKey.length<8||collectionKey.length<8||disbursementKey.length<8||!/^https:\/\//i.test(baseUrl)){
-        status.textContent='Enter all four production credentials and the HTTPS production base URL supplied by MTN.';
-        return;
-      }
-      btn.disabled=true;status.textContent='Saving production credentials to Vault…';
-      try{
-        await rpc('admin_set_mtn_momo_production_credentials',{
-          p_collection_subscription_key:collectionKey,
-          p_disbursement_subscription_key:disbursementKey,
-          p_api_user:apiUser,
-          p_api_key:apiKey,
-          p_base_url:baseUrl,
-          p_transfer_type:transferType||null
-        });
-        status.textContent='Saved ✓. Live money remains locked.';
-        toast('MTN production credentials stored securely ✓');
-        $('#mtnProdApiUser').value='';$('#mtnProdApiKey').value='';$('#mtnProdCollectionKey').value='';$('#mtnProdDisbursementKey').value='';
-        await loadAdmin();
-        setTimeout(()=>{if($('#overlay'))$('#overlay').innerHTML='';render()},650);
-      }catch(e){
-        status.textContent=e.message||'Could not save production credentials';
-        toast(e.message||'Could not save production credentials',true);
-        btn.disabled=false;
-      }
-    };
-  };
-  if($('#mtnProdSetup'))$('#mtnProdSetup').onclick=openMtnProdSetup;
-  if($('#mtnProdTest'))$('#mtnProdTest').onclick=async()=>{
-    const btn=$('#mtnProdTest'),original=btn.textContent;
-    btn.disabled=true;btn.textContent='Testing production tokens…';
-    try{
-      const token=state.session?.access_token;if(!token)throw new Error('Sign in again');
-      const res=await fetch(SUPABASE_URL+'/functions/v1/payment-router?action=mtn-production-credential-test',{
-        method:'POST',
-        headers:{'content-type':'application/json','authorization':'Bearer '+token},
-        body:'{}'
-      });
-      const data=await res.json().catch(()=>({}));
-      const cOk=!!data.collections?.ok,dOk=!!data.disbursements?.ok;
-      if(!res.ok&&res.status!==207)throw new Error(data.error||'Production token test failed');
-      toast(cOk&&dOk?'MTN production Collections + Disbursements tokens ✓':'MTN production token test needs attention',!(cOk&&dOk));
-      $('#overlay').innerHTML=
-        '<div class="modal"><div class="sheet" style="max-width:560px">'+
-          '<button class="close" id="mtnProdResultClose">✕</button>'+
-          '<h2>MTN production token test</h2>'+
-          '<div class="meta"><span>Collections</span><b>'+(cOk?'PASS ✓':'CHECK')+'</b></div>'+
-          '<div class="meta"><span>Disbursements</span><b>'+(dOk?'PASS ✓':'CHECK')+'</b></div>'+
-          '<div class="meta"><span>Target</span><b>mtnuganda</b></div>'+
-          '<div class="meta"><span>Currency</span><b>UGX</b></div>'+
-          '<div class="meta"><span>Production transaction sent</span><b>NO</b></div>'+
-          (data.collections?.error?'<p class="auth-note">Collections: '+esc(data.collections.error)+'</p>':'')+
-          (data.disbursements?.error?'<p class="auth-note">Disbursements: '+esc(data.disbursements.error)+'</p>':'')+
-        '</div></div>';
-      $('#mtnProdResultClose').onclick=()=>$('#overlay').innerHTML='';
-    }catch(e){toast(e.message||'Production token test failed',true)}
-    finally{if(btn){btn.disabled=false;btn.textContent=original}}
-  };
-  if($('#mtnProdClear'))$('#mtnProdClear').onclick=async()=>{
-    if(!confirm('Remove MTN production credentials from Predict UG Vault? Sandbox credentials will remain.'))return;
-    try{await rpc('admin_clear_mtn_momo_production_credentials');toast('MTN production credentials removed');await loadAdmin();render()}
-    catch(e){toast(e.message||'Could not remove production credentials',true)}
-  };
-
-  if($('#mtnApiClear'))$('#mtnApiClear').onclick=async()=>{
-    if(!confirm('Remove all four MTN API credentials from Predict UG Vault?'))return;
-    try{await rpc('admin_clear_mtn_momo_credentials');toast('MTN credentials removed');await loadAdmin();render()}
-    catch(e){toast(e.message||'Could not remove MTN credentials',true)}
-  };
+  // Direct MTN developer API setup/testing is retired. Merchant-code cash rails only.
 
   const pairMerchantDevice=async(network)=>{
     try{
@@ -3322,7 +3157,9 @@ function showPasswordReset(recoveryMode=false){
 function trustedApkDownload(value){
   try{
     const u=new URL(String(value||''),PUBLIC_ORIGIN);
-    if(u.protocol==='https:'&&u.host==='predict-ug-app.onrender.com'&&u.pathname.startsWith('/downloads/'))return u.toString();
+    if(u.protocol==='https:'&&u.host==='predict-ug-app.onrender.com'&&u.pathname.startsWith('/downloads/')){
+      return u.toString();
+    }
   }catch{}
   return PUBLIC_ORIGIN+'/downloads/predict-ug.apk';
 }
@@ -3335,25 +3172,61 @@ async function fetchReleaseMetadata(){
   return meta;
 }
 async function checkForAppUpdate(interactive=false){
-  if(!state.online){if(interactive)toast('Offline: reconnect to check for updates.',true);return null}
+  if(!state.online){
+    if(interactive)toast('Offline: reconnect to check for updates.',true);
+    return null;
+  }
   try{
     const meta=await fetchReleaseMetadata();
-    const latestCode=Number(meta.versionCode||0), newer=latestCode>APP_VERSION_CODE;
+    const latestCode=Number(meta.versionCode||0);
+    const newer=latestCode>APP_VERSION_CODE;
     state.releaseUpdate=newer?meta:null;
     if(newer){
-      const v=String(meta.version||'new version');
-      if(interactive){if(confirm('Predict UG '+v+' is available. Open the verified APK download?'))location.href=trustedApkDownload(meta.canonicalDownload)}
-      else{const key='predict_ug_update_notice_'+latestCode;try{if(localStorage.getItem(key)!=='1'){localStorage.setItem(key,'1');toast('Predict UG '+v+' is available · Profile → Update app')}}catch{}}
-    }else if(interactive)toast('Predict UG '+APP_BUILD+' is up to date');
+      const version=String(meta.version||'new version');
+      if(interactive){
+        if(confirm('Predict UG '+version+' is available. Open the verified APK download?')){
+          location.href=trustedApkDownload(meta.canonicalDownload);
+        }
+      }else{
+        const key='predict_ug_update_notice_'+latestCode;
+        try{
+          if(localStorage.getItem(key)!=='1'){
+            localStorage.setItem(key,'1');
+            toast('Predict UG '+version+' is available · Profile → Update app');
+          }
+        }catch{}
+      }
+    }else if(interactive){
+      toast('Predict UG '+APP_BUILD+' is up to date');
+    }
     return meta;
-  }catch(e){if(interactive)toast(e.message||'Could not check for updates',true);return null}
+  }catch(e){
+    if(interactive)toast(e.message||'Could not check for updates',true);
+    return null;
+  }
 }
-async function forceAppUpdate(){return checkForAppUpdate(true)}
+async function forceAppUpdate(){
+  return checkForAppUpdate(true);
+}
 async function runAppCheck(){
   const out=[];
-  try{const r=await fetch(INSTALL_ORIGIN+'?health=1&t='+Date.now(),{cache:'no-store'});const h=await r.json();out.push(h?.ok?'Backend: online':'Backend: problem')}catch{out.push('Backend: offline')}
-  try{const s=await supabase.auth.getSession();out.push(s.data?.session?'Session: signed in':'Session: signed out')}catch{out.push('Session: check failed')}
-  try{const meta=await fetchReleaseMetadata();out.push(Number(meta.versionCode)>APP_VERSION_CODE?('Update: '+String(meta.version||'new version')+' available'):('App: Android '+APP_BUILD+' · latest'))}catch{out.push('App: Android '+APP_BUILD+' · update check unavailable')}
+  try{
+    const r=await fetch(INSTALL_ORIGIN+'?health=1&t='+Date.now(),{cache:'no-store'});
+    const h=await r.json();
+    out.push(h?.ok?'Backend: online':'Backend: problem');
+  }catch{out.push('Backend: offline')}
+  try{
+    const s=await supabase.auth.getSession();
+    out.push(s.data?.session?'Session: signed in':'Session: signed out');
+  }catch{out.push('Session: check failed')}
+  try{
+    const meta=await fetchReleaseMetadata();
+    out.push(Number(meta.versionCode)>APP_VERSION_CODE
+      ?('Update: '+String(meta.version||'new version')+' available')
+      :('App: Android '+APP_BUILD+' · latest'));
+  }catch{
+    out.push('App: Android '+APP_BUILD+' · update check unavailable');
+  }
   return out.join(' · ');
 }
 function showAuth(){
@@ -3519,7 +3392,6 @@ async function profileMenu(){
       '<div class="auth-wrap">'+
         '<button class="btn" data-tab="notifications">Notifications</button>'+
         '<button class="btn" data-tab="leaderboard">Leaderboard</button>'+
-        '<button class="btn" id="profileInvite">Invite friends</button>'+
         '<button class="btn" id="profileCheck">Check app</button>'+
         '<button class="btn" id="profileUpdate">Update app</button>'+
         '<button class="btn" id="profileResponsible">Responsible use & limits</button>'+
@@ -3532,7 +3404,6 @@ async function profileMenu(){
       '</div>'+
     '</div></div>';
   $('#profClose').onclick=()=>$('#overlay').innerHTML='';
-  $('#profileInvite').onclick=showInvite;
   $('#profileUpdate').onclick=forceAppUpdate;
   $('#profileResponsible').onclick=showResponsiblePlay;
   $('#profilePrivacy').onclick=()=>openHosted('/privacy.html');
@@ -3556,25 +3427,29 @@ async function profileMenu(){
 }
 
 
-document.addEventListener('keydown',async e=>{
-  if(e.key!=='Enter'&&e.key!==' ')return;
-  const card=e.target.closest?.('[data-market][role="button"]');
-  if(!card)return;
-  e.preventDefault();
-  await openMarket(card.dataset.market);
-});
-
 document.addEventListener('click',async e=>{
-  const t=e.target.closest('[data-tab],[data-market],[data-category]');
+  const t=e.target.closest('[data-tab],[data-market-side],[data-market],[data-category]');
   if(t?.dataset.tab){state.tab=t.dataset.tab;$('#overlay').innerHTML='';if(state.tab==='media'||state.tab==='discover')await loadDiscover();if(state.tab==='portfolio'&&state.user)await loadPortfolio();if(state.tab==='watchlist'&&state.user)await loadWatchlist();if(state.tab==='notifications'&&state.user)await loadNotifications();if(state.tab==='leaderboard')await loadLeaderboard();if(state.tab==='admin'&&state.isAdmin)await loadAdmin();render();window.scrollTo({top:0,behavior:'smooth'});return}
-  if(t?.dataset.market){openMarket(t.dataset.market);return}
+  if(t?.dataset.marketSide&&t?.dataset.market){
+    const side=String(t.dataset.marketSide).toUpperCase();
+    const card=t.closest('.market-card');
+    const source=card?.dataset.openSource||'market_card';
+    const market=(state.markets||[]).find(m=>m.market_id===t.dataset.market);
+    trackBehavior('market_side_quick_open',{category:market?.category||market?.category_key||null,marketId:t.dataset.market,metadata:{side,source}});
+    await openMarket(t.dataset.market,{preselectLabel:side,openSource:source+'_side'});
+    return;
+  }
+  if(t?.dataset.market){const card=t.closest('.market-card');openMarket(t.dataset.market,{openSource:card?.dataset.openSource||'market_card'});return}
   if(t?.dataset.category!==undefined){state.category=t.dataset.category;trackBehavior('category_view',{category:state.category||null});await loadMarkets();render();return}
 });
 let deferredInstallPrompt=null;
 const INSTALL_ORIGIN='https://rnvyrlmrwhfauuskyhje.supabase.co/functions/v1/predict-ug-live';
 function isInstallOrigin(){return false}
 function isStandalone(){return window.matchMedia?.('(display-mode: standalone)')?.matches||navigator.standalone===true}
-function syncInstallButton(){const btn=$('#installBtn');if(btn)btn.classList.add('hidden');}
+function syncInstallButton(){
+  const btn=$('#installBtn');
+  if(btn)btn.classList.add('hidden');
+}
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;syncInstallButton()});
 window.addEventListener('online',()=>{state.online=true;toast('Back online');refreshAll();if(state.market?.market?.id&&!isClosed(state.market.market))startMarketRealtime(state.market.market.id)});
 window.addEventListener('offline',()=>{state.online=false;stopMarketRealtime();toast('Offline: showing last synced data');render();if(state.market)drawMarket()});
