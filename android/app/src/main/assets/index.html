@@ -461,8 +461,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.75';
-const APP_VERSION_CODE=77;
+const APP_BUILD='0.7.76';
+const APP_VERSION_CODE=78;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -1024,7 +1024,7 @@ function installAuthListener(){
   if(authListenerInstalled||authRestoreFailed)return;
   authListenerInstalled=true;
   supabase.auth.onAuthStateChange((event,session)=>{
-    const previousUserId=state.user?.id;state.session=session||null;state.user=session?.user||null;if(previousUserId!==state.user?.id){state.notifications=[];state.notificationsLoaded=false;state.notificationsError='';state.unreadNotifications=0;state.admin=null;state.ceo=null;state.portfolio=null;state.paymentHistory=[]}state.isAdmin=false;render();
+    const previousUserId=state.user?.id;state.session=session||null;state.user=session?.user||null;if(previousUserId!==state.user?.id){state.notifications=[];state.notificationsLoaded=false;state.notificationsError='';state.unreadNotifications=0;state.admin=null;state.ceo=null;state.portfolio=null;state.paymentHistory=[];state.balance=null;state.balanceMode='forecast_credit';state.watchlist=[];state.watchlistError='';state.behaviorPrefs=[];state.betaMission=null}state.isAdmin=false;render();
     if(state.user){setTimeout(async()=>{try{state.isAdmin=!!(await rpc('is_admin'));await Promise.all([loadBalance(),loadUnreadNotifications(),loadBehaviorPrefs(),loadBetaMission()]);state.markets=personalizeMarkets(state.markets);render();const legalOk=await ensureLegalAcceptance();if(legalOk)maybeShowFirstUseGuide()}catch{}},0)}
     else{state.balance=null;state.unreadNotifications=0}
   });
@@ -1076,9 +1076,12 @@ async function ensureLegalAcceptance(surface='startup'){
   }
 }
 async function loadBalance(){
-  if(!state.user){state.balance=null;state.balanceMode='forecast_credit';return}
+  const userId=state.user?.id;
+  if(!userId){state.balance=null;state.balanceMode='forecast_credit';return}
+  const request=(state.balanceRequest||0)+1;state.balanceRequest=request;
   try{
     const p=await rpc('my_portfolio');
+    if(state.user?.id!==userId||state.balanceRequest!==request)return;
     state.balanceMode=p?.trading_mode||'forecast_credit';
     state.balance=state.balanceMode==='cash'
       ?Number(p?.cash_wallet?.available_ugx||0)
@@ -2723,14 +2726,28 @@ function renderPortfolio(){
   document.querySelectorAll('[data-cashout]').forEach(b=>b.onclick=()=>{const x=active.find(p=>p.position_id===b.dataset.cashout);if(x)cashOutSimple(x)});
 }
 async function loadWatchlist(){
-  if(!state.user)return;
-  const {data,error}=await supabase.from('watchlist').select('market_id,created_at').order('created_at',{ascending:false});if(error)throw error;
-  const ids=(data||[]).map(x=>x.market_id);const all=await rpc('sportsbook_market_feed',{p_category:null,p_search:null,p_limit:100,p_uganda_first:false});state.watchlist=(all||[]).filter(x=>ids.includes(x.market_id))
+  const userId=state.user?.id;if(!userId)return;
+  const request=(state.watchlistRequest||0)+1;state.watchlistRequest=request;
+  const current=()=>state.user?.id===userId&&state.watchlistRequest===request;
+  try{
+    const {data,error}=await supabase.from('watchlist').select('market_id,created_at').eq('user_id',userId).order('created_at',{ascending:false});
+    if(!current())return;if(error)throw error;
+    const ids=(data||[]).map(x=>x.market_id);
+    const all=ids.length?await rpc('sportsbook_market_feed',{p_category:null,p_search:null,p_limit:100,p_uganda_first:false}):[];
+    if(!current())return;
+    state.watchlist=(all||[]).filter(x=>ids.includes(x.market_id));state.watchlistError='';
+  }catch(error){
+    if(!current())return;
+    state.watchlistError='Could not refresh saved markets. Check your connection and try again.';
+    throw error;
+  }
 }
 function renderWatchlist(){
   if(!state.user){$('#view').innerHTML='<section class="hero"><h1>Saved markets</h1><p>Sign in to save markets you care about.</p></section><button class="btn primary" id="watchSignIn">Sign in</button>';$('#watchSignIn').onclick=showAuth;return}
-  if(!state.watchlist.length){$('#view').innerHTML='<section class="hero"><h1>Saved markets</h1><p>Your saved markets.</p></section><div class="empty">No saved open markets yet.</div>';loadWatchlist().then(()=>{if(state.watchlist.length)render()});return}
-  $('#view').innerHTML='<section class="hero"><h1>Saved markets</h1><p>Your saved markets.</p></section><div class="grid">'+state.watchlist.map(marketCard).join('')+'</div>';
+  $('#view').innerHTML='<section class="hero"><h1>Saved markets</h1><p>Your saved open markets. Follow a market for relevant updates.</p></section><button class="btn small" id="refreshSavedMarkets">Refresh saved markets</button>'+
+    (state.watchlistError?'<div class="empty" role="status">'+esc(state.watchlistError)+'</div>':'')+
+    (!state.watchlist.length?'<div class="empty">No saved open markets yet. Open a market and tap Save this market.</div>':'<div class="grid">'+state.watchlist.map(marketCard).join('')+'</div>');
+  $('#refreshSavedMarkets').onclick=async()=>{const btn=$('#refreshSavedMarkets');btn.disabled=true;try{await loadWatchlist()}catch{}finally{if(state.tab==='watchlist')renderWatchlist()}};
 }
 async function loadNotifications(){
   const userId=state.user?.id;if(!userId)return;
