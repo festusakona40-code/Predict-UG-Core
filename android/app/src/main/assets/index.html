@@ -461,8 +461,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.73';
-const APP_VERSION_CODE=75;
+const APP_BUILD='0.7.74';
+const APP_VERSION_CODE=76;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -769,13 +769,15 @@ function stopMarketRealtime(){
 }
 async function refreshOpenMarketLive(id){
   if(!state.online||!state.market?.market||state.market.market.id!==id)return;
+  const request=(state.marketLiveRequest||0)+1;state.marketLiveRequest=request;
   try{
     const watched=!!state.market.__watched;
     const page=await rpc('market_page',{p_market_id:id});
+    if(state.market?.market?.id!==id||state.marketLiveRequest!==request)return;
     page.__watched=watched;page.__offline_cache=false;state.market=page;cacheWrite('market:'+id,page);
     if(isClosed(page.market)){stopMarketRealtime()}
     drawMarket();
-  }catch(e){reportClientError(e.message||'Realtime market refresh failed',e.stack||'',{kind:'realtime_market_refresh',market_id:id})}
+  }catch(e){if(state.market?.market?.id===id&&state.marketLiveRequest===request)reportClientError(e.message||'Realtime market refresh failed',e.stack||'',{kind:'realtime_market_refresh',market_id:id})}
 }
 function scheduleMarketLiveRefresh(id){
   if(!state.online||state.market?.market?.id!==id)return;
@@ -1022,7 +1024,7 @@ function installAuthListener(){
   if(authListenerInstalled||authRestoreFailed)return;
   authListenerInstalled=true;
   supabase.auth.onAuthStateChange((event,session)=>{
-    const previousUserId=state.user?.id;state.session=session||null;state.user=session?.user||null;if(previousUserId!==state.user?.id){state.notifications=[];state.notificationsLoaded=false;state.notificationsError='';state.unreadNotifications=0;state.admin=null;state.ceo=null;state.portfolio=null}state.isAdmin=false;render();
+    const previousUserId=state.user?.id;state.session=session||null;state.user=session?.user||null;if(previousUserId!==state.user?.id){state.notifications=[];state.notificationsLoaded=false;state.notificationsError='';state.unreadNotifications=0;state.admin=null;state.ceo=null;state.portfolio=null;state.paymentHistory=[]}state.isAdmin=false;render();
     if(state.user){setTimeout(async()=>{try{state.isAdmin=!!(await rpc('is_admin'));await Promise.all([loadBalance(),loadUnreadNotifications(),loadBehaviorPrefs(),loadBetaMission()]);state.markets=personalizeMarkets(state.markets);render();const legalOk=await ensureLegalAcceptance();if(legalOk)maybeShowFirstUseGuide()}catch{}},0)}
     else{state.balance=null;state.unreadNotifications=0}
   });
@@ -1239,7 +1241,8 @@ async function refreshAll(){
     if(state.tab==='markets'){await loadPublicBootstrap();if(state.feedSort==='pending')await loadPendingMarkets()}
     else{
       state.status=await rpc('app_status');
-      if(state.tab==='portfolio'&&state.user)state.portfolio=await rpc('my_portfolio');
+      if(state.tab==='portfolio'&&state.user)await loadPortfolio();
+      if(state.tab==='notifications'&&state.user)await loadNotifications();
       if(state.tab==='media'||state.tab==='discover')await loadDiscover();
       if(state.tab==='watchlist'&&state.user)await loadWatchlist();
       if(state.tab==='admin'&&state.isAdmin)await loadAdmin();
@@ -2213,18 +2216,24 @@ function renderMedia(){
 function renderDiscover(){renderMedia()}
 
 async function loadPaymentHistory(){
-  if(!state.user){state.paymentHistory=[];return}
+  const userId=state.user?.id;
+  if(!userId){state.paymentHistory=[];return}
+  const request=(state.paymentHistoryRequest||0)+1;state.paymentHistoryRequest=request;
   try{
     const data=await paymentApi('activity',{limit:10});
+    if(state.user?.id!==userId||state.paymentHistoryRequest!==request)return;
     state.paymentHistory=Array.isArray(data?.items)?data.items:(Array.isArray(data?.intents)?data.intents:[]);
   }catch(e){
+    if(state.user?.id!==userId||state.paymentHistoryRequest!==request)return;
     state.paymentHistory=[];
     reportClientError(e.message||'Could not load payment activity',e.stack||'',{kind:'payment_history_load'});
   }
 }
 async function loadPortfolio(){
-  if(!state.user)return;
+  const userId=state.user?.id;if(!userId)return;
+  const request=(state.portfolioRequest||0)+1;state.portfolioRequest=request;
   const p=await rpc('my_portfolio');
+  if(state.user?.id!==userId||state.portfolioRequest!==request)return;
   state.portfolio=p||{};
   state.portfolio.secondaryPositions=[];
   state.portfolio.secondaryOrders=[];
