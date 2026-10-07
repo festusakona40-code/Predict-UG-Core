@@ -2754,13 +2754,26 @@ function renderPortfolio(){
     (active.length?'<div class="section-title"><h2>Exit early</h2></div><div class="timeline">'+active.map(x=>'<div class="item"><b>'+esc(x.market_title)+'</b><br><span>'+esc(x.outcome_label)+' · '+ugx(x.stake_ugx)+'</span><br><small>'+ugx(x.sellable_stake_ugx)+' can be exited</small><br><button class="btn small primary" style="margin-top:8px" data-cashout="'+x.position_id+'">'+(cashMode?'Cash out':'Exit prediction')+'</button></div>').join('')+'</div>':'')+
     '<div class="section-title"><h2>Results</h2></div>'+
     (settled.length?'<div class="timeline">'+settled.map(x=>'<button class="item" data-open-market="'+esc(x.market_id)+'" style="width:100%;text-align:left;color:inherit"><div class="eyebrow"><span>'+esc(x.outcome_label)+' · '+ugx(x.total_stake_ugx)+'</span>'+chip(x)+'</div><b style="display:block;margin:7px 0">'+esc(x.market_title)+'</b><small>Odds '+(Number(x.effective_odds_decimal||0)>1?Number(x.effective_odds_decimal).toFixed(2):'—')+' · '+dt(x.last_trade_at)+'</small></button>').join('')+'</div>':'<div class="empty">Settled results will appear here.</div>')+
-    (cashMode?'<div class="card" style="margin-top:18px"><div class="section-title" style="margin-top:0"><h2>Wallet</h2><small style="color:var(--muted)">MTN & Airtel Money</small></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn primary" id="cashDepositBtn">Deposit</button><button class="btn" id="cashWithdrawBtn">Withdraw</button></div><p class="auth-note">Deposits are credited only after the backend verifies the Mobile Money transaction. Withdrawals remain locked until payout completion is confirmed.</p><div class="section-title"><h3>Recent Mobile Money activity</h3><button class="btn small ghost" id="refreshPaymentHistory">Refresh</button></div>'+paymentActivityHtml()+'</div>':'<div class="card" style="margin-top:18px"><b>Real-money wallet is not active</b><p class="auth-note">Predict UG is currently using practice credits while live-money launch gates remain off.</p>'+(state.isAdmin?'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn small" id="previewDepositBtn">Preview deposit</button><button class="btn small" id="previewWithdrawBtn">Preview withdrawal</button></div>':'')+'</div>');
+    (cashMode?'<div class="card" style="margin-top:18px"><div class="section-title" style="margin-top:0"><h2>Wallet</h2><small style="color:var(--muted)">MTN & Airtel Money</small></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn primary" id="cashDepositBtn">Deposit</button><button class="btn" id="cashWithdrawBtn">Withdraw</button></div><p class="auth-note">Deposits are credited only after the backend verifies the Mobile Money transaction. Withdrawals remain locked until payout completion is confirmed.</p><div class="section-title"><h3>Recent Mobile Money activity</h3><button class="btn small ghost" id="refreshPaymentHistory">Refresh</button></div>'+paymentActivityHtml()+'</div>':'<div class="card" style="margin-top:18px"><b>Real-money wallet is not active</b><p class="auth-note">Predict UG is currently using practice credits while live-money launch gates remain off.</p>'+(state.isAdmin?'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn small" id="previewDepositBtn">Preview deposit</button><button class="btn small" id="previewWithdrawBtn">Preview withdrawal</button></div><button class="btn primary" style="margin-top:10px;width:100%" id="safePasskeyDepositTest">Safe deposit approval test · no money</button><p class="auth-note">This verifies your registered fingerprint/face/PIN against the real merchant passkey backend. It does not create a deposit, credit a wallet, send a payout, or enable cash mode.</p>':'')+'</div>');
   if($('#findMarketBtn'))$('#findMarketBtn').onclick=()=>{state.tab='markets';render()};
   if($('#cashDepositBtn'))$('#cashDepositBtn').onclick=runCashDepositFlow;
   if($('#cashWithdrawBtn'))$('#cashWithdrawBtn').onclick=runCashWithdrawalFlow;
   if($('#refreshPaymentHistory'))$('#refreshPaymentHistory').onclick=async()=>{await loadPaymentHistory();render();};
   if($('#previewDepositBtn'))$('#previewDepositBtn').onclick=()=>previewLockedMoneyFlow('deposit');
   if($('#previewWithdrawBtn'))$('#previewWithdrawBtn').onclick=()=>previewLockedMoneyFlow('withdrawal');
+  if($('#safePasskeyDepositTest'))$('#safePasskeyDepositTest').onclick=async()=>{
+    const btn=$('#safePasskeyDepositTest');
+    btn.disabled=true;btn.textContent='Waiting for fingerprint / face / PIN…';
+    try{
+      const result=await runMerchantPasskeyAdminAction('dry_run_deposit_approval',{network:'MTN',amount_ugx:1000,wallet_effect:'none'});
+      if(!result?.passkey_verified||result?.result?.wallet_effect!=='none')throw new Error('Safe passkey test did not return the expected no-money result');
+      toast('Passkey verified ✓ No money moved.');
+      btn.textContent='Safe deposit approval test passed ✓';
+    }catch(e){
+      toast(e.message||'Safe passkey test failed',true);
+      btn.disabled=false;btn.textContent='Safe deposit approval test · no money';
+    }
+  };
   document.querySelectorAll('[data-open-market]').forEach(b=>b.onclick=()=>openMarket(b.dataset.openMarket));
   document.querySelectorAll('[data-cashout]').forEach(b=>b.onclick=()=>{const x=active.find(p=>p.position_id===b.dataset.cashout);if(x)cashOutSimple(x)});
 }
