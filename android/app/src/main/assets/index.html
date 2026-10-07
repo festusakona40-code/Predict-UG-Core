@@ -461,8 +461,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.70';
-const APP_VERSION_CODE=72;
+const APP_BUILD='0.7.71';
+const APP_VERSION_CODE=73;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -1236,7 +1236,7 @@ async function refreshAll(){
   try{
     state.loading=true;render();
     await loadSession();
-    if(state.tab==='markets')await loadPublicBootstrap();
+    if(state.tab==='markets'){await loadPublicBootstrap();if(state.feedSort==='pending')await loadPendingMarkets()}
     else{
       state.status=await rpc('app_status');
       if(state.tab==='portfolio'&&state.user)state.portfolio=await rpc('my_portfolio');
@@ -1301,7 +1301,7 @@ function marketCard(m,openSource='market_card'){
   const trust=m.data_status==='verified'?'Verified source':m.data_status==='source_attached'?'Source attached':'Resolution source';
   const yesOdds=oddsText(m.yes_odds,y),noOdds=oddsText(m.no_odds,n);
   return '<article class="card market-card" data-market="'+m.market_id+'" data-open-source="'+esc(openSource)+'">'+
-    '<div class="eyebrow"><span>'+esc(m.category)+' · '+esc(originLabel)+'</span><span>'+dt(m.close_time)+'</span></div>'+
+    '<div class="eyebrow"><span>'+esc(m.category)+' · '+esc(originLabel)+'</span><span>Closes '+dt(m.close_time)+'</span></div>'+
     '<div class="market-main-row"><div class="market-title">'+esc(displayTitle)+'</div><div class="market-price">'+pct(y)+'<small>YES chance</small></div></div>'+
     '<div class="bar"><span style="width:'+Math.max(0,Math.min(100,y))+'%"></span></div>'+
     '<div class="market-actions"><button type="button" class="market-mini y" data-market="'+m.market_id+'" data-market-side="YES" aria-label="Choose YES"><span>YES</span><b>'+yesOdds+'</b></button><button type="button" class="market-mini n" data-market="'+m.market_id+'" data-market-side="NO" aria-label="Choose NO"><span>NO</span><b>'+noOdds+'</b></button></div>'+
@@ -1366,6 +1366,28 @@ async function openEvent(eventId){
   $('#eventClose').onclick=()=>{$('#overlay').innerHTML=''};
   document.querySelectorAll('#overlay [data-market]').forEach(el=>el.onclick=()=>openMarket(el.dataset.market));
 }
+function ugandaDateKey(value){
+  const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Kampala',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(value));
+  const get=type=>parts.find(x=>x.type===type)?.value;
+  return get('year')+'-'+get('month')+'-'+get('day');
+}
+function selectMarketFeedRows(rows,sort,now=Date.now()){
+  if(sort==='pending')return rows.filter(m=>m.status==='closed').sort((a,b)=>Date.parse(b.close_time)-Date.parse(a.close_time));
+  let result=rows.filter(m=>String(m.status||'open').toLowerCase()==='open'&&Number.isFinite(Date.parse(m.close_time))&&Date.parse(m.close_time)>now);
+  if(sort==='today')result=result.filter(m=>ugandaDateKey(m.close_time)===ugandaDateKey(now));
+  if(sort==='closing')result=result.filter(m=>Date.parse(m.close_time)-now<=72*3600000);
+  if(['live','today','closing'].includes(sort))result.sort((a,b)=>Date.parse(a.close_time)-Date.parse(b.close_time));
+  if(sort==='active')result.sort((a,b)=>Number(b.total_pool_ugx||0)-Number(a.total_pool_ugx||0));
+  return result;
+}
+async function loadPendingMarkets(){
+  const {data,error}=await supabase.from('markets').select('id,title,category,status,close_time').eq('visibility_scope','customer').eq('status','closed').order('close_time',{ascending:false}).limit(100);
+  if(error)throw error;
+  state.pendingMarkets=(data||[]).map(m=>({...m,market_id:m.id}));
+}
+function pendingMarketCard(m){
+  return '<article class="card market-card" data-market="'+esc(m.market_id)+'" data-open-source="pending"><div class="eyebrow"><span>'+esc(m.category)+'</span><span>Predictions closed '+dt(m.close_time)+'</span></div><h3>'+esc(m.title)+'</h3><p>Awaiting verified outcome. Predictions are closed.</p><span class="statuschip">Pending result</span><div class="card-footer">View market & resolution rule →</div></article>';
+}
 function renderMarkets(){
   const mode=state.status?.trading_mode||'forecast_credit';
   const starterMarket=starterMarketCandidate();
@@ -1373,25 +1395,16 @@ function renderMarkets(){
   const starterCategory=String(starterMarket?.category||starterMarket?.category_key||'').toLowerCase();
   const starterLabel=starterIsFootball?'Try football':starterCategory==='weather'?'Try Weather':starterCategory==='entertainment'?'Try a creator market':'Try a market';
   const localBase=(state.markets||[]).filter(m=>!m.external_benchmark);
-  const localMarkets=[...localBase];
-  if(state.feedSort==='live'){
-    const now=Date.now();
-    const live=localMarkets.filter(m=>String(m.status||'open').toLowerCase()==='open'&&(!m.close_time||new Date(m.close_time).getTime()>now));
-    localMarkets.splice(0,localMarkets.length,...live);
-  }else if(state.feedSort==='closing'){
-    localMarkets.sort((a,b)=>new Date(a.close_time)-new Date(b.close_time));
-  }else if(state.feedSort==='active'){
-    localMarkets.sort((a,b)=>Number(b.total_pool_ugx||0)-Number(a.total_pool_ugx||0));
-  }
-  const feedHeading=state.feedSort==='live'
-    ?{kicker:'Live',title:'Open now'}
-    :state.feedSort==='closing'
-      ?{kicker:'Upcoming',title:'Closing soon'}
-      :state.feedSort==='active'
-        ?{kicker:'Activity',title:'Most active'}
-        :{kicker:'For you',title:'Uganda now'};
+  const pending=filterMarketRows(state.pendingMarkets||[],state.category,state.search);
+  const localMarkets=selectMarketFeedRows(state.feedSort==='pending'?pending:localBase,state.feedSort);
+  const feedHeading=state.feedSort==='today'?{kicker:'Today in Uganda',title:'Closing today'}
+    :state.feedSort==='live'?{kicker:'Live',title:'Open for predictions'}
+    :state.feedSort==='pending'?{kicker:'Pending',title:'Awaiting a result'}
+    :state.feedSort==='closing'?{kicker:'Next 72 hours',title:'Closing soon'}
+    :state.feedSort==='active'?{kicker:'Activity',title:'Most active'}
+    :{kicker:'For you',title:'Uganda now'};
   const globalMarkets=(state.markets||[]).filter(m=>m.external_benchmark);
-  const unfilteredHome=!state.category&&!state.search;
+  const unfilteredHome=!state.category&&!state.search&&state.feedSort==='trending';
   const closingSoon=unfilteredHome?localMarkets.filter(m=>{const ms=Date.parse(m?.close_time||'');const d=ms-Date.now();return Number.isFinite(ms)&&d>0&&d<=72*3600000}).slice().sort((a,b)=>Date.parse(a.close_time)-Date.parse(b.close_time)).slice(0,3):[];
   const diverseTopPicks=[];
   if(unfilteredHome){
@@ -1436,14 +1449,14 @@ function renderMarkets(){
     '<section class="market-toolbar">'+
       '<div class="searchrow"><input class="input" id="searchInput" value="'+esc(state.search)+'" placeholder="Search Predict UG"><button class="btn primary" id="searchBtn">Search</button></div>'+
       '<div class="chips"><button class="chip '+(!state.category?'active':'')+'" data-category="">All</button>'+state.categories.map(c=>'<button class="chip '+(state.category===c.category_key?'active':'')+'" data-category="'+esc(c.category_key)+'">'+esc(c.label)+'</button>').join('')+'</div>'+
-      '<div class="chips" aria-label="Market feed sort"><button class="chip '+(state.feedSort==='trending'?'active':'')+'" data-feed-sort="trending">For you</button><button class="chip '+(state.feedSort==='live'?'active':'')+'" data-feed-sort="live">Live</button><button class="chip '+(state.feedSort==='closing'?'active':'')+'" data-feed-sort="closing">Closing soon</button><button class="chip '+(state.feedSort==='active'?'active':'')+'" data-feed-sort="active">Most active</button></div>'+
+      '<div class="chips" aria-label="Market feed sort"><button class="chip '+(state.feedSort==='trending'?'active':'')+'" data-feed-sort="trending">For you</button><button class="chip '+(state.feedSort==='live'?'active':'')+'" data-feed-sort="live">Live</button><button class="chip '+(state.feedSort==='today'?'active':'')+'" data-feed-sort="today">Today</button><button class="chip '+(state.feedSort==='pending'?'active':'')+'" data-feed-sort="pending">Pending</button><button class="chip '+(state.feedSort==='closing'?'active':'')+'" data-feed-sort="closing">Closing soon</button><button class="chip '+(state.feedSort==='active'?'active':'')+'" data-feed-sort="active">Most active</button></div>'+
     '</section>'+
 
     (closingSoon.length?'<div class="market-feed-header"><div><span class="feed-kicker">Time sensitive</span><h2>Closing soon</h2></div><small style="color:var(--muted)">Short-horizon markets</small></div><div class="grid">'+closingSoon.map(m=>marketCard(m,'closing_soon')).join('')+'</div>':'')+
 
     (diverseTopPicks.length?'<div class="market-feed-header"><div><span class="feed-kicker">Featured</span><h2>Top picks across Uganda</h2></div><small style="color:var(--muted)">One strong market from each category</small></div><div class="grid">'+diverseTopPicks.map(m=>marketCard(m,'top_picks')).join('')+'</div>':'')+
-    '<div class="market-feed-header"><div><span class="feed-kicker">'+(unfilteredHome?'Explore':'Results')+'</span><h2>'+(unfilteredHome?'All Uganda markets':'Uganda markets')+'</h2></div><button class="btn small ghost" data-tab="media">Open Pulse</button></div>'+
-    (remainingLocalMarkets.length?'<div class="grid">'+remainingLocalMarkets.map(m=>marketCard(m,'all_markets')).join('')+'</div>':'<div class="empty">No Uganda markets match your filters right now.</div>')+
+    '<div class="market-feed-header"><div><span class="feed-kicker">'+(unfilteredHome?'Explore':esc(feedHeading.kicker))+'</span><h2>'+(unfilteredHome?'All Uganda markets':esc(feedHeading.title))+'</h2></div><button class="btn small ghost" data-tab="media">Open Pulse</button></div>'+
+    (remainingLocalMarkets.length?'<div class="grid">'+remainingLocalMarkets.map(m=>state.feedSort==='pending'?pendingMarketCard(m):marketCard(m,'all_markets')).join('')+'</div>':'<div class="empty">'+(state.feedSort==='today'?'No matching markets close today in Uganda. Choose Live to see upcoming questions.':state.feedSort==='pending'?'No matching markets are awaiting a result.':state.feedSort==='closing'?'No matching markets close within the next 72 hours.':'No Uganda markets match your filters right now.')+'</div>')+
 
     '<details class="home-discovery"><summary>Explore events & universities</summary><div class="home-discovery-content">'+
     (events.length?'<div class="section-title"><div><span class="feed-kicker">Events</span><h2>Explore by event</h2></div><small style="color:var(--muted)">Browse related questions</small></div><div class="event-rail">'+events.map(eventHubCard).join('')+'</div>':'')+
@@ -1477,10 +1490,15 @@ function renderMarkets(){
   if($('#homeInstallApp'))$('#homeInstallApp').onclick=()=>{const install=$('#installBtn');if(install&&!install.classList.contains('hidden'))install.click();else forceAppUpdate()};
   if($('#searchBtn'))$('#searchBtn').onclick=async()=>{state.search=$('#searchInput').value.trim();await loadMarkets();render()};
   if($('#searchInput'))$('#searchInput').onkeydown=e=>{if(e.key==='Enter')$('#searchBtn').click()};
-  document.querySelectorAll('[data-feed-sort]').forEach(el=>el.onclick=()=>{
-    state.feedSort=el.dataset.feedSort||'trending';
-    trackBehavior('market_feed_sort',{metadata:{sort:state.feedSort}});
-    render();
+  document.querySelectorAll('[data-feed-sort]').forEach(el=>el.onclick=async()=>{
+    const sort=el.dataset.feedSort||'trending';
+    state.feedSort=sort;trackBehavior('market_feed_sort',{metadata:{sort}});
+    if(sort==='pending'){
+      state.pendingMarkets=[];state.loading=true;render();
+      try{await loadPendingMarkets()}catch{toast('Could not load pending results. Tap Refresh to retry.',true)}
+      finally{state.loading=false}
+    }
+    if(state.tab==='markets'){render();document.querySelector('.market-toolbar')?.scrollIntoView({behavior:'smooth',block:'start'})}
   });
 }
 async function openMarket(id,{updateUrl=true,preselectLabel=null,openSource='feed'}={}){
