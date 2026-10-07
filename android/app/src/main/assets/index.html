@@ -266,7 +266,7 @@ function clearStoredAuthSession(){
   }catch{}
 }
 
-const state={tab:'markets',session:null,user:null,isAdmin:false,status:null,categories:[],markets:[],marketEvents:[],universityDirectory:[],universityRegistryCount:0,universityDirectorySource:'',ugandaTrends:[],ugandaDemand:[],ugandaSocialRadar:[],ugandaConsumption:[],recentResults:[],ugandaPulse:[],socialSourceStatus:null,socialClaims:[],socialClaimNote:'',digitalProfile:null,category:'',search:'',feedSort:'trending',market:null,portfolio:null,watchlist:[],notifications:[],leaderboard:[],trends:[],stories:[],creators:[],externalSignals:[],weatherSignals:[],statementSignals:[],officialData:[],admin:null,ceo:null,businessTraction:null,aiProviders:[],autonomy:null,loading:false,online:navigator.onLine,realtimeStatus:'idle',realtimeMarketId:null,balance:null,balanceMode:'forecast_credit',unreadNotifications:0,betaMission:null,behaviorPrefs:[],behaviorSessionId:null,paymentHistory:[],cashLaunch:null,merchantConnection:null,securityHealth:null};
+const state={tab:'markets',session:null,user:null,isAdmin:false,status:null,onboarding:null,categories:[],markets:[],marketEvents:[],universityDirectory:[],universityRegistryCount:0,universityDirectorySource:'',ugandaTrends:[],ugandaDemand:[],ugandaSocialRadar:[],ugandaConsumption:[],recentResults:[],ugandaPulse:[],socialSourceStatus:null,socialClaims:[],socialClaimNote:'',digitalProfile:null,category:'',search:'',feedSort:'trending',market:null,portfolio:null,watchlist:[],notifications:[],leaderboard:[],trends:[],stories:[],creators:[],externalSignals:[],weatherSignals:[],statementSignals:[],officialData:[],admin:null,ceo:null,businessTraction:null,aiProviders:[],autonomy:null,loading:false,online:navigator.onLine,realtimeStatus:'idle',realtimeMarketId:null,balance:null,balanceMode:'forecast_credit',unreadNotifications:0,betaMission:null,behaviorPrefs:[],behaviorSessionId:null,paymentHistory:[],cashLaunch:null,merchantConnection:null,securityHealth:null};
 
 const $=s=>document.querySelector(s);
 const esc=(s='')=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
@@ -510,6 +510,12 @@ async function openStarterMarket(source='guide'){
 }
 
 function showHowItWorks(firstUse=false){
+  const guide=state.onboarding||{};
+  const practice=esc(guide.practice_explainer||'Predict UG currently uses practice credits; real-money trading is disabled.');
+  const payouts=esc(guide.payout_explainer||'Your quote shows locked odds, possible return, net profit and maximum loss before confirmation.');
+  const withdrawals=esc(guide.withdrawal_explainer||'Practice credits cannot be withdrawn.');
+  const settlement=esc(guide.settlement_explainer||'Results use each market’s published resolution source and rule.');
+  const betting=esc(guide.betting_explainer||'You make YES/NO event predictions using practice credits only.');
   trackBehavior('screen_view',{metadata:{screen:'how_it_works',first_use:firstUse}});
   $('#overlay').innerHTML=
     '<div class="modal"><div class="sheet" style="max-width:560px">'+
@@ -517,11 +523,11 @@ function showHowItWorks(firstUse=false){
       '<div class="media-label">Predict UG in plain language</div><h2>Pick YES or NO. Know the rule before you predict.</h2>'+
       '<div class="timeline" style="margin-top:12px">'+
         '<div class="item"><b>1 · Choose a question</b><br><small>Start with something familiar. Football is prioritised when a verified fixture is available; otherwise Predict UG can guide you to a short-horizon Uganda Weather market or another verified local question.</small></div>'+
-        '<div class="item"><b>2 · YES or NO</b><br><small>The percentage is the market probability. Decimal odds and your possible return are shown before you confirm.</small></div>'+
-        '<div class="item"><b>3 · Practice first</b><br><small>The public beta uses practice credits unless your account explicitly shows approved cash mode. Practice credits cannot be withdrawn.</small></div>'+
-        '<div class="item"><b>4 · Settlement is rule-based</b><br><small>Every market has a published resolution rule and source. Predict UG does not settle a market just because AI or users think an outcome happened.</small></div>'+
+        '<div class="item"><b>2 · YES or NO</b><br><small>'+payouts+'</small></div>'+
+        '<div class="item"><b>3 · Practice first</b><br><small>'+practice+' '+withdrawals+'</small></div>'+
+        '<div class="item"><b>4 · Settlement is rule-based</b><br><small>'+settlement+'</small></div>'+
       '</div>'+
-      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.60 · bundled frontend</p></div>'+
+      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">'+betting+'</p><small class="auth-note">Predict UG Android 0.7.60 · bundled frontend</small></div>'+
       '<div class="auth-wrap" style="margin-top:12px"><button class="btn primary" id="howStart">Try a starter market</button><button class="btn ghost" id="howDone">Browse all markets</button><button class="btn ghost" id="howFeedback">Something is confusing</button></div>'+
     '</div></div>';
   $('#howClose').onclick=()=>{$('#overlay').innerHTML='';trackBehavior('first_use_guide_dismissed',{metadata:{first_use:firstUse}})};
@@ -933,6 +939,7 @@ async function loadPublicBootstrap(){
       p_limit:80
     });
     state.status=b?.status||{};
+    state.onboarding=b?.onboarding||null;
     state.categories=b?.categories||[];
     state.markets=personalizeMarkets(b?.markets||[]);
     state.ugandaTrends=b?.uganda_trends||[];
@@ -947,6 +954,7 @@ async function loadPublicBootstrap(){
     if(!cached)throw e;
     const b=cached.value||{};
     state.status=b?.status||{};
+    state.onboarding=b?.onboarding||null;
     state.categories=b?.categories||[];
     state.markets=b?.markets||[];
     state.ugandaTrends=b?.uganda_trends||[];
