@@ -13,8 +13,8 @@ android {
         applicationId 'com.predictug.app'
         minSdk 23
         targetSdk 36
-        versionCode 80
-        versionName '0.7.80'
+        versionCode 81
+        versionName '0.7.81'
         buildConfigField "long", "PLAY_CLOUD_PROJECT_NUMBER", playCloudProjectNumber + "L"
     }
 
@@ -34,6 +34,8 @@ dependencies {
     implementation 'androidx.activity:activity:1.12.4'
     testImplementation 'junit:junit:4.13.2'
     implementation 'androidx.webkit:webkit:1.15.0'
+    implementation 'androidx.credentials:credentials:1.6.0-beta02'
+    implementation 'androidx.credentials:credentials-play-services-auth:1.6.0-beta02'
     implementation 'com.google.mlkit:text-recognition:16.0.1'
     implementation 'com.google.android.play:integrity:1.6.0'
 }
