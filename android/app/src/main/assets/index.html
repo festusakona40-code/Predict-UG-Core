@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.81. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.82. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#ffffff"/>
@@ -489,13 +489,14 @@ window.__predictUgBootTimer=setTimeout(function(){
 </script>
 <script src="supabase.js"></script>
 <script>
+(function(){
 const { createClient } = window.supabase;
 
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.81';
-const APP_VERSION_CODE=81;
+const APP_BUILD='0.7.82';
+const APP_VERSION_CODE=82;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -522,7 +523,8 @@ const state={tab:'markets',session:null,user:null,isAdmin:false,status:null,onbo
 const $=s=>document.querySelector(s);
 const esc=(s='')=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const ugx=n=>'UGX '+Number(n||0).toLocaleString('en-UG');
-const pct=n=>Number(n??0).toFixed(0)+'%';
+const validProbability=n=>{if(n==null||typeof n==='boolean'||String(n).trim()==='')return null;const value=Number(n);return Number.isFinite(value)&&value>=0&&value<=100?value:null};
+const pct=n=>{const value=validProbability(n);return value==null?'—':value.toFixed(0)+'%'};
 const oddsText=odds=>Number(odds||0)>1?Number(odds).toFixed(2):'—';
 const dt=s=>s?new Date(s).toLocaleString('en-UG',{dateStyle:'medium',timeStyle:'short'}):'—';
 const short=s=>String(s||'').length>150?String(s).slice(0,147)+'…':String(s||'');
@@ -1349,7 +1351,7 @@ function statusHtml(){
     '</div>';
 }
 function marketCard(m,openSource='market_card'){
-  const y=Number(m.yes_probability||0), n=Number(m.no_probability||0);
+  const y=validProbability(m.yes_probability), n=validProbability(m.no_probability);
   const origin=String(m.market_origin||'');
   const originLabel=String(m.trend_badge||'')||(origin==='uganda_creator'?'Uganda creator':origin==='external_benchmark'?'Global benchmark':'Uganda');
   const displayTitle=String(m.title||'').replace(/^\[SHADOW\]\s*/i,'');
@@ -1358,7 +1360,7 @@ function marketCard(m,openSource='market_card'){
   return '<article class="card market-card" data-market="'+m.market_id+'" data-open-source="'+esc(openSource)+'">'+
     '<div class="eyebrow"><span>'+esc(m.category)+' · '+esc(originLabel)+'</span><span>Closes '+dt(m.close_time)+'</span></div>'+
     '<div class="market-main-row"><div class="market-title">'+esc(displayTitle)+'</div><div class="market-price">'+pct(y)+'<small>YES chance</small></div></div>'+
-    '<div class="bar"><span style="width:'+Math.max(0,Math.min(100,y))+'%"></span></div>'+
+    (y==null?'<div class="auth-note">Chance unavailable · open market for details</div>':'<div class="bar"><span style="width:'+y+'%"></span></div>')+
     '<div class="market-actions"><button type="button" class="market-mini y" data-market="'+m.market_id+'" data-market-side="YES" aria-label="Choose YES"><span>YES</span><b>'+yesOdds+'</b></button><button type="button" class="market-mini n" data-market="'+m.market_id+'" data-market-side="NO" aria-label="Choose NO"><span>NO</span><b>'+noOdds+'</b></button></div>'+
     '<div class="meta"><span class="trust-mark">✓ '+esc(trust)+(Number(m.total_pool_ugx||0)>0?' · '+Number(m.total_pool_ugx||0).toLocaleString('en-UG')+' credits active':'')+'</span><span>'+(m.watched?'★ Saved':'View market →')+'</span></div>'+
   '</article>';
@@ -1526,7 +1528,7 @@ function renderMarkets(){
 
     (!state.user?'<div class="compact-info"><div><strong>New to prediction markets?</strong><small>Start with a familiar question and practice credits. Every market shows its resolution rule before confirmation.</small></div><button class="btn small primary" id="homeSignIn">Sign in</button></div>':'')+
 
-    '<div class="card" style="margin-top:18px"><div class="auth-note">Predict UG public beta · practice credits are not cash.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn small primary" id="footerHowItWorks">How it works</button><button class="btn small ghost" id="homePrivacy">Privacy</button><button class="btn small ghost" id="homeTerms">Terms</button><button class="btn small ghost" id="homeSuggestMarket">Suggest a market</button><button class="btn small ghost" id="homeSupport">Support</button><button class="btn small" id="homeInstallApp">Get app</button></div></div>';
+    '<div class="card" style="margin-top:18px"><div class="auth-note">Predict UG public beta · practice credits are not cash.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn small primary" id="footerHowItWorks">How it works</button><button class="btn small ghost" id="homePrivacy">Privacy</button><button class="btn small ghost" id="homeTerms">Terms</button><button class="btn small ghost" id="homeSuggestMarket">Suggest a market</button><button class="btn small ghost" id="homeSupport">Support</button><button class="btn small ghost" id="homeBusiness">Advertise</button><button class="btn small" id="homeInstallApp">Get app</button></div></div>';
 
   document.querySelectorAll('[data-event]').forEach(el=>el.onclick=()=>openEvent(el.dataset.event));
   document.querySelectorAll('[data-university-market]').forEach(el=>el.onclick=()=>openMarket(el.dataset.universityMarket));
@@ -1542,6 +1544,7 @@ function renderMarkets(){
   if($('#homeTerms'))$('#homeTerms').onclick=()=>openHosted('/terms.html');
   if($('#homeSuggestMarket'))$('#homeSuggestMarket').onclick=showMarketSuggestion;
   if($('#homeSupport'))$('#homeSupport').onclick=()=>openHosted('/support.html');
+  if($('#homeBusiness'))$('#homeBusiness').onclick=()=>openHosted('/business.html');
   if($('#homeInstallApp'))$('#homeInstallApp').onclick=()=>{const install=$('#installBtn');if(install&&!install.classList.contains('hidden'))install.click();else forceAppUpdate()};
   if($('#searchBtn'))$('#searchBtn').onclick=async()=>{state.search=$('#searchInput').value.trim();state.loading=true;render();try{await loadMarkets()}catch{toast('Could not search markets. Check your connection and tap Search again.',true)}finally{state.loading=false;render()}};
   if($('#searchInput'))$('#searchInput').onkeydown=e=>{if(e.key==='Enter')$('#searchBtn').click()};
@@ -1585,13 +1588,16 @@ async function openMarket(id,{updateUrl=true,preselectLabel=null,openSource='fee
   if(state.online&&!isClosed(page.market))startMarketRealtime(id);else stopMarketRealtime();
 }
 function historySvg(d){
-  const outs=d?.outcomes||[];const yes=outs.find(o=>String(o.label).toUpperCase()==='YES');if(!yes)return '<div class="empty">No chart data.</div>';
-  const pts=(d.history||[]).filter(x=>x.outcome_id===yes.id).map(x=>Number(x.display_probability));
-  if(pts.length<2)return '<div class="empty">Probability history will appear as trades arrive.</div>';
-  const w=600,h=135,p=8;const min=0,max=100;
-  const xy=pts.map((v,i)=>[(i/(pts.length-1))*(w-p*2)+p,h-p-((v-min)/(max-min))*(h-p*2)]);
+  const yes=(d?.outcomes||[]).find(o=>String(o.label).toUpperCase()==='YES');
+  if(!yes)return '<div class="empty">No chart data.</div>';
+  const pts=(d.history||[]).filter(x=>x.outcome_id===yes.id).map(x=>validProbability(x.display_probability)).filter(x=>x!=null);
+  if(pts.length<2)return '<div class="empty">Probability history will appear after two valid market snapshots.</div>';
+  const w=600,h=160,left=38,right=10,top=14,bottom=24;
+  const y=v=>h-bottom-(v/100)*(h-top-bottom);
+  const xy=pts.map((v,i)=>[left+(i/(pts.length-1))*(w-left-right),y(v)]);
   const path=xy.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ');
-  return '<svg class="spark" viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none"><path d="'+path+'" fill="none" stroke="var(--k-green)" stroke-width="3" vector-effect="non-scaling-stroke"/><line x1="0" y1="'+h/2+'" x2="'+w+'" y2="'+h/2+'" stroke="var(--k-line)" stroke-dasharray="5 5"/></svg>';
+  const grid=[0,50,100].map(v=>'<line x1="'+left+'" y1="'+y(v)+'" x2="'+(w-right)+'" y2="'+y(v)+'" stroke="var(--k-line)" stroke-dasharray="5 5"/><text x="0" y="'+(y(v)+4)+'" fill="var(--k-muted)" font-size="12">'+v+'%</text>').join('');
+  return '<svg class="spark" role="img" aria-label="YES chance history, latest '+pct(pts[pts.length-1])+'. Snapshots shown in sequence." viewBox="0 0 '+w+' '+h+'">'+grid+'<path d="'+path+'" fill="none" stroke="var(--k-green)" stroke-width="3" vector-effect="non-scaling-stroke"/><text x="'+left+'" y="'+(h-4)+'" fill="var(--k-muted)" font-size="12">Earlier snapshots</text><text x="'+(w-right)+'" y="'+(h-4)+'" text-anchor="end" fill="var(--k-muted)" font-size="12">Latest</text></svg>';
 }
 
 async function showAdvancedBuy(m,outcome){
@@ -3527,17 +3533,23 @@ function renderAdmin(){
 
   document.querySelectorAll('[data-manual-reject]').forEach(btn=>{
     btn.onclick=async()=>{
+      if(btn.disabled||!state.user||!state.isAdmin)return;
+      const reason=(prompt('Reason for rejection','Could not verify transaction')||'').trim();
+      if(!reason)return;
+      btn.disabled=true;const oldText=btn.textContent;btn.textContent='Waiting for fingerprint / face / PIN…';
       try{
-        const reason=(prompt('Reason for rejection','Could not verify transaction')||'').trim();
-        if(!reason)return;
-        await rpc('admin_reject_manual_momo',{
-          p_payment_intent_id:btn.dataset.manualReject,
-          p_reason:reason
+        const response=await runMerchantPasskeyAdminAction('reject_manual_momo',{
+          payment_intent_id:btn.dataset.manualReject,
+          reason
         });
-        toast('Manual payment rejected');
+        if(!response?.passkey_verified)throw new Error('Passkey verification failed');
+        toast('Manual payment rejected safely');
         await loadAdmin();
         render();
-      }catch(e){toast(e.message||'Could not reject payment',true)}
+      }catch(e){
+        toast(e.message||'Could not reject payment',true);
+        if(btn.isConnected){btn.disabled=false;btn.textContent=oldText}
+      }
     };
   });
 }
@@ -3990,6 +4002,8 @@ $('#refreshBtn').onclick=refreshAll;
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){stopMarketRealtime();$('#overlay').innerHTML='';if(state.market){state.market=null;setMarketUrl(null,true)}}});
 window.addEventListener('popstate',async()=>{const id=linkedMarketId();if(id){await openMarket(id,{updateUrl:false})}else{stopMarketRealtime();$('#overlay').innerHTML='';state.market=null}});
 bootstrap().catch(e=>{reportClientError(e.message||'Bootstrap failed',e.stack||'',{kind:'bootstrap'});window.__predictUgShowStartupFailure(e.message||'Predict UG could not load');});
+
+})();
 </script>
 
 <script>

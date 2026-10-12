@@ -304,12 +304,12 @@ public class MainActivity extends ComponentActivity {
                 )) {
                     return true;
                 }
-                // Merchant pairing is handled by the separate private app.
-                // The consumer package must target the merchant applicationId,
-                // not itself, otherwise the tap silently resolves nowhere.
+                // The private Admin build handles pairing in this app.
+                // Consumer builds continue to target the separate private package.
                 if (AppOriginPolicy.isMerchantScheme(uri.getScheme())) {
                     Intent merchant = new Intent(Intent.ACTION_VIEW, uri);
-                    merchant.setPackage("com.predictug.app.merchant");
+                    merchant.setPackage("merchant".equals(BuildConfig.FLAVOR)
+                            ? getPackageName() : "com.predictug.app.merchant");
                     try {
                         startActivity(merchant);
                     } catch (ActivityNotFoundException missingMerchant) {
