@@ -46,6 +46,7 @@ jobs:
       - name: Verify public consumer endpoints (read-only)
         shell: bash
         run: |
+          node --input-type=module <<'NODE'
           import fs from "node:fs";
           const targets = [
             {name: "Render customer frontend", url: "https://predict-ug-app.onrender.com", valid: (body) => body.includes("<title>Predict UG</title>") && body.includes("predict-ug-payments")},
@@ -74,3 +75,4 @@ jobs:
           }
           if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n");
           if (results.some(r => !r.ok)) process.exitCode = 1;
+          NODE
