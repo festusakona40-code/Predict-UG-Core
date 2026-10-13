@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.82. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.83. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#ffffff"/>
@@ -439,7 +439,7 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--green);outline-offs
       <button class="btn small primary hidden" id="installBtn" aria-hidden="true" tabindex="-1">Installed</button>
       <button class="btn small ghost" id="refreshBtn">↻</button>
       <button class="btn small hidden" id="notifBtn" aria-label="Notifications">🔔</button>
-      <button class="btn small hidden" id="balanceBtn">0 credits</button>
+      <button class="btn small hidden" id="balanceBtn">Practice UGX 0</button>
       <button class="btn small hidden" id="inviteBtn">Invite</button>
       <button class="btn small" id="authBtn">Sign in</button>
     </div>
@@ -448,7 +448,7 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--green);outline-offs
   <main class="container" id="view"><div class="loading">Loading Predict UG…</div></main>
 </div>
 <div id="overlay"></div>
-<button id="merchantQuickConnect" class="merchant-quick hidden" aria-label="Connect merchant phone">⚡ Connect MTN + Airtel</button>
+<button id="merchantQuickConnect" class="merchant-quick hidden" aria-label="Connect MTN merchant phone">⚡ Connect MTN merchant</button>
 <div id="toast"></div>
 
 <script>
@@ -495,8 +495,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.82';
-const APP_VERSION_CODE=82;
+const APP_BUILD='0.7.83';
+const APP_VERSION_CODE=83;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -518,11 +518,27 @@ function clearStoredAuthSession(){
   }catch{}
 }
 
-const state={tab:'markets',session:null,user:null,isAdmin:false,status:null,onboarding:null,categories:[],markets:[],marketEvents:[],universityDirectory:[],universityRegistryCount:0,universityDirectorySource:'',ugandaTrends:[],ugandaDemand:[],ugandaSocialRadar:[],ugandaConsumption:[],recentResults:[],ugandaPulse:[],socialSourceStatus:null,socialClaims:[],socialClaimNote:'',digitalProfile:null,category:'',search:'',feedSort:'trending',market:null,portfolio:null,watchlist:[],notifications:[],leaderboard:[],trends:[],stories:[],creators:[],externalSignals:[],weatherSignals:[],statementSignals:[],officialData:[],admin:null,ceo:null,businessTraction:null,aiProviders:[],autonomy:null,loading:false,online:navigator.onLine,realtimeStatus:'idle',realtimeMarketId:null,balance:null,balanceMode:'forecast_credit',unreadNotifications:0,betaMission:null,behaviorPrefs:[],behaviorSessionId:null,paymentHistory:[],cashLaunch:null,merchantConnection:null,securityHealth:null};
+const state={tab:'markets',session:null,user:null,isAdmin:false,status:null,categories:[],markets:[],marketEvents:[],universityDirectory:[],universityRegistryCount:0,universityDirectorySource:'',ugandaTrends:[],ugandaDemand:[],ugandaSocialRadar:[],ugandaConsumption:[],recentResults:[],ugandaPulse:[],socialSourceStatus:null,socialClaims:[],socialClaimNote:'',digitalProfile:null,category:'',search:'',feedSort:'trending',market:null,portfolio:null,watchlist:[],notifications:[],leaderboard:[],trends:[],stories:[],creators:[],externalSignals:[],weatherSignals:[],statementSignals:[],officialData:[],admin:null,ceo:null,businessTraction:null,aiProviders:[],autonomy:null,loading:false,online:navigator.onLine,realtimeStatus:'idle',realtimeMarketId:null,balance:null,balanceMode:'forecast_credit',unreadNotifications:0,betaMission:null,behaviorPrefs:[],behaviorSessionId:null,paymentHistory:[],cashLaunch:null,merchantConnection:null,securityHealth:null,treasurySolvency:null,paymentRaceSafety:null};
 
 const $=s=>document.querySelector(s);
 const esc=(s='')=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const ugx=n=>'UGX '+Number(n||0).toLocaleString('en-UG');
+const practiceUgx=n=>'Practice '+ugx(n);
+function showPracticeUgxInfo(){
+  $('#overlay').innerHTML=
+    '<div class="modal"><div class="sheet" style="max-width:480px">'+
+      '<button class="close" id="practiceInfoClose" aria-label="Close">✕</button>'+
+      '<div class="media-label">Understand your balance</div>'+
+      '<h2>What is Practice UGX?</h2>'+
+      '<p>Practice balances, stakes and possible returns use familiar Ugandan shilling denominations.</p>'+
+      '<div class="quote-row"><span>Example practice stake</span><b>Practice UGX 1,000</b></div>'+
+      '<div class="quote-row"><span>At 2.00 odds, possible return</span><b>Practice UGX 2,000</b></div>'+
+      '<p class="auth-note"><b>Important:</b> Practice UGX is simulated, not money. It cannot be bought, deposited, converted to real UGX, transferred or withdrawn. A practice win is not a cash payment.</p>'+
+      '<button class="btn primary" id="practiceInfoDone" style="width:100%">I understand</button>'+
+    '</div></div>';
+  $('#practiceInfoClose').onclick=()=>$('#overlay').innerHTML='';
+  $('#practiceInfoDone').onclick=()=>$('#overlay').innerHTML='';
+}
 const validProbability=n=>{if(n==null||typeof n==='boolean'||String(n).trim()==='')return null;const value=Number(n);return Number.isFinite(value)&&value>=0&&value<=100?value:null};
 const pct=n=>{const value=validProbability(n);return value==null?'—':value.toFixed(0)+'%'};
 const oddsText=odds=>Number(odds||0)>1?Number(odds).toFixed(2):'—';
@@ -723,7 +739,13 @@ function maybeShowFirstUseGuide(){
 
 function starterMarketCandidate(){
   const rows=Array.isArray(state.markets)?state.markets:[];
-  const eligible=rows.filter(m=>m?.market_id&&!m?.external_benchmark&&!isPoliticalCategory(m?.category||m?.category_key));
+  const eligible=rows.filter(m=>{
+    const close=Date.parse(m?.close_time||'');
+    return !!m?.market_id&&!m?.external_benchmark&&
+      !isPoliticalCategory(m?.category||m?.category_key)&&
+      String(m?.status||'').toLowerCase()==='open'&&
+      Number.isFinite(close)&&close>Date.now();
+  });
   const score=m=>{
     const cat=String(m?.category||m?.category_key||'').toLowerCase();
     const title=String(m?.title||'').toLowerCase();
@@ -744,9 +766,7 @@ function starterMarketCandidate(){
     const ac=Date.parse(a?.close_time||'')||Number.MAX_SAFE_INTEGER;
     const bc=Date.parse(b?.close_time||'')||Number.MAX_SAFE_INTEGER;
     return ac-bc;
-  })[0]
-    ||rows.find(m=>m?.market_id&&!isPoliticalCategory(m?.category||m?.category_key))
-    ||null;
+  })[0]||null;
 }
 async function openStarterMarket(source='guide'){
   const starter=starterMarketCandidate();
@@ -763,12 +783,6 @@ async function openStarterMarket(source='guide'){
 }
 
 function showHowItWorks(firstUse=false){
-  const guide=state.onboarding||{};
-  const practice=esc(guide.practice_explainer||'Predict UG currently uses practice credits; real-money trading is disabled.');
-  const payouts=esc(guide.payout_explainer||'Your quote shows locked odds, possible return, net profit and maximum loss before confirmation.');
-  const withdrawals=esc(guide.withdrawal_explainer||'Practice credits cannot be withdrawn.');
-  const settlement=esc(guide.settlement_explainer||'Results use each market’s published resolution source and rule.');
-  const betting=esc(guide.betting_explainer||'You make YES/NO event predictions using practice credits only.');
   trackBehavior('screen_view',{metadata:{screen:'how_it_works',first_use:firstUse}});
   $('#overlay').innerHTML=
     '<div class="modal"><div class="sheet" style="max-width:560px">'+
@@ -776,11 +790,11 @@ function showHowItWorks(firstUse=false){
       '<div class="media-label">Predict UG in plain language</div><h2>Pick YES or NO. Know the rule before you predict.</h2>'+
       '<div class="timeline" style="margin-top:12px">'+
         '<div class="item"><b>1 · Choose a question</b><br><small>Start with something familiar. Football is prioritised when a verified fixture is available; otherwise Predict UG can guide you to a short-horizon Uganda Weather market or another verified local question.</small></div>'+
-        '<div class="item"><b>2 · YES or NO</b><br><small>'+payouts+'</small></div>'+
-        '<div class="item"><b>3 · Practice first</b><br><small>'+practice+' '+withdrawals+'</small></div>'+
-        '<div class="item"><b>4 · Settlement is rule-based</b><br><small>'+settlement+'</small></div>'+
+        '<div class="item"><b>2 · YES or NO</b><br><small>The percentage is the market probability. Decimal odds and your possible return are shown before you confirm.</small></div>'+
+        '<div class="item"><b>3 · Practice first</b><br><small>The public beta uses Practice UGX: simulated amounts displayed in Ugandan shillings. These are not real money and cannot be converted, deposited or withdrawn.</small></div>'+
+        '<div class="item"><b>4 · Settlement is rule-based</b><br><small>Every market has a published resolution rule and source. Predict UG does not settle a market just because AI or users think an outcome happened.</small></div>'+
       '</div>'+
-      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">'+betting+'</p><small class="auth-note">Predict UG Android 0.7.60 · bundled frontend</small></div>'+
+      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.83 · bundled frontend</p></div>'+
       '<div class="auth-wrap" style="margin-top:12px"><button class="btn primary" id="howStart">Try a starter market</button><button class="btn ghost" id="howDone">Browse all markets</button><button class="btn ghost" id="howFeedback">Something is confusing</button></div>'+
     '</div></div>';
   $('#howClose').onclick=()=>{$('#overlay').innerHTML='';trackBehavior('first_use_guide_dismissed',{metadata:{first_use:firstUse}})};
@@ -902,6 +916,24 @@ async function reportClientError(message,stack='',context={}){
 window.addEventListener('error',e=>reportClientError(e.message,e.error?.stack||'',{kind:'window_error'}));
 window.addEventListener('unhandledrejection',e=>reportClientError(e.reason?.message||String(e.reason||'Unhandled promise rejection'),e.reason?.stack||'',{kind:'unhandled_rejection'}));
 function openHosted(path){location.href=PUBLIC_ORIGIN+path}
+function hasIntegratedPhoneReporting(){
+  return /PredictUG\/\S+-merchant(?:\s|$)/.test(navigator.userAgent||'');
+}
+function cashRequiredLiquidityLabel(status){
+  const value=status?.required_liquidity_ugx;
+  const amount=value===null||value===undefined||value===''?NaN:Number(value);
+  if(!Number.isFinite(amount)||amount<0)return 'Not available';
+  if(status?.risk_limits_configured!==true){
+    return amount>0?ugx(amount)+' · reserve not configured':'Set reserve & risk limits';
+  }
+  return amount>0?ugx(amount):'Check reserve requirement';
+}
+function merchantDeviceHasRecentHeartbeat(device){
+  if(!device?.enabled||!device.last_seen_at)return false;
+  const seen=Date.parse(device.last_seen_at);
+  const age=Date.now()-seen;
+  return Number.isFinite(seen)&&age>=0&&age<90*60*1000;
+}
 function showMerchantPairingSheet(pairing,connectUri){
   const code=String(pairing?.pairing_code||'').trim();
   $('#overlay').innerHTML=
@@ -921,6 +953,10 @@ function showMerchantPairingSheet(pairing,connectUri){
         '<div id="merchantPairStatus" class="auth-note" style="min-height:24px"></div>'+
       '</div>'+
     '</div></div>';
+  if(hasIntegratedPhoneReporting()){
+    $('#overlay .auth-note').textContent='Phone reporting opens inside Predict UG. Complete Android Notification Access to receive new transaction notifications automatically.';
+    $('#merchantOpenApp').textContent='Open phone reporting';
+  }
   $('#merchantPairClose').onclick=()=>$('#overlay').innerHTML='';
   $('#merchantOpenApp').onclick=()=>{location.href=connectUri};
   $('#merchantCopyCode').onclick=async()=>{
@@ -939,14 +975,14 @@ function showMerchantPairingSheet(pairing,connectUri){
     if(el)el.textContent='Checking…';
     try{
       const devices=await rpc('admin_list_merchant_ingest_devices')||[];
-      const active=devices.find(d=>d.enabled);
+      const active=devices.find(merchantDeviceHasRecentHeartbeat);
       if(active){
-        if(el)el.textContent='Connected ✓ '+(active.network_scope||'BOTH')+' merchant phone is active.';
+        if(el)el.textContent='Phone reached the server ✓ '+(active.network_scope||'BOTH')+'. Check Notification Access in phone reporting setup.';
         const quick=$('#merchantQuickConnect');
         if(quick){quick.textContent='✓ Merchant connected';quick.disabled=false}
         toast('Merchant phone connected ✓');
       }else if(el){
-        el.textContent='Not connected yet. Open the Merchant app and use the code above.';
+        el.textContent=hasIntegratedPhoneReporting()?'No recent phone connection. Open phone reporting and complete setup.':'No recent phone connection. Open the Merchant app and complete setup.';
       }
     }catch(e){
       if(el)el.textContent=e.message||'Could not check connection';
@@ -956,14 +992,14 @@ function showMerchantPairingSheet(pairing,connectUri){
 
 async function createAndOpenMerchantPairing(){
   const pairing=await rpc('admin_create_merchant_pairing_code',{
-    p_label:'My MTN + Airtel merchant phone',
-    p_network_scope:'BOTH'
+    p_label:'My MTN merchant phone',
+    p_network_scope:'MTN'
   });
   const code=String(pairing?.pairing_code||'').trim();
   const connectUri=pairing?.connect_uri||('predictug://merchant-connect?code='+encodeURIComponent(code));
   if(!code)throw new Error('Could not create pairing code');
   showMerchantPairingSheet(pairing,connectUri);
-  toast('Opening Predict UG Merchant…');
+  toast(hasIntegratedPhoneReporting()?'Opening phone reporting…':'Opening Predict UG Merchant…');
   setTimeout(()=>{location.href=connectUri},350);
 }
 
@@ -982,13 +1018,17 @@ async function quickConnectMerchantPhone(){
         '<div class="modal"><div class="sheet" style="max-width:480px">'+
           '<button class="close" id="merchantExistingClose">✕</button>'+
           '<h2>Merchant phone registered ✓</h2>'+
-          '<p class="auth-note">The server has an active '+esc(activeDevice.network_scope||'MTN + Airtel')+' merchant device. If the Merchant app says this phone is not paired after an update/reinstall, use Repair below to issue fresh secure credentials.</p>'+
+          '<p class="auth-note">The server has an active '+esc(activeDevice.network_scope||'MTN')+' merchant device. If the Merchant app says this phone is not paired after an update/reinstall, use Repair below to issue fresh secure credentials.</p>'+
           '<div class="auth-wrap">'+
             '<button class="btn primary" id="merchantExistingTest">Open Merchant app & check connection</button>'+
             '<button class="btn" id="merchantExistingRepair">Repair / reconnect this phone</button>'+
             '<button class="btn" data-tab="admin">View merchant status</button>'+
           '</div>'+
         '</div></div>';
+      if(hasIntegratedPhoneReporting()){
+        $('#overlay .auth-note').textContent='A merchant device is registered. Open phone reporting to check this phone. If no pairing is saved, use Repair to create a fresh secure connection. Registration alone does not confirm automatic reporting.';
+        $('#merchantExistingTest').textContent='Open phone reporting & check connection';
+      }
       $('#merchantExistingClose').onclick=()=>$('#overlay').innerHTML='';
       $('#merchantExistingTest').onclick=()=>{location.href='predictug://merchant-test'};
       $('#merchantExistingRepair').onclick=async()=>{
@@ -1031,10 +1071,18 @@ function aiProviderSetupUrl(provider){
   })[provider]||'';
 }
 function cachedAgeLabel(entry){if(!entry?.saved_at)return '';const ms=Date.now()-new Date(entry.saved_at).getTime();if(ms<60000)return 'just now';if(ms<3600000)return Math.floor(ms/60000)+'m ago';return Math.floor(ms/3600000)+'h ago'}
+async function loadAdminStatus(){
+  if(!state.user){state.isAdmin=false;return false}
+  for(let attempt=0;attempt<2;attempt++){
+    try{state.isAdmin=!!(await promiseTimeout(rpc('is_admin'),3500,'Admin status check timed out'));return state.isAdmin}
+    catch{if(attempt===0)await new Promise(resolve=>setTimeout(resolve,250))}
+  }
+  state.isAdmin=false;return false;
+}
 async function loadSession(){
   const {data}=await promiseTimeout(supabase.auth.getSession(),4500,'Session restore timed out');
   state.session=data?.session||null;state.user=data?.session?.user||null;
-  if(state.user){try{state.isAdmin=!!(await rpc('is_admin'))}catch{state.isAdmin=false}}else state.isAdmin=false;
+  await loadAdminStatus();
 }
 async function restoreSessionAfterPublicRender(){
   try{
@@ -1060,7 +1108,7 @@ function installAuthListener(){
   authListenerInstalled=true;
   supabase.auth.onAuthStateChange((event,session)=>{
     const previousUserId=state.user?.id;state.session=session||null;state.user=session?.user||null;if(previousUserId!==state.user?.id){state.notifications=[];state.notificationsLoaded=false;state.notificationsError='';state.unreadNotifications=0;state.admin=null;state.ceo=null;state.portfolio=null;state.paymentHistory=[];state.balance=null;state.balanceMode='forecast_credit';state.watchlist=[];state.watchlistError='';state.behaviorPrefs=[];state.betaMission=null}state.isAdmin=false;render();
-    if(state.user){setTimeout(async()=>{try{state.isAdmin=!!(await rpc('is_admin'));await Promise.all([loadBalance(),loadUnreadNotifications(),loadBehaviorPrefs(),loadBetaMission()]);state.markets=personalizeMarkets(state.markets);render();const legalOk=await ensureLegalAcceptance();if(legalOk)maybeShowFirstUseGuide()}catch{}},0)}
+    if(state.user){setTimeout(async()=>{try{await loadAdminStatus();await Promise.all([loadBalance(),loadUnreadNotifications(),loadBehaviorPrefs(),loadBetaMission()]);state.markets=personalizeMarkets(state.markets);render();const legalOk=await ensureLegalAcceptance();if(legalOk)maybeShowFirstUseGuide()}catch{}},0)}
     else{state.balance=null;state.unreadNotifications=0}
   });
 }
@@ -1134,26 +1182,14 @@ async function loadUnreadNotifications(){
   }catch{}
 }
 async function syncPaymentReturn(){
+  // Legacy provider-return parameters are not merchant payment evidence.
   const qs=new URLSearchParams(location.search);
-  const intent=
-    qs.get('OrderMerchantReference')||
-    qs.get('orderMerchantReference')||
-    qs.get('payment_intent_id')||
-    qs.get('tx_ref');
-  if(!intent||!state.session)return;
-  try{
-    const res=await fetch(SUPABASE_URL+'/functions/v1/payment-router?action=sync-status',{
-      method:'POST',
-      headers:{'content-type':'application/json','authorization':'Bearer '+state.session.access_token},
-      body:JSON.stringify({
-        payment_intent_id:intent,
-        transaction_id:qs.get('transaction_id')||qs.get('transactionId')||null
-      })
-    });
-    const data=await res.json();
-    if(res.ok)toast('Payment status: '+(data.status||'updated'));else toast(data.error||'Payment sync failed',true);
-    history.replaceState({},'',location.pathname);
-  }catch(e){toast('Payment status check failed',true)}
+  const paymentKeys=['OrderMerchantReference','orderMerchantReference','payment_intent_id','tx_ref'];
+  if(!paymentKeys.some(key=>qs.has(key)))return;
+  for(const key of [...paymentKeys,'transaction_id','transactionId'])qs.delete(key);
+  const remaining=qs.toString();
+  history.replaceState(history.state||{},'',location.pathname+(remaining?'?'+remaining:'')+location.hash);
+  toast('A redirect cannot confirm an MTN/Airtel merchant payment. Check payment history; wallet credit requires independently verified merchant evidence.',true);
 }
 async function loadEventHub(){
   const category=state.category||'';
@@ -1208,7 +1244,6 @@ async function loadPublicBootstrap(){
       p_limit:80
     });
     state.status=b?.status||{};
-    state.onboarding=b?.onboarding||null;
     state.categories=b?.categories||[];
     state.markets=personalizeMarkets(b?.markets||[]);
     state.ugandaTrends=b?.uganda_trends||[];
@@ -1223,7 +1258,6 @@ async function loadPublicBootstrap(){
     if(!cached)throw e;
     const b=cached.value||{};
     state.status=b?.status||{};
-    state.onboarding=b?.onboarding||null;
     state.categories=b?.categories||[];
     state.markets=b?.markets||[];
     state.ugandaTrends=b?.uganda_trends||[];
@@ -1321,7 +1355,7 @@ function render(){
   if(merchantQuick)merchantQuick.classList.toggle('hidden',!(state.user&&state.isAdmin&&state.tab!=='admin'));
   const balanceBtn=$('#balanceBtn');
   if(balanceBtn){
-    if(state.user&&state.balance!=null){balanceBtn.classList.remove('hidden');balanceBtn.textContent=state.balanceMode==='cash'?ugx(state.balance):(Number(state.balance).toLocaleString('en-UG')+' credits')}
+    if(state.user&&state.balance!=null){balanceBtn.classList.remove('hidden');balanceBtn.textContent=state.balanceMode==='cash'?ugx(state.balance):practiceUgx(state.balance);balanceBtn.title=state.balanceMode==='cash'?'Available real-money wallet':'Practice only · not real money or withdrawable'}
     else balanceBtn.classList.add('hidden');
   }
   const notifBtn=$('#notifBtn');
@@ -1362,7 +1396,7 @@ function marketCard(m,openSource='market_card'){
     '<div class="market-main-row"><div class="market-title">'+esc(displayTitle)+'</div><div class="market-price">'+pct(y)+'<small>YES chance</small></div></div>'+
     (y==null?'<div class="auth-note">Chance unavailable · open market for details</div>':'<div class="bar"><span style="width:'+y+'%"></span></div>')+
     '<div class="market-actions"><button type="button" class="market-mini y" data-market="'+m.market_id+'" data-market-side="YES" aria-label="Choose YES"><span>YES</span><b>'+yesOdds+'</b></button><button type="button" class="market-mini n" data-market="'+m.market_id+'" data-market-side="NO" aria-label="Choose NO"><span>NO</span><b>'+noOdds+'</b></button></div>'+
-    '<div class="meta"><span class="trust-mark">✓ '+esc(trust)+(Number(m.total_pool_ugx||0)>0?' · '+Number(m.total_pool_ugx||0).toLocaleString('en-UG')+' credits active':'')+'</span><span>'+(m.watched?'★ Saved':'View market →')+'</span></div>'+
+    '<div class="meta"><span class="trust-mark">✓ '+esc(trust)+'</span><span>'+(m.watched?'★ Saved':'View market →')+'</span></div>'+
   '</article>';
 }
 function eventHubCard(e){
@@ -1493,16 +1527,17 @@ function renderMarkets(){
     '<section class="homehero polished-home">'+
       '<div class="home-kicker">Predict UG <span>Uganda-first markets</span></div>'+
       '<h1>What will happen next?</h1>'+
-      '<p>Choose a real-world question, pick YES or NO, and see the rule, odds and possible return before you confirm.</p>'+
+      '<p>Follow Uganda questions in sports, music, campus, weather and news. Choose YES or NO; see the odds, risk and result in one place.</p>'+
       '<div class="home-intro-actions">'+
-        '<button class="btn small primary" id="homeHowItWorks">How it works</button>'+
+        (!state.user?'<button class="btn small primary" id="homeCreateAccount">Create free account</button>':'<button class="btn small primary" id="homeMyPredictions">My predictions</button>')+
+        '<button class="btn small ghost" id="homeHowItWorks">How it works</button>'+
         (starterMarket?'<button class="btn small ghost" id="starterMarketBtn">'+starterLabel+'</button>':'')+
-        '<span class="quiet-badge">'+(mode==='cash'?'Cash mode':'Practice credits')+' · '+(state.online?'Live':'Offline cache')+'</span>'+
+        '<span class="quiet-badge">'+(mode==='cash'?'Cash mode':'Practice UGX · not cash')+' · '+(state.online?'Live':'Offline cache')+'</span>'+
       '</div>'+
     '</section>'+
 
-    (mission&&!missionComplete?'<section class="card" style="margin:12px 0 14px;border-color:var(--k-greenPressed);background:linear-gradient(145deg,var(--k-greenTint),var(--k-surface))"><div class="section-title" style="margin:0 0 10px"><div><span class="feed-kicker">Getting started</span><h2 style="margin:3px 0 0">Make your first 3 predictions</h2></div><span class="statuschip">'+Math.min(mission.trades,mission.goal)+' / '+mission.goal+'</span></div><p class="auth-note" style="margin:0 0 12px">Use practice credits to learn the flow. There is no cash reward — the goal is simply to understand YES/NO, odds and settlement.</p><div style="height:8px;border-radius:999px;background:var(--k-surface);overflow:hidden;margin-bottom:12px"><div style="height:100%;width:'+Math.min(100,(mission.trades/mission.goal)*100)+'%;background:var(--k-green)"></div></div><div class="auth-wrap"><button class="btn small primary" id="betaMissionBtn">Make prediction '+Math.min(mission.goal,mission.trades+1)+'</button><button class="btn small ghost" id="betaMissionHow">How predictions work</button></div></section>':'')+
-    (missionComplete?'<section class="card" style="margin:12px 0 14px;border-color:var(--k-blueTint);background:linear-gradient(145deg,var(--k-blueTint),var(--k-surface))"><div class="section-title" style="margin:0 0 8px"><div><span class="feed-kicker">Starter mission complete</span><h2 style="margin:3px 0 0">You have made your first 3 predictions</h2></div><span class="statuschip ok">3 / 3</span></div><p class="auth-note" style="margin:0 0 12px">Keep exploring Uganda markets or invite someone to try Predict UG with practice credits. Referral tracking has no cash or credit reward.</p><div class="auth-wrap"><button class="btn small primary" id="betaMissionInvite">Invite someone</button><button class="btn small ghost" id="betaMissionExplore">Explore markets</button></div></section>':'')+
+    (mission&&!missionComplete?'<section class="card" style="margin:12px 0 14px;border-color:var(--k-greenPressed);background:linear-gradient(145deg,var(--k-greenTint),var(--k-surface))"><div class="section-title" style="margin:0 0 10px"><div><span class="feed-kicker">Getting started</span><h2 style="margin:3px 0 0">Make your first 3 predictions</h2></div><span class="statuschip">'+Math.min(mission.trades,mission.goal)+' / '+mission.goal+'</span></div><p class="auth-note" style="margin:0 0 12px">Predict with Practice UGX (simulated shillings) and watch the outcomes. Practice wins are not real-money payouts.</p><div style="height:8px;border-radius:999px;background:var(--k-surface);overflow:hidden;margin-bottom:12px"><div style="height:100%;width:'+Math.min(100,(mission.trades/mission.goal)*100)+'%;background:var(--k-green)"></div></div><div class="auth-wrap"><button class="btn small primary" id="betaMissionBtn">Make prediction '+Math.min(mission.goal,mission.trades+1)+'</button><button class="btn small ghost" id="betaMissionHow">How predictions work</button></div></section>':'')+
+    (missionComplete?'<section class="card" style="margin:12px 0 14px;border-color:var(--k-blueTint);background:linear-gradient(145deg,var(--k-blueTint),var(--k-surface))"><div class="section-title" style="margin:0 0 8px"><div><span class="feed-kicker">Starter mission complete</span><h2 style="margin:3px 0 0">You have made your first 3 predictions</h2></div><span class="statuschip ok">3 / 3</span></div><p class="auth-note" style="margin:0 0 12px">See your results, follow more Uganda questions or invite someone. Practice UGX has no cash value; referrals have no financial reward.</p><div class="auth-wrap"><button class="btn small primary" id="betaMissionInvite">Invite someone</button><button class="btn small ghost" id="betaMissionExplore">Explore markets</button></div></section>':'')+
     '<section class="market-toolbar">'+
       '<div class="searchrow"><input class="input" id="searchInput" value="'+esc(state.search)+'" placeholder="Search Predict UG"><button class="btn primary" id="searchBtn">Search</button></div>'+
       '<div class="chips"><button class="chip '+(!state.category?'active':'')+'" data-category="">All</button>'+state.categories.map(c=>'<button class="chip '+(state.category===c.category_key?'active':'')+'" data-category="'+esc(c.category_key)+'">'+esc(c.label)+'</button>').join('')+'</div>'+
@@ -1526,13 +1561,15 @@ function renderMarkets(){
 
     '<div class="compact-info"><div><strong>What is happening in Uganda?</strong><small>Explore news and trends in Pulse.</small></div><button class="btn small" data-tab="media">Open Pulse</button></div>'+
 
-    (!state.user?'<div class="compact-info"><div><strong>New to prediction markets?</strong><small>Start with a familiar question and practice credits. Every market shows its resolution rule before confirmation.</small></div><button class="btn small primary" id="homeSignIn">Sign in</button></div>':'')+
+    (!state.user?'<div class="compact-info"><div><strong>New to prediction markets?</strong><small>Start free with Practice UGX, shown in familiar shillings but not real money. Every market explains how the result is checked.</small></div><button class="btn small primary" id="homeSignIn">Sign in</button></div>':'')+
 
-    '<div class="card" style="margin-top:18px"><div class="auth-note">Predict UG public beta · practice credits are not cash.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn small primary" id="footerHowItWorks">How it works</button><button class="btn small ghost" id="homePrivacy">Privacy</button><button class="btn small ghost" id="homeTerms">Terms</button><button class="btn small ghost" id="homeSuggestMarket">Suggest a market</button><button class="btn small ghost" id="homeSupport">Support</button><button class="btn small ghost" id="homeBusiness">Advertise</button><button class="btn small" id="homeInstallApp">Get app</button></div></div>';
+    '<div class="card" style="margin-top:18px"><div class="auth-note">Predict UG public beta · Practice UGX is simulated; it cannot be converted or withdrawn.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn small primary" id="footerHowItWorks">How it works</button><button class="btn small ghost" id="homePrivacy">Privacy</button><button class="btn small ghost" id="homeTerms">Terms</button><button class="btn small ghost" id="homeSuggestMarket">Suggest a market</button><button class="btn small ghost" id="homeSupport">Support</button><button class="btn small ghost" id="homeBusiness">Advertise</button><button class="btn small" id="homeInstallApp">Get app</button></div></div>';
 
   document.querySelectorAll('[data-event]').forEach(el=>el.onclick=()=>openEvent(el.dataset.event));
   document.querySelectorAll('[data-university-market]').forEach(el=>el.onclick=()=>openMarket(el.dataset.universityMarket));
   if($('#homeHowItWorks'))$('#homeHowItWorks').onclick=showHowItWorks;
+  if($('#homeCreateAccount'))$('#homeCreateAccount').onclick=showAuth;
+  if($('#homeMyPredictions'))$('#homeMyPredictions').onclick=()=>openAccountShortcut('portfolio',loadPortfolio);
   if($('#footerHowItWorks'))$('#footerHowItWorks').onclick=showHowItWorks;
   if($('#starterMarketBtn'))$('#starterMarketBtn').onclick=()=>openStarterMarket('home_polish');
   if($('#betaMissionBtn'))$('#betaMissionBtn').onclick=()=>{trackBehavior('beta_mission_cta',{metadata:{trades:Number(state.betaMission?.trades||0),goal:Number(state.betaMission?.goal||3)}});openStarterMarket('beta_mission')};
@@ -1676,7 +1713,7 @@ function lifecycleStripHtml(m,d){
   '</div>';
 }
 function rulesSummaryHtml(m,d){
-  const mode=(d?.trading_mode||'forecast_credit')==='cash'?'Cash market':'Practice credits';
+  const mode=(d?.trading_mode||'forecast_credit')==='cash'?'Cash market':'Practice UGX';
   const catalog=d?.contract||{};
   const series=catalog.series||{};
   const event=catalog.event||{};
@@ -1790,7 +1827,7 @@ function drawMarket(){
     '<button class="btn small primary" id="adminSettleBtn">Settle</button>'+
     '<button class="btn small danger" id="adminVoidBtn">Void</button>'+
   '</div><small>Proposal: '+esc(proposal.status||'none')+' · Evidence '+Number(proposal.evidence_count||0)+' · Open challenges '+proposalOpenChallenges+(proposalChallengeOpen?' · Window closes '+dt(proposal.challenge_until):'')+'</small></div>':'<div class="item" style="margin-top:10px"><b>Admin lifecycle</b><br><small>Offline read-only mode · reconnect to change market state.</small></div>'):'';
-  const detailMode=(d.trading_mode||'forecast_credit')==='cash'?'Cash market':'Practice credits';
+  const detailMode=(d.trading_mode||'forecast_credit')==='cash'?'Cash market':'Practice UGX';
   $('#overlay').innerHTML='<div class="modal"><div class="sheet full"><button class="btn small ghost" id="shareMarket" style="float:right;margin-right:8px">Share</button><button class="close" id="closeMarket">✕</button>'+
     '<section class="detail-head">'+
       hierarchyBreadcrumb+
@@ -1817,21 +1854,61 @@ function drawMarket(){
 
       (isClosed(m)?'<button class="btn ghost" style="width:100%;margin-top:8px" id="settleRequestBtn">Request settlement</button>':'')+
       '<p class="auth-note">'+(state.status?.real_money_enabled?'Cash mode follows your eligibility.':'Cash deposits and withdrawals remain unavailable until approval. Practice-credit predictions are active.')+'</p>'+
-      ((d.my_positions||[]).length?'<div class="item"><b>Your position</b><br>'+d.my_positions.map(p=>esc(p.outcome_label)+' · '+ugx(p.total_stake_ugx)+' · '+esc(p.position_status)).join('<br>')+'</div>':'')+
+      ((d.my_positions||[]).length?'<div class="item"><b>Your position</b><br>'+d.my_positions.map(p=>esc(p.outcome_label)+' · '+(d.trading_mode==='cash'?ugx(p.total_stake_ugx):practiceUgx(p.total_stake_ugx))+' · '+esc(p.position_status)).join('<br>')+'</div>':'')+
       adminPanel+
     '</div></aside></div></div></div>';
   let chosen=null,quoteTimer=null,latestQuote=null;
-  const quoteValue=(q,n)=>q?.mode==='cash'?ugx(n):Number(n||0).toLocaleString('en-UG')+' credits';
-  const renderQuote=(q)=>{
+  let quoteRevision=0;
+  const stakeElement=$('#stakeInput');
+  // Snapshot the exact account, view and intent before asynchronous pricing.
+  // A redraw, logout, selection change or stake edit invalidates that request.
+  const quoteSnapshot=()=>({
+    revision:++quoteRevision,marketId:m.id,outcome:{...chosen},
+    stake:Number(stakeElement?.value||0),userId:state.user?.id||null,
+    balanceMode:state.balanceMode,
+  });
+  const quoteSnapshotCurrent=(snapshot)=>
+    snapshot.revision===quoteRevision&&state.market===d&&
+    $('#stakeInput')===stakeElement&&state.online&&
+    (state.user?.id||null)===snapshot.userId&&state.balanceMode===snapshot.balanceMode&&
+    chosen?.id===snapshot.outcome.id&&Number(stakeElement?.value||0)===snapshot.stake;
+  const invalidateQuote=()=>{
+    ++quoteRevision;latestQuote=null;
+    if($('#placeBtn'))$('#placeBtn').disabled=true;
+  };
+  const quoteValue=(q,n)=>q?.mode==='cash'?ugx(n):practiceUgx(n);
+  const quoteContractCoherent=(q,snapshot)=>{
+    if(!q||typeof q!=='object'||!snapshot?.outcome)return false;
+    const odds=Number(q.decimal_odds),acceptedOdds=Number(q.accepted_odds_if_placed_now);
+    const stake=Number(q.stake_ugx),payout=Number(q.estimated_payout_ugx);
+    const winning=Number(q.if_correct_return_ugx),loss=Number(q.if_wrong_loss_ugx);
+    const maxStake=Number(q.max_accepted_stake_ugx);
+    return q.pricing_model==='fixed_odds_bookmaker_dynamic'&&
+      q.market_id===snapshot.marketId&&q.outcome_id===snapshot.outcome.id&&
+      q.mode===snapshot.balanceMode&&
+      Number.isSafeInteger(stake)&&stake>0&&stake===snapshot.stake&&
+      Number.isFinite(odds)&&odds>1&&odds===acceptedOdds&&
+      Number.isSafeInteger(payout)&&payout>=stake&&winning===payout&&
+      loss===stake&&Number.isSafeInteger(maxStake)&&maxStake>=0;
+  };
+  const renderQuote=(q,snapshot)=>{
+    if(!quoteContractCoherent(q,snapshot)){
+      latestQuote=null;
+      $('#quoteBox').innerHTML='<span class="auth-note">Quote details could not be verified. Refresh before continuing.</span>';
+      $('#placeBtn').disabled=true;
+      return;
+    }
     latestQuote=q;
     const net=Number(q.if_correct_net_profit_ugx??q.estimated_profit_ugx??0);
-    const margin=Number(q.base_margin_pct??q.platform_margin_pct??q.platform_fee_pct??0);
+    const rawBaseMargin=q.base_margin_pct;
+        const baseMargin=rawBaseMargin===null||rawBaseMargin===undefined||rawBaseMargin===''?NaN:Number(rawBaseMargin);
+        const baseMarginText=Number.isFinite(baseMargin)&&baseMargin>=0&&baseMargin<=100?baseMargin.toFixed(2)+'%':'Not separately provided';
     const odds=Number(q.decimal_odds??q.accepted_odds_if_placed_now??0);
     const fair=Number(q.fair_probability_pct??q.post_trade_probability??0);
     const offered=Number(q.offered_probability_pct||0);
     const maxStake=Number(q.max_accepted_stake_ugx||0);
-    const bookOpen=q.book_open!==false;
-    const acceptable=q.bet_acceptable!==false;
+    const bookOpen=q.book_open===true;
+    const acceptable=q.bet_acceptable===true;
     const source=String(q.fair_probability_source||'live market signal').replaceAll('_',' ');
     const returnText=quoteValue(q,q.if_correct_return_ugx??q.estimated_payout_ugx);
     const lossText=quoteValue(q,q.if_wrong_loss_ugx??q.stake_ugx);
@@ -1849,7 +1926,7 @@ function drawMarket(){
       '<details style=\"margin-top:10px\"><summary class=\"auth-note\" style=\"cursor:pointer\">How these odds work</summary><div style=\"padding-top:8px\">'+
         '<div class=\"quote-row\"><span>Fair probability</span><b>'+fair.toFixed(2)+'%</b></div>'+
         '<div class=\"quote-row\"><span>Odds probability</span><b>'+offered.toFixed(2)+'%</b></div>'+
-        '<div class=\"quote-row\"><span>Base margin</span><b>'+margin.toFixed(0)+'%</b></div>'+
+        '<div class=\"quote-row\"><span>Base margin</span><b>'+baseMarginText+'</b></div>'+
         '<div class=\"quote-row\"><span>Pricing signal</span><b>'+esc(source)+'</b></div>'+
         '<div class=\"trade-formula\">Your accepted odds are locked for this prediction. If correct, return = stake × accepted odds. If wrong, the stake is lost. Pricing can change for later predictions as market probability and exposure move.</div>'+
       '</div></details>';
@@ -1857,40 +1934,62 @@ function drawMarket(){
     $('#placeBtn').textContent='Review '+chosen.label+' prediction';
   };
   const updateQuote=async()=>{
-    latestQuote=null;
+    invalidateQuote();
     if(!chosen)return;
     if(!state.online){
       $('#quoteBox').innerHTML='<span class="auth-note">Offline read-only mode. Reconnect for a live quote.</span>';
-      $('#placeBtn').disabled=true;
       return;
     }
-    const stake=Number($('#stakeInput').value||0);if(stake<=0)return;
+    const snapshot=quoteSnapshot();
+    if(!Number.isFinite(snapshot.stake)||snapshot.stake<=0)return;
     try{
-      const q=await rpc('quote_prediction',{p_market_id:m.id,p_outcome_id:chosen.id,p_stake_ugx:stake});
-      renderQuote(q);
+      const q=await rpc('quote_prediction',{p_market_id:snapshot.marketId,p_outcome_id:snapshot.outcome.id,p_stake_ugx:snapshot.stake});
+      if(!quoteSnapshotCurrent(snapshot))return;
+      renderQuote(q,snapshot);
     }catch(e){
+      if(!quoteSnapshotCurrent(snapshot))return;
       $('#quoteBox').innerHTML='<span class="auth-note">'+esc(e.message)+'</span>';
       $('#placeBtn').disabled=true;
     }
   };
-  const submitPrediction=async(q,stake)=>{
+  const submitPrediction=async(q,snapshot)=>{
+    // Submit only the reviewed intent, never a mutable selection behind the modal.
+    if(!snapshot.userId||!quoteSnapshotCurrent(snapshot)){
+      $('#tradeReviewOverlay')?.remove();
+      toast('Your selection or account changed. Review this prediction again.',true);
+      return;
+    }
+    const stake=snapshot.stake;
     const confirmBtn=$('#reviewPlaceConfirm');
     try{
       if(confirmBtn){confirmBtn.disabled=true;confirmBtn.textContent='Placing…'}
-      const key='web-'+crypto.randomUUID();
-      await rpc('place_prediction',{p_market_id:m.id,p_outcome_id:chosen.id,p_stake_ugx:stake,p_idempotency_key:key});
-      trackBehavior('prediction_submitted',{category:m.category||m.category_key,marketId:m.id,metadata:{side:chosen.label,mode:q?.mode||'forecast_credit'}});
+      // One key belongs to one immutable review, including manual network retries.
+      const key=snapshot.idempotencyKey;
+      await rpc('place_reviewed_prediction',{p_market_id:snapshot.marketId,p_outcome_id:snapshot.outcome.id,p_stake_ugx:stake,p_idempotency_key:key,p_expected_mode:q.mode,p_expected_decimal_odds:q.decimal_odds,p_expected_payout_ugx:q.estimated_payout_ugx??q.if_correct_return_ugx});
+      trackBehavior('prediction_submitted',{category:m.category||m.category_key,marketId:m.id,metadata:{side:snapshot.outcome.label,mode:q?.mode||'forecast_credit'}});
+      if(!quoteSnapshotCurrent(snapshot))return;
       loadBehaviorPrefs().then(()=>{state.markets=personalizeMarkets(state.markets)}).catch(()=>{});
       const review=$('#tradeReviewOverlay');if(review)review.remove();
       await Promise.all([loadBalance(),loadBetaMission()]);
+      if(!quoteSnapshotCurrent(snapshot))return;
       const missionTrades=Number(state.betaMission?.trades||0);
       const placedLabel=q?.mode==='cash'?'Cash prediction placed':'Practice prediction placed';
       toast(missionTrades>=3?(placedLabel+' · first 3 complete!'):(placedLabel+' · '+missionTrades+'/3 starter predictions'));
-      state.market=await rpc('market_page',{p_market_id:m.id});
+      const placedPage=await rpc('market_page',{p_market_id:snapshot.marketId});
+      if(!quoteSnapshotCurrent(snapshot))return;
+      state.market=placedPage;
       drawMarket();
       await loadMarkets();
     }catch(e){
+      if(!quoteSnapshotCurrent(snapshot))return;
       const msg=String(e?.message||'');
+      if(String(e?.code||'')==='PUG01'||/reviewed.*(?:quote|odds|mode).*changed|prediction mode.*changed/i.test(msg)){
+        $('#tradeReviewOverlay')?.remove();
+        invalidateQuote();
+        toast('Odds or payment mode changed. Check the refreshed quote and review again before placing.',true);
+        await updateQuote();
+        return;
+      }
       if(msg.toLowerCase().includes('terms and privacy acceptance required')){
         const review=$('#tradeReviewOverlay');if(review)review.remove();
         trackBehavior('legal_gate_recovered_from_prediction',{category:m.category||m.category_key,marketId:m.id});
@@ -1908,35 +2007,44 @@ function drawMarket(){
     if(!state.online){toast('Offline: reconnect before placing a prediction.',true);return}
     if(!state.user){showAuth();return}
     if(!chosen)return;
-    const stake=Number($('#stakeInput').value||0);if(stake<=0)return;
+    const snapshot=quoteSnapshot();
+    const stake=snapshot.stake;
+    if(!Number.isFinite(stake)||stake<=0){invalidateQuote();return}
     try{
       $('#placeBtn').disabled=true;$('#placeBtn').textContent='Refreshing odds…';
-      const q=await rpc('quote_prediction',{p_market_id:m.id,p_outcome_id:chosen.id,p_stake_ugx:stake});
-      renderQuote(q);
+      const q=await rpc('quote_prediction',{p_market_id:snapshot.marketId,p_outcome_id:snapshot.outcome.id,p_stake_ugx:stake});
+      if(!quoteSnapshotCurrent(snapshot))return;
+      renderQuote(q,snapshot);
       $('#placeBtn').textContent='Review risk & payout';
-      if(q.book_open===false||q.bet_acceptable===false){
+      if(!quoteContractCoherent(q,snapshot)){
+        toast('The quote did not match your market, outcome, stake or accepted odds. Refresh and review again.',true);
+        return;
+      }
+      if(q.book_open!==true||q.bet_acceptable!==true){
         const max=Number(q.max_accepted_stake_ugx||0);
         toast(q.book_open===false?'Market temporarily unavailable':('Maximum accepted stake is '+quoteValue(q,max)),true);
         return;
       }
       trackBehavior('explain_odds_opened',{category:m.category||m.category_key,marketId:m.id,metadata:{surface:'final_prediction_review'}});
       const old=$('#tradeReviewOverlay');if(old)old.remove();
-      const margin=Number(q.platform_margin_pct??q.platform_fee_pct??9);
+      const rawMargin=q.platform_margin_pct;
+            const margin=rawMargin===null||rawMargin===undefined||rawMargin===''?NaN:Number(rawMargin);
+            const marginText=Number.isFinite(margin)&&margin>=0&&margin<=100?margin.toFixed(2)+'% built into odds':'Included in quoted odds';
       const odds=Number(q.decimal_odds??0);
       const net=Number(q.if_correct_net_profit_ugx??q.estimated_profit_ugx??0);
       const cash=q.mode==='cash';
       const amount=x=>quoteValue(q,x);
       const slipLabel=cash?'Final cash prediction':'Practice prediction review';
       const confirmLabel=cash?'Place cash prediction':'Place practice prediction';
-      const practiceNotice=cash?'':'<div class=\"card\" style=\"margin:12px 0;background:var(--k-greenTint);border-color:var(--k-greenPressed)\"><b>Practice credits · not cash</b><p class=\"auth-note\" style=\"margin:6px 0 0\">These credits cannot be withdrawn. You are practicing the prediction flow with no real-money payout.</p></div>';
+      const practiceNotice=cash?'':'<div class=\"card\" style=\"margin:12px 0;background:var(--k-greenTint);border-color:var(--k-greenPressed)\"><b>Practice UGX · not cash</b><p class=\"auth-note\" style=\"margin:6px 0 0\">This is a simulated stake in UGX denominations. Practice balances and wins cannot be converted or withdrawn.</p></div>';
       document.body.insertAdjacentHTML('beforeend',
         '<div id=\"tradeReviewOverlay\" class=\"modal\" style=\"z-index:90\"><div class=\"sheet\" style=\"max-width:520px\">'+
           '<button class=\"close\" id=\"reviewTradeClose\">✕</button>'+
           '<div class=\"media-label\">'+esc(slipLabel)+'</div><h2>Check your odds and risk</h2>'+practiceNotice+
-          '<div class=\"review-hero\"><span class=\"review-side '+(chosen.label==='NO'?'no':'')+'\">'+esc(chosen.label)+' @ '+odds.toFixed(2)+'</span><h3 style=\"margin:10px 0 4px\">'+esc(m.title)+'</h3><div class=\"auth-note\">Stake: '+esc(amount(stake))+'</div></div>'+
+          '<div class=\"review-hero\"><span class=\"review-side '+(snapshot.outcome.label==='NO'?'no':'')+'\">'+esc(snapshot.outcome.label)+' @ '+odds.toFixed(2)+'</span><h3 style=\"margin:10px 0 4px\">'+esc(m.title)+'</h3><div class=\"auth-note\">Stake: '+esc(amount(stake))+'</div></div>'+
           '<div class=\"risk-grid\"><div class=\"risk-card win\"><small>If correct</small><div class=\"risk-number\">'+esc(amount(q.if_correct_return_ugx??q.estimated_payout_ugx))+'</div><div class=\"auth-note\">return · profit '+esc((net>=0?'+':'')+amount(net))+'</div></div>'+
           '<div class=\"risk-card loss\"><small>If wrong</small><div class=\"risk-number\">− '+esc(amount(q.if_wrong_loss_ugx??stake))+'</div><div class=\"auth-note\">return 0</div></div></div>'+
-          '<div class=\"quote\"><div class=\"quote-row\"><span>Accepted odds</span><b>'+odds.toFixed(2)+'</b></div><div class=\"quote-row\"><span>Predict UG margin</span><b>'+margin.toFixed(0)+'% built into odds</b></div><div class=\"quote-row\"><span>Extra settlement fee</span><b>None</b></div><div class=\"quote-row\"><span>Price type</span><b>Fixed once accepted</b></div></div>'+
+          '<div class=\"quote\"><div class=\"quote-row\"><span>Accepted odds</span><b>'+odds.toFixed(2)+'</b></div><div class=\"quote-row\"><span>Predict UG margin</span><b>'+marginText+'</b></div><div class=\"quote-row\"><span>Extra settlement fee</span><b>None</b></div><div class=\"quote-row\"><span>Price type</span><b>Fixed once accepted</b></div></div>'+
           '<p class=\"auth-note\">Your accepted odds are locked on this ticket. Predict UG may move later odds automatically as probabilities and market exposure change, but your existing ticket does not change.</p>'+
           (cash?'<label class=\"auth-note\" style=\"display:flex;gap:8px;align-items:flex-start;margin:12px 0\"><input type=\"checkbox\" id=\"reviewRiskAck\"> <span>I understand I can lose the full '+esc(amount(stake))+' stake if this prediction is wrong.</span></label>':'')+
           '<div class=\"auth-wrap\"><button class=\"btn primary\" id=\"reviewPlaceConfirm\" '+(cash?'disabled':'')+'>'+esc(confirmLabel)+'</button><button class=\"btn ghost\" id=\"reviewTradeCancel\">Go back</button></div>'+
@@ -1944,8 +2052,12 @@ function drawMarket(){
       $('#reviewTradeClose').onclick=()=>$('#tradeReviewOverlay')?.remove();
       $('#reviewTradeCancel').onclick=()=>$('#tradeReviewOverlay')?.remove();
       if(cash&&$('#reviewRiskAck'))$('#reviewRiskAck').onchange=()=>{$('#reviewPlaceConfirm').disabled=!$('#reviewRiskAck').checked};
-      $('#reviewPlaceConfirm').onclick=()=>submitPrediction(q,stake);
+      // Copy economic primitives so later quote updates cannot alter this review.
+      const reviewedQuote=Object.freeze({...q});
+      const reviewedSnapshot=Object.freeze({...snapshot,idempotencyKey:'web-'+crypto.randomUUID()});
+      $('#reviewPlaceConfirm').onclick=()=>submitPrediction(reviewedQuote,reviewedSnapshot);
     }catch(e){
+      if(!quoteSnapshotCurrent(snapshot))return;
       toast(e.message||'Could not refresh odds',true);
       $('#placeBtn').disabled=false;$('#placeBtn').textContent='Review risk & payout';
     }
@@ -1957,7 +2069,7 @@ function drawMarket(){
     const quick=[...document.querySelectorAll('.outcome-btn')].find(b=>String(b.dataset.label||'').toUpperCase()===wanted);
     if(quick){trackBehavior('market_side_preselected',{category:m.category||m.category_key,marketId:m.id,metadata:{side:wanted}});quick.click()}
   }
-  $('#stakeInput').oninput=()=>{clearTimeout(quoteTimer);quoteTimer=setTimeout(updateQuote,280)};
+  $('#stakeInput').oninput=()=>{invalidateQuote();clearTimeout(quoteTimer);quoteTimer=setTimeout(updateQuote,280)};
   document.querySelectorAll('[data-stake]').forEach(b=>b.onclick=()=>{$('#stakeInput').value=b.dataset.stake;updateQuote()});
   $('#placeBtn').onclick=reviewPrediction;
   $('#watchBtn').onclick=async()=>{if(!state.online){toast('Offline: reconnect before changing your watchlist.',true);return}if(!state.user){showAuth();return}try{const {data:user}=await supabase.auth.getUser();const uid=user.user?.id;const {data:ex}=await supabase.from('watchlist').select('id').eq('user_id',uid).eq('market_id',m.id).maybeSingle();if(ex)await supabase.from('watchlist').delete().eq('id',ex.id);else await supabase.from('watchlist').insert({user_id:uid,market_id:m.id});toast(ex?'Removed from watchlist':'Added to watchlist');const page=await rpc('market_page',{p_market_id:m.id});page.__watched=!ex;state.market=page;drawMarket()}catch(e){toast(e.message,true)}};
@@ -2341,7 +2453,7 @@ async function cashOutSimple(pos){
       :'Your full available position can be taken right now.';
     const receive=q.mode==='cash'
       ?'You receive about '+ugx(proceeds)+'.'
-      :'You receive about '+ugx(proceeds)+' prediction credits.';
+      :'You receive about '+practiceUgx(proceeds)+' (not cash).';
 
     if(!confirm(action+'\n\n'+partial+'\n'+receive+'\n\nContinue?'))return;
 
@@ -2538,18 +2650,50 @@ async function startMerchantWithdrawal(amount,phone,network){
   return manual;
 }
 
-function previewLockedMoneyFlow(kind){
+async function previewLockedMoneyFlow(kind){
   const amount=Number(prompt((kind==='deposit'?'Deposit':'Withdraw')+' test amount (UGX)','10000')||0);
   if(amount<=0)return;
-  const network=((prompt('Test network: MTN or AIRTEL','MTN')||'').trim().toUpperCase());
-  if(!['MTN','AIRTEL'].includes(network)){toast('Choose MTN or AIRTEL',true);return}
-  alert(
-    'TEST PREVIEW ONLY\n\n'+
-    (kind==='deposit'?'Deposit':'Withdrawal')+': UGX '+amount.toLocaleString()+'\n'+
-    'Network: '+network+'\n\n'+
-    'The merchant-code payment path is installed, merchant SMS ingestion is available, and the customer action can be previewed.\n\n'+
-    'No real money moved. Live transfers remain gated by the backend cash-launch controls.'
-  );
+  const network=((prompt('Test network','MTN')||'').trim().toUpperCase());
+  if(network!=='MTN'){toast('Only MTN rehearsal is active right now',true);return}
+  if(kind!=='deposit'){
+    alert(
+      'WITHDRAWAL PREVIEW ONLY\n\nWithdrawal: UGX '+amount.toLocaleString()+'\nNetwork: MTN\n\nNo real money moved. Live withdrawals remain gated by the backend cash-launch controls.'
+    );
+    return;
+  }
+  const phone=normalizeCashPhone(prompt('Customer MTN number for rehearsal','')||'');
+  if(!phone){toast('Enter a valid Uganda Mobile Money number',true);return}
+  try{
+    const rehearsal=await paymentApi('deposit_rehearsal_start',{amount_ugx:amount,network:'MTN',phone});
+    const code=String(rehearsal.merchant_code||'');
+    const tx=(prompt(
+      'CUSTOMER DEPOSIT REHEARSAL · NO MONEY\n\n'+
+      'Merchant code: '+code+'\n'+
+      'Amount: UGX '+Number(rehearsal.amount_ugx||amount).toLocaleString()+'\n'+
+      'Phone: '+phone+'\n\n'+
+      'Do NOT send money. Enter any 6+ character test transaction ID to rehearse the reference-submission step.',
+      'TESTREF123'
+    )||'').trim();
+    if(!tx){toast('Rehearsal stopped before reference submission. No money moved.');return}
+    const done=await paymentApi('deposit_rehearsal_reference',{
+      rehearsal_id:rehearsal.rehearsal_id,
+      transaction_reference:tx
+    });
+    if(!done?.rehearsal||done?.wallet_effect!=='none'||done?.payment_intent_created!==false){
+      throw new Error('Deposit rehearsal returned an unsafe result');
+    }
+    alert(
+      'REHEARSAL PASSED ✓\n\n'+
+      'Customer initiation ✓\n'+
+      'Merchant instructions ✓\n'+
+      'Transaction reference submission ✓\n'+
+      'Admin-review handoff state ✓\n\n'+
+      'Payment intent created: NO\nWallet effect: NONE\nMoney moved: NO'
+    );
+    toast('Customer deposit rehearsal passed ✓ No money moved.');
+  }catch(e){
+    toast(e.message||'Deposit rehearsal failed',true);
+  }
 }
 
 function normalizeCashPhone(value){
@@ -2558,6 +2702,11 @@ function normalizeCashPhone(value){
   const digits=phone.replace(/[^0-9+]/g,'');
   if(digits.length<9||digits.length>13)return null;
   return phone;
+}
+function depositMerchantCode(manual){
+  const code=typeof manual?.merchant_code==='string'?manual.merchant_code.trim():'';
+  if(!code)throw new Error('Merchant payment code is unavailable. Do not send money yet.');
+  return code;
 }
 function cashFlowModal(kind){
   const isDeposit=kind==='deposit';
@@ -2604,14 +2753,14 @@ function cashFlowModal(kind){
           phone,
           idempotency_key:'merchant-deposit-'+crypto.randomUUID()
         });
-        const code=String(manual.merchant_code||'');
+        const code=depositMerchantCode(manual);
         $('#overlay').innerHTML=
           '<div class="modal"><div class="sheet" style="max-width:520px">'+
             '<button class="close" id="depositPayClose">✕</button>'+
             '<div class="media-label">'+esc(network)+' merchant payment</div>'+
             '<h2>Pay '+ugx(Number(manual.amount_ugx||amount))+'</h2>'+
             '<div class="review-hero">'+
-              '<div class="auth-note">Merchant code</div>'+
+              '<div class="auth-note">'+esc(network)+' merchant code</div>'+
               '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px">'+
                 '<div style="font-size:1.7rem;font-weight:900;letter-spacing:.08em">'+esc(code)+'</div>'+
                 '<button class="btn small" id="copyMerchantCode">Copy</button>'+
@@ -2667,19 +2816,28 @@ function cashFlowModal(kind){
             '<div class="auth-wrap"><button class="btn primary" id="confirmWithdrawal">Confirm withdrawal</button><button class="btn ghost" id="cancelWithdrawal">Go back</button></div>'+
           '</div></div>';
         $('#withdrawReviewClose').onclick=$('#cancelWithdrawal').onclick=()=>cashFlowModal('withdrawal');
+        const withdrawalIdempotencyKey='merchant-withdraw-'+crypto.randomUUID();
+        let withdrawalQueued=false;
         $('#confirmWithdrawal').onclick=async()=>{
-          const confirm=$('#confirmWithdrawal');confirm.disabled=true;confirm.textContent='Queuing…';
+          const confirm=$('#confirmWithdrawal');
+          if(withdrawalQueued||!confirm||confirm.disabled)return;
+          confirm.disabled=true;confirm.textContent='Queuing…';
           try{
             await paymentApi('withdrawal_start',{
               amount_ugx:amount,
               network,
               phone,
-              idempotency_key:'merchant-withdraw-'+crypto.randomUUID()
+              idempotency_key:withdrawalIdempotencyKey
             });
+            withdrawalQueued=true;
             $('#overlay').innerHTML='';
             toast(network+' withdrawal queued. Funds are locked until payout verification.');
             await loadPortfolio();await loadPaymentHistory();await loadBalance();render();
           }catch(e){
+            if(withdrawalQueued){
+              toast(network+' withdrawal queued. Refresh payment history to see its status.',true);
+              return;
+            }
             confirm.disabled=false;confirm.textContent='Confirm withdrawal';
             toast(e.message||'Withdrawal could not be started',true);
           }
@@ -2703,8 +2861,17 @@ async function runCashWithdrawalFlow(){
 }
 function paymentCustomerStatusLabel(value){
   const s=String(value||'').toLowerCase();
-  const labels={deposit_requested:'Deposit requested',waiting_for_payment:'Waiting for payment',verifying_payment:'Verifying payment',deposited:'Deposited',deposit_failed:'Deposit failed',deposit_reversed:'Deposit reversed',withdrawal_requested:'Withdrawal requested',payout_pending:'Payout pending',paid_out:'Paid out',funds_returned:'Funds returned',withdrawal_failed_review_required:'Withdrawal needs review'};
+  const labels={deposit_requested:'Deposit requested',waiting_for_payment:'Waiting for payment',verifying_payment:'Verifying payment',deposited:'Deposited',deposit_failed:'Deposit failed',deposit_reversed:'Deposit reversed',withdrawal_requested:'Withdrawal requested',payout_pending:'Payout pending',payout_verification_pending:'Payout verification pending',paid_out:'Paid out',funds_returned:'Funds returned',withdrawal_failed_review_required:'Withdrawal needs review'};
   return labels[s]||String(value||'Pending').replace(/_/g,' ');
+}
+function paymentActivityStatus(item){
+  const status=String(item?.customer_status||item?.payment_status||'pending').toLowerCase();
+  if(String(item?.direction||'').toLowerCase()!=='withdrawal')return status;
+  if(status==='paid_out'||status==='completed'){
+    return item?.payment_status==='completed'&&item?.withdrawal_payout_confirmed===true?'paid_out':'payout_verification_pending';
+  }
+  if(status==='funds_returned'&&item?.withdrawal_release_confirmed!==true)return 'withdrawal_failed_review_required';
+  return status;
 }
 function paymentActivityHtml(){
   const items=Array.isArray(state.paymentHistory)?state.paymentHistory:[];
@@ -2712,11 +2879,15 @@ function paymentActivityHtml(){
   return '<div class="timeline" style="margin-top:10px">'+items.map(x=>{
     const direction=String(x.direction||'').toLowerCase();
     const title=direction==='withdrawal'?'Withdrawal':'Deposit';
-    const status=paymentCustomerStatusLabel(x.customer_status||x.payment_status);
+    const statusCode=paymentActivityStatus(x);
+    const status=paymentCustomerStatusLabel(statusCode);
     const provider=String(x.provider||'').toLowerCase()==='airtel-money'?'Airtel':'MTN';
     const verified=(direction==='deposit'&&x.deposit_credit_confirmed===true)||(direction==='withdrawal'&&x.withdrawal_payout_confirmed===true)||(direction==='withdrawal'&&x.withdrawal_release_confirmed===true);
+    const receipt=direction==='withdrawal'&&statusCode==='paid_out'
+      ?(x.provider_reference?'<br><small>Payout reference: '+esc(x.provider_reference)+'</small>':'')+(x.completed_at?'<br><small>Confirmed: '+esc(dt(x.completed_at))+'</small>':'')
+      :(direction==='withdrawal'&&['withdrawal_requested','payout_pending','payout_verification_pending'].includes(statusCode)?'<br><small>Awaiting merchant payout and verification.</small>':'');
     const note=x.failure_reason?'<br><small>'+esc(x.failure_reason)+'</small>':'';
-    return '<div class="item"><div class="eyebrow"><span>'+title+' · '+provider+'</span><span class="statuschip '+(verified?'':'warn')+'">'+esc(status)+'</span></div><b>'+ugx(x.amount_ugx||0)+'</b><br><small>'+dt(x.created_at)+'</small>'+note+'</div>';
+    return '<div class="item"><div class="eyebrow"><span>'+title+' · '+provider+'</span><span class="statuschip '+(verified?'':'warn')+'">'+esc(status)+'</span></div><b>'+ugx(x.amount_ugx||0)+'</b><br><small>'+dt(x.created_at)+'</small>'+receipt+note+'</div>';
   }).join('')+'</div>';
 }
 function renderPortfolio(){
@@ -2742,7 +2913,7 @@ function renderPortfolio(){
   const pendingWithdrawal=(Array.isArray(state.paymentHistory)?state.paymentHistory:[])
     .filter(x=>String(x.direction||'').toLowerCase()==='withdrawal'&&!['paid_out','funds_returned','withdrawal_failed_review_required'].includes(String(x.customer_status||x.payment_status||'').toLowerCase()))
     .reduce((sum,x)=>sum+Number(x.amount_ugx||0),0);
-  const valueText=n=>cashMode?ugx(n):Number(n||0).toLocaleString('en-UG')+' credits';
+  const valueText=n=>cashMode?ugx(n):practiceUgx(n);
   const chip=x=>{
     const s=statusOf(x);let cls='open',label='OPEN';
     if(['won','win','settled_won'].includes(s)){cls='won';label='WON'}
@@ -2754,14 +2925,15 @@ function renderPortfolio(){
   $('#view').innerHTML=
     '<section class="homehero"><div class="media-label">Your forecasting account</div><h1>Portfolio</h1><p>Your balance, exposure, possible return and settled results in one place.</p>'+
     '<div class="hero-kpis"><span class="hero-kpi">Available · '+valueText(balance)+'</span><span class="hero-kpi">In predictions · '+valueText(committed)+'</span><span class="hero-kpi">Potential return · '+valueText(potentialReturn)+'</span><span class="hero-kpi">'+(cashMode?'Pending withdrawal · '+valueText(pendingWithdrawal):(openHistory.length+' open · '+won+' won · '+lost+' lost'))+'</span></div></section>'+
-    (!cashMode?'<div class="statusbar"><span class="statuschip warn">Practice credits only · not withdrawable cash</span></div>':'')+
+    (!cashMode?'<div class="statusbar"><span class="statuschip warn">Practice UGX · simulated, not cash or withdrawable</span></div><button class="btn small ghost" id="practiceUgxExplainer" style="margin-bottom:12px">What is Practice UGX?</button>':'')+
     '<div class="section-title"><h2>Open predictions</h2><button class="btn small ghost" id="findMarketBtn">Find a market</button></div>'+
-    (openHistory.length?'<div class="timeline">'+openHistory.map(x=>'<button class="item" data-open-market="'+esc(x.market_id)+'" style="width:100%;text-align:left;color:inherit"><div class="eyebrow"><span>'+esc(x.outcome_label)+' · '+ugx(x.total_stake_ugx)+'</span>'+chip(x)+'</div><b style="display:block;margin:7px 0">'+esc(x.market_title)+'</b><small>Odds '+(Number(x.effective_odds_decimal||0)>1?Number(x.effective_odds_decimal).toFixed(2):'—')+' · potential return '+(cashMode?ugx(x.quoted_payout_ugx||0):Number(x.quoted_payout_ugx||0).toLocaleString('en-UG')+' credits')+' · '+dt(x.last_trade_at)+'</small></button>').join('')+'</div>':'<div class="empty">No open predictions. Pick a market and choose YES or NO.</div>')+
+    (openHistory.length?'<div class="timeline">'+openHistory.map(x=>'<button class="item" data-open-market="'+esc(x.market_id)+'" style="width:100%;text-align:left;color:inherit"><div class="eyebrow"><span>'+esc(x.outcome_label)+' · '+valueText(x.total_stake_ugx)+'</span>'+chip(x)+'</div><b style="display:block;margin:7px 0">'+esc(x.market_title)+'</b><small>Odds '+(Number(x.effective_odds_decimal||0)>1?Number(x.effective_odds_decimal).toFixed(2):'—')+' · potential return '+valueText(x.quoted_payout_ugx||0)+' · '+dt(x.last_trade_at)+'</small></button>').join('')+'</div>':'<div class="empty">No open predictions. Pick a market and choose YES or NO.</div>')+
     (active.length?'<div class="section-title"><h2>Exit early</h2></div><div class="timeline">'+active.map(x=>'<div class="item"><b>'+esc(x.market_title)+'</b><br><span>'+esc(x.outcome_label)+' · '+ugx(x.stake_ugx)+'</span><br><small>'+ugx(x.sellable_stake_ugx)+' can be exited</small><br><button class="btn small primary" style="margin-top:8px" data-cashout="'+x.position_id+'">'+(cashMode?'Cash out':'Exit prediction')+'</button></div>').join('')+'</div>':'')+
     '<div class="section-title"><h2>Results</h2></div>'+
-    (settled.length?'<div class="timeline">'+settled.map(x=>'<button class="item" data-open-market="'+esc(x.market_id)+'" style="width:100%;text-align:left;color:inherit"><div class="eyebrow"><span>'+esc(x.outcome_label)+' · '+ugx(x.total_stake_ugx)+'</span>'+chip(x)+'</div><b style="display:block;margin:7px 0">'+esc(x.market_title)+'</b><small>Odds '+(Number(x.effective_odds_decimal||0)>1?Number(x.effective_odds_decimal).toFixed(2):'—')+' · '+dt(x.last_trade_at)+'</small></button>').join('')+'</div>':'<div class="empty">Settled results will appear here.</div>')+
-    (cashMode?'<div class="card" style="margin-top:18px"><div class="section-title" style="margin-top:0"><h2>Wallet</h2><small style="color:var(--muted)">MTN & Airtel Money</small></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn primary" id="cashDepositBtn">Deposit</button><button class="btn" id="cashWithdrawBtn">Withdraw</button></div><p class="auth-note">Deposits are credited only after the backend verifies the Mobile Money transaction. Withdrawals remain locked until payout completion is confirmed.</p><div class="section-title"><h3>Recent Mobile Money activity</h3><button class="btn small ghost" id="refreshPaymentHistory">Refresh</button></div>'+paymentActivityHtml()+'</div>':'<div class="card" style="margin-top:18px"><b>Real-money wallet is not active</b><p class="auth-note">Predict UG is currently using practice credits while live-money launch gates remain off.</p>'+(state.isAdmin?'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn small" id="previewDepositBtn">Preview deposit</button><button class="btn small" id="previewWithdrawBtn">Preview withdrawal</button></div><button class="btn primary" style="margin-top:10px;width:100%" id="safePasskeyDepositTest">Safe deposit approval test · no money</button><p class="auth-note">This verifies your registered fingerprint/face/PIN against the real merchant passkey backend. It does not create a deposit, credit a wallet, send a payout, or enable cash mode.</p>':'')+'</div>');
+    (settled.length?'<div class="timeline">'+settled.map(x=>'<button class="item" data-open-market="'+esc(x.market_id)+'" style="width:100%;text-align:left;color:inherit"><div class="eyebrow"><span>'+esc(x.outcome_label)+' · '+valueText(x.total_stake_ugx)+'</span>'+chip(x)+'</div><b style="display:block;margin:7px 0">'+esc(x.market_title)+'</b><small>Odds '+(Number(x.effective_odds_decimal||0)>1?Number(x.effective_odds_decimal).toFixed(2):'—')+' · '+dt(x.last_trade_at)+'</small></button>').join('')+'</div>':'<div class="empty">Settled results will appear here.</div>')+
+    (cashMode?'<div class="card" style="margin-top:18px"><div class="section-title" style="margin-top:0"><h2>Wallet</h2><small style="color:var(--muted)">MTN & Airtel Money</small></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn primary" id="cashDepositBtn">Deposit</button><button class="btn" id="cashWithdrawBtn">Withdraw</button></div><p class="auth-note">Deposits are credited only after the backend verifies the Mobile Money transaction. Withdrawals remain locked until payout completion is confirmed.</p><div class="section-title"><h3>Recent Mobile Money activity</h3><button class="btn small ghost" id="refreshPaymentHistory">Refresh</button></div>'+paymentActivityHtml()+'</div>':'<div class="card" style="margin-top:18px"><b>Real-money wallet is not active</b><p class="auth-note">Your balance is Practice UGX only. It is simulated, cannot be exchanged for real Uganda shillings and cannot be withdrawn while cash launch gates remain off.</p>'+(state.isAdmin?'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn small" id="previewDepositBtn">Rehearse customer deposit</button><button class="btn small" id="previewWithdrawBtn">Preview withdrawal</button></div><button class="btn primary" style="margin-top:10px;width:100%" id="safePasskeyDepositTest">Safe deposit approval test · no money</button><p class="auth-note">This verifies your registered fingerprint/face/PIN against the real merchant passkey backend. It does not create a deposit, credit a wallet, send a payout, or enable cash mode.</p>':'')+'</div>');
   if($('#findMarketBtn'))$('#findMarketBtn').onclick=()=>{state.tab='markets';render()};
+  if($('#practiceUgxExplainer'))$('#practiceUgxExplainer').onclick=showPracticeUgxInfo;
   if($('#cashDepositBtn'))$('#cashDepositBtn').onclick=runCashDepositFlow;
   if($('#cashWithdrawBtn'))$('#cashWithdrawBtn').onclick=runCashWithdrawalFlow;
   if($('#refreshPaymentHistory'))$('#refreshPaymentHistory').onclick=async()=>{await loadPaymentHistory();render();};
@@ -2839,7 +3011,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 function renderNotifications(){
   if(!state.user){$('#view').innerHTML='<section class="hero"><h1>Notifications</h1><p>Sign in to see updates about your predictions and account.</p></section><button class="btn primary" id="notificationSignIn">Sign in</button>';$('#notificationSignIn').onclick=showAuth;return}
   const rows=state.notifications||[];
-  $('#view').innerHTML='<section class="hero"><h1>Notifications</h1><p>Updates about markets you follow, results and your account.</p></section>'+
+  $('#view').innerHTML='<section class="hero"><h1>Notifications</h1><p>Updates about markets you follow, results and your account.</p><p class="auth-note">In-app updates refresh while Predict UG is open or visible. OS push notifications are not enabled in this beta.</p></section>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" id="refreshNotifications">Refresh updates</button>'+
     (rows.some(n=>!n.is_read)?'<button class="btn small ghost" id="readAll">Mark all read</button>':'')+'</div>'+
     (state.notificationsError?'<div class="empty" role="status">'+esc(state.notificationsError)+'</div>':'')+
@@ -2861,8 +3033,10 @@ async function loadAdmin(){
   if(!state.isAdmin||!state.user)return;
   const userId=state.user.id;
   const request=(state.adminRequest||0)+1;state.adminRequest=request;
+  const merchantRequest=state.merchantReportingRequest||0;
+  const merchantRefreshPending=Boolean(state.merchantReportingLoading);
   let adminTimer;
-  const [a,c,m,e,d,support,errors,recovery,aiProviders,autonomy,treasury,sportsbookRisk,probabilityEngine,businessTraction,cashLaunch,merchantConnection,securityHealth]=await Promise.race([Promise.all([
+  const [a,c,m,e,d,support,errors,recovery,aiProviders,autonomy,treasury,treasurySolvency,paymentRaceSafety,sportsbookRisk,probabilityEngine,businessTraction,cashLaunch,merchantConnection,securityHealth,cashRail,merchantLiquidity,operatorEvidence,complianceStatus,paymentRehearsals]=await Promise.race([Promise.all([
     rpc('admin_ops_dashboard'),
     rpc('ceo_dashboard',{p_days:30}),
     rpc('admin_manual_momo_queue',{p_limit:100}),
@@ -2874,31 +3048,55 @@ async function loadAdmin(){
     rpc('admin_ai_provider_status'),
     rpc('admin_autonomy_status'),
     rpc('admin_platform_treasury_status'),
+    rpc('admin_treasury_solvency_status'),
+    rpc('admin_payment_race_safety_status'),
     rpc('admin_sportsbook_risk_status'),
     rpc('admin_probability_engine_status'),
     rpc('admin_business_traction_report',{p_days:30,p_first_user_cohort:20}),
     rpc('admin_cash_launch_financial_readiness'),
     rpc('admin_merchant_connection_status'),
-    rpc('admin_security_health')
+    rpc('admin_security_health'),
+    rpc('admin_merchant_cash_rail_test_status',{p_test_id:null}),
+    rpc('admin_merchant_wallet_liquidity_status',{p_limit:20}),
+    rpc('admin_mtn_operator_evidence_status',{p_limit:50}),
+    rpc('admin_production_compliance_status'),
+    rpc('admin_payment_rehearsal_queue',{p_limit:20})
   ]),new Promise((_,reject)=>{adminTimer=setTimeout(()=>reject(new Error('Admin dashboard timed out. Check your connection and retry.')),15000)})]).finally(()=>clearTimeout(adminTimer));
   if(state.user?.id!==userId||!state.isAdmin||state.adminRequest!==request)return;
   state.admin=a;state.adminError='';
   state.ceo=c;
   state.manualMomo=m||[];
-  state.merchantEvents=e||[];
-  state.merchantDevices=d||[];
+  // Scoped reporting owns its snapshot throughout its request, regardless of dashboard order.
+  if(!merchantRefreshPending&&!state.merchantReportingLoading&&(state.merchantReportingRequest||0)===merchantRequest){
+    try{
+      const snapshot=validateMerchantReporting(e,d);
+      state.merchantEvents=snapshot.events;
+      state.merchantDevices=snapshot.devices;
+      state.merchantReportingRefreshedAt=new Date().toISOString();
+      state.merchantReportingError='';
+    }catch{
+      state.merchantReportingError='Could not refresh merchant reporting. Existing records may be stale; retry when connected.';
+    }
+  }
   state.supportRequests=support||[];
   state.clientErrors=errors||[];
   state.recoveryStatus=recovery||{};
   state.aiProviders=aiProviders||[];
   state.autonomy=autonomy||{};
   state.treasury=treasury||{};
+  state.treasurySolvency=treasurySolvency||{};
+  state.paymentRaceSafety=paymentRaceSafety||{};
   state.sportsbookRisk=sportsbookRisk||{};
   state.probabilityEngine=probabilityEngine||{};
   state.businessTraction=businessTraction||{};
   state.cashLaunch=cashLaunch||{};
   state.merchantConnection=merchantConnection||{};
   state.securityHealth=securityHealth||{};
+  state.cashRailTests=Array.isArray(cashRail?.tests)?cashRail.tests:[];
+  state.merchantLiquidity=merchantLiquidity||{};
+  state.operatorEvidence=operatorEvidence||{};
+  state.complianceStatus=complianceStatus||{};
+  state.paymentRehearsals=Array.isArray(paymentRehearsals)?paymentRehearsals:[];
 }
 async function merchantPasskeyRequest(type, payload = {}) {
   if (!state.session?.access_token) throw new Error('Sign in as an administrator first');
@@ -2924,7 +3122,6 @@ function merchantPasskeyB64(value) {
 }
 async function registerMerchantPasskey() {
   try {
-    if (!window.PublicKeyCredential || !navigator.credentials) throw new Error('This browser does not support passkeys');
     const options = await merchantPasskeyRequest('passkey_register_options');
     const credential = await navigator.credentials.create({ publicKey: {
       ...options,
@@ -2968,7 +3165,145 @@ async function runMerchantPasskeyAdminAction(action,payload) {
   });
 }
 function merchantAdminActions(){
-  return '<section class="card" aria-label="Merchant setup"><h2>MTN merchant verification</h2><p class="auth-note">Use browser verification for genuine MTN merchant records. Sensitive deposit and payout confirmation now requires your fingerprint, face unlock, or device PIN through a passkey before the server accepts the admin action.</p><div class="actions"><button class="btn primary" data-merchant-proof>Verify MTN payment in browser</button><button class="btn" data-passkey-register>Register fingerprint / face / PIN</button></div><details style="margin-top:12px"><summary>Optional Merchant helper APK</summary><p class="auth-note">Automatic notification verification needs the helper app. Browser verification remains available if Android blocks the helper.</p><div class="actions"><a class="btn" href="https://predict-ug-merchant-beta-build.onrender.com/?install=merchant" target="_blank" rel="noopener">Merchant APK download page</a><button class="btn" data-merchant-connect>Connect / repair a trusted merchant phone</button></div></details></section>';
+  const loaded=Boolean(state.admin);
+  // The normal consumer Android flavor does not include a notification listener.
+  // The distinct Admin/merchant APK has it, but installation alone does not
+  // establish Notification Access or merchant-side receipt authenticity.
+  const appAgent=typeof navigator==='undefined'?'':String(navigator.userAgent||'');
+  const merchantCaptureApp=/PredictUG\/[^\s]+-merchant\b/i.test(appAgent);
+  const consumerAndroidApp=!merchantCaptureApp&&/PredictUG\/[^\s]+/i.test(appAgent);
+  const captureGuidance=merchantCaptureApp
+    ?'Admin reporting build detected. Check Android Notification Access and phone pairing. A device heartbeat does not prove the listener is enabled.'
+    :consumerAndroidApp
+      ?'Normal Predict UG app detected. This app can VIEW merchant reports but cannot automatically capture MTN SMS. Automatic reporting requires the separate, signed Predict UG Admin build with Android Notification Access and pairing.'
+      :'Browser view detected. Web pages cannot read phone SMS notifications. To automatically forward merchant SMS, use the separate paired Predict UG Admin Android build and grant Notification Access.';
+  const devices=Array.isArray(state.merchantDevices)?state.merchantDevices:[];
+  const events=Array.isArray(state.merchantEvents)?state.merchantEvents:[];
+  const recentMtnIncoming=events.filter(x=>String(x?.network||'').toUpperCase()==='MTN'&&String(x?.direction||'').toLowerCase()==='incoming');
+  const needsReview=events.filter(x=>String(x?.network||'').toUpperCase()==='MTN'&&(String(x?.parse_status||'').toLowerCase()==='needs_review'||String(x?.direction||'').toLowerCase()==='unknown'));
+  const connectedMtn=devices.filter(d=>{
+    if(!d?.enabled||!['MTN','BOTH'].includes(String(d.network_scope||'').toUpperCase()))return false;
+    const age=Date.now()-Date.parse(d.last_seen_at||'');
+    return Number.isFinite(age)&&age>=0&&age<86400000;
+  });
+  const phoneStatus=!loaded?'Checking phone…':connectedMtn.length
+    ?connectedMtn.length+' phone seen in 24h':'No recent connection';
+  const incomingStatus=!loaded?'Checking reports…':recentMtnIncoming.length
+    ?recentMtnIncoming.length+' incoming phone report'+(recentMtnIncoming.length===1?'':'s'):'None reported';
+  const reviewStatus=!loaded?'Checking review queue…':needsReview.length
+    ?needsReview.length+' report'+(needsReview.length===1?' needs':'s need')+' review':'No unclassified reports';
+
+  return '<section class="card" aria-label="Merchant reporting status"><h2>MTN merchant phone reporting</h2>'+
+    '<p class="auth-note">A payer SMS or forwarded notification does NOT independently prove a merchant-side incoming receipt. Do not mark payment verified or credit a wallet from it. Real-money execution remains disabled.</p>'+
+    '<p class="auth-note" role="status">'+captureGuidance+'</p>'+
+    '<div class="merchant-report-status" style="display:grid;grid-template-columns:minmax(0,1fr);gap:10px;min-width:0">'+
+      '<div style="min-width:0;border:1px solid var(--border);border-radius:14px;padding:13px 15px">'+
+        '<small style="display:block;line-height:1.4">Merchant phone · last 24 hours</small>'+
+        '<strong style="display:block;margin-top:6px;font-size:1.06rem;line-height:1.45;overflow-wrap:break-word">'+phoneStatus+'</strong></div>'+
+      '<div style="min-width:0;border:1px solid var(--border);border-radius:14px;padding:13px 15px">'+
+        '<small style="display:block;line-height:1.4">Incoming MTN notifications · loaded history</small>'+
+        '<strong style="display:block;margin-top:6px;font-size:1.06rem;line-height:1.45;overflow-wrap:break-word">'+incomingStatus+'</strong></div>'+
+      '<div style="min-width:0;border:1px solid var(--border);border-radius:14px;padding:13px 15px">'+
+        '<small style="display:block;line-height:1.4">MTN reports needing review</small>'+
+        '<strong style="display:block;margin-top:6px;font-size:1.06rem;line-height:1.45;overflow-wrap:break-word">'+reviewStatus+'</strong></div></div>'+
+    '<p class="auth-note">A device heartbeat confirms server contact, not Android notification permission. Unclassified reports remain under review, including payer-side payment notices, and are NOT incoming merchant receipts. All counts cover only the loaded admin history; no phone report alone proves provider settlement.</p>'+
+    '<div class="actions"><button class="btn primary" data-merchant-reporting>View MTN reporting history</button>'+
+    '<button class="btn" data-refresh-merchant-reporting '+(state.merchantReportingLoading?'disabled':'')+'>'+(state.merchantReportingLoading?'Refreshing MTN reporting…':'Refresh MTN reporting')+'</button>'+
+    '<span class="auth-note" role="status">'+(state.merchantReportingError?esc(state.merchantReportingError):state.merchantReportingRefreshedAt?'Updated '+dt(state.merchantReportingRefreshedAt):'Use Refresh to check for newly forwarded phone events')+'</span>'+
+    '<button class="btn" data-merchant-phone-setup>View phone connection / setup</button>'+
+    '<button class="btn" data-merchant-connect>Connect / repair phone</button>'+
+    '<button class="btn" data-merchant-proof>Review MTN message (no wallet credit)</button>'+
+    '<button class="btn" data-passkey-register>Register fingerprint / face / PIN</button>'+
+    '<button class="btn" id="topShadowDepositApproval">Final deposit approval test · no credit</button></div>'+
+    '<div id="topShadowDepositStatus" class="auth-note" style="margin-top:8px">A practice-only approval test; no merchant receipt, wallet credit or cash-mode change is implied.</div>'+
+    '<details style="margin-top:12px"><summary>Optional Predict UG Admin reporting app</summary>'+
+    '<p class="auth-note">Automatic reporting requires the signed Predict UG Admin build, secure pairing and Android Notification Access. Do not send another payment just to test it.</p>'+
+    '<div class="actions"><a class="btn" href="https://predict-ug-merchant-stable.onrender.com/?install=admin" target="_blank" rel="noopener">Predict UG Admin APK</a></div></details></section>';
+}
+function openMerchantReporting(){
+  if(!state.user||!state.isAdmin){toast('Admin access required',true);return}
+  const panel=$('#merchantReportingPanel');
+  if(!panel){toast('Merchant reporting history is loading. Use Retry admin if needed.',true);return}
+  panel.open=true;
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+/* BEGIN GENERATED MERCHANT REPORTING MODULE */
+/** Validate the read-only reporting transport before any UI state is replaced. */
+function validateMerchantReporting(events, devices) {
+  const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+  if (!Array.isArray(events) || !Array.isArray(devices) ||
+      !events.every(object) || !devices.every(object)) {
+    throw new Error('Merchant reporting response was incomplete');
+  }
+  for (const event of events) {
+    if (!['MTN', 'AIRTEL'].includes(event.network) ||
+        !['incoming', 'outgoing', 'unknown'].includes(event.direction)) {
+      throw new Error('Merchant reporting event contract was invalid');
+    }
+  }
+  for (const device of devices) {
+    if (typeof device.enabled !== 'boolean' ||
+        !['MTN', 'AIRTEL', 'BOTH'].includes(device.network_scope)) {
+      throw new Error('Merchant reporting device contract was invalid');
+    }
+  }
+  return {events, devices};
+}
+
+
+/** Read independently of the full admin dashboard; this adapter has no write RPC. */
+async function fetchMerchantReporting(readRpc) {
+  const [events, devices] = await Promise.all([
+    readRpc('admin_merchant_momo_events', {p_limit: 50}),
+    readRpc('admin_list_merchant_ingest_devices'),
+  ]);
+  return validateMerchantReporting(events, devices);
+}
+
+/** Commit a complete snapshot only while its initiating admin/request still owns it. */
+function applyMerchantReportingSnapshot(state, snapshot, userId, request, refreshedAt) {
+  if (state.user?.id !== userId || !state.isAdmin || state.merchantReportingRequest !== request) {
+    return false;
+  }
+  state.merchantEvents = snapshot.events;
+  state.merchantDevices = snapshot.devices;
+  state.merchantReportingRefreshedAt = refreshedAt;
+  state.merchantReportingError = '';
+  return true;
+}
+
+/* END GENERATED MERCHANT REPORTING MODULE */
+async function refreshMerchantReporting(){
+  if(!state.user||!state.isAdmin){toast('Admin access required',true);return}
+  if(state.merchantReportingLoading)return;
+  const userId=state.user.id;
+  const request=(state.merchantReportingRequest||0)+1;
+  state.merchantReportingRequest=request;
+  state.merchantReportingLoading=true;
+  state.merchantReportingError='';
+  if(state.tab==='admin')render();
+  try{
+    // Read-only, small-scope refresh; never wait on 24 unrelated Admin RPCs.
+    const snapshot=await fetchMerchantReporting(rpc);
+    if(!applyMerchantReportingSnapshot(state,snapshot,userId,request,new Date().toISOString()))return;
+    toast('MTN reporting refreshed · no payment status was changed');
+  }catch(e){
+    if(state.user?.id!==userId||!state.isAdmin||state.merchantReportingRequest!==request)return;
+    state.merchantReportingError='Could not refresh merchant reporting. Existing records may be stale; retry when connected.';
+    toast(e?.message||'Merchant reporting refresh failed',true);
+  }finally{
+    if(state.merchantReportingRequest===request){
+      state.merchantReportingLoading=false;
+      if(state.user?.id===userId&&state.isAdmin&&state.tab==='admin')render();
+    }
+  }
+}
+function openMerchantPhoneSetup(){
+  if(!state.user||!state.isAdmin){toast('Admin access required',true);return}
+  const panel=$('#merchantPhoneSetupPanel');
+  if(!panel){toast('Merchant phone setup is loading. Use Retry admin if needed.',true);return}
+  panel.open=true;
+  panel.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function openMerchantProof(){
   if(!state.user||!state.isAdmin){toast('Admin access required',true);return}
@@ -2978,6 +3313,9 @@ function openMerchantProof(){
   panel.scrollIntoView({behavior:'smooth',block:'start'});
 }
 document.addEventListener('click',e=>{
+  if(e.target.closest('[data-merchant-reporting]'))openMerchantReporting();
+  if(e.target.closest('[data-refresh-merchant-reporting]'))refreshMerchantReporting();
+  if(e.target.closest('[data-merchant-phone-setup]'))openMerchantPhoneSetup();
   if(e.target.closest('[data-merchant-proof]'))openMerchantProof();
   if(e.target.closest('[data-merchant-connect]'))quickConnectMerchantPhone();
   if(e.target.closest('[data-passkey-register]'))registerMerchantPasskey();
@@ -2995,10 +3333,47 @@ function renderAdmin(){
     return;
   }
   const a=state.admin,r=a.production_readiness||{},b=a.build_completion||{},c=state.ceo||{},t=state.businessTraction||{},tu=t.users||{},tf=t.activation_funnel||{},ta=t.forecast_activity||{},ti=t.market_inventory||{},tg=t.growth||{},tr=t.release||{},tcb=t.activation_by_client_build||[];
-  const cl=state.cashLaunch||{},mc=state.merchantConnection||{};
+  const cl=state.cashLaunch||{},mc=state.merchantConnection||{},comp=state.complianceStatus||{},sol=state.treasurySolvency||{},race=state.paymentRaceSafety||{};
+  const mtnPaidTest=(state.cashRailTests||[]).find(x=>String(x.network||'').toUpperCase()==='MTN'&&['manual_verified','operator_verified','matched'].includes(String(x.status||'').toLowerCase())&&String(x.transaction_reference||'').trim());
   const sh=state.securityHealth||{},sb=sh.security_boundaries||{},lp=sh.native_leaked_password_protection||{},pm=sh.application_password_mitigation||{};
   $('#view').innerHTML=merchantAdminActions()+'<section class="hero"><h1>Admin / CEO</h1><p>Business overview, customer support and merchant operations.</p></section>'+
+    '<div class="section-title"><h2>Customer deposit rehearsal</h2><span class="statuschip">NO MONEY</span></div>'+
+    '<div class="card"><p class="auth-note">This queue mirrors the customer deposit handoff using the real MTN merchant instructions, but it never creates a payment intent, wallet credit or manual cash review.</p>'+
+      '<div class="timeline">'+((state.paymentRehearsals||[]).length
+        ?state.paymentRehearsals.slice(0,8).map(x=>
+          '<div class="item"><div class="eyebrow"><span>'+esc(x.network)+' · '+ugx(x.amount_ugx||0)+'</span><span class="statuschip">'+esc(String(x.status||'unknown').replaceAll('_',' ').toUpperCase())+'</span></div>'+
+          '<b>Customer phone ending '+esc(x.phone_last4||'----')+'</b><br>'+
+          '<small>Merchant code '+esc(x.merchant_code||'—')+' · started '+dt(x.created_at)+'</small>'+
+          (x.transaction_reference?'<br><small>Test reference: '+esc(x.transaction_reference)+'</small>':'<br><small>Waiting for test transaction reference</small>')+
+          (x.reference_submitted_at?'<br><small>Admin handoff reached '+dt(x.reference_submitted_at)+' ✓</small>':'')+
+          '<br><small style="color:var(--green)">Wallet effect: NONE · payment intent: NONE · cash review: NONE</small>'+
+          (x.status==='awaiting_admin_review'?'<br><button class="btn small primary" style="margin-top:8px" data-complete-rehearsal="'+x.rehearsal_id+'">Passkey-review rehearsal</button>':'')+
+          (x.status==='completed_rehearsal'?'<br><span class="statuschip ok" style="margin-top:8px">Admin passkey review passed ✓</span>':'')+
+          '</div>'
+        ).join('')
+        :'<div class="empty">No deposit rehearsals yet. Run Portfolio → Rehearse customer deposit.</div>')+'</div>'+
+      '<button class="btn small" id="refreshPaymentRehearsals">Refresh rehearsal queue</button>'+
+    '</div>'+
     '<div class="statgrid"><div class="stat"><small>Build done</small><b>'+Number(b.done||0)+'</b></div><div class="stat"><small>Readiness</small><b>'+Number(r.readiness_score||0)+'/100</b></div><div class="stat"><small>E2E</small><b>'+esc(a.latest_e2e?.status||'—')+'</b></div><div class="stat"><small>Recovery</small><b>'+esc(state.recoveryStatus?.status||'—')+'</b></div></div>'+
+    '<div class="section-title"><h2>Money Control</h2><span class="statuschip">read-only safety status</span></div>'+
+    '<div class="card">'+
+      '<div class="statgrid">'+
+        '<div class="stat"><small>Cash launch</small><b>'+(cl.cash_launch_ready?'READY':'BLOCKED')+'</b></div>'+
+        '<div class="stat"><small>Treasury solvency</small><b>'+esc(String(sol.status||'—').toUpperCase())+'</b></div>'+
+        '<div class="stat"><small>Payment race safety</small><b>'+esc(String(race.status||'—').toUpperCase())+'</b></div>'+
+        '<div class="stat"><small>Sportsbook reserve</small><b>'+ugx(sol.sportsbook_cash_reserve_ugx??state.sportsbookRisk?.cash_book_reserve_ugx??0)+'</b></div>'+
+        '<div class="stat"><small>Verified merchant liquidity</small><b>'+ugx(sol.fresh_verified_merchant_liquidity_ugx||0)+'</b></div>'+
+        '<div class="stat"><small>Required liquidity</small><b>'+ugx(sol.required_liquidity_ugx||0)+'</b></div>'+
+      '</div>'+
+      '<div class="meta"><span>Customer wallet liability</span><b>'+ugx(sol.customer_wallet_liability_ugx||0)+'</b></div>'+
+      '<div class="meta"><span>Worst-case accepted payouts</span><b>'+ugx(sol.pending_portfolio_worst_case_payout_ugx||0)+'</b></div>'+
+      '<div class="meta"><span>Liquidity coverage</span><b>'+Number(sol.liquidity_coverage_pct||0).toFixed(2)+'%</b></div>'+
+      '<div class="meta"><span>MTN operator-verified rails</span><b>'+Number(cl.operator_verified_rails||0)+'</b></div>'+
+      '<div class="meta"><span>Paired-device verified rails</span><b>'+Number(cl.paired_device_verified_rails||0)+'</b></div>'+
+      '<div class="meta"><span>Race-safety issues</span><b>'+Number(race.issue_count||0)+'</b></div>'+
+      (((sol.blockers||[]).length||(cl.blockers||[]).length)?'<details style="margin-top:10px"><summary class="auth-note" style="cursor:pointer">Current money blockers</summary><div class="timeline" style="margin-top:8px">'+[...new Set([...(sol.blockers||[]),...(cl.blockers||[])])].map(x=>'<div class="item">'+esc(x)+'</div>').join('')+'</div></details>':'<p class="auth-note" style="margin-top:10px">No internal money-control blockers reported.</p>')+
+      '<p class="auth-note" style="margin-top:10px">Status only. This panel cannot enable deposits, withdrawals, staking or clear legal/provider gates.</p>'+
+    '</div>'+
     '<div class="section-title"><h2>Customer & business traction</h2><span class="statuschip">aggregate · QA excluded</span></div>'+
     '<div class="card">'+
       '<div class="statgrid">'+
@@ -3107,9 +3482,9 @@ function renderAdmin(){
       '<p class="auth-note" style="margin-top:10px">Recommended order: Gemini → OpenRouter Free → Groq → Cloudflare Workers AI. The deterministic Market Factory continues if every LLM is unavailable.</p>'+
     '</div>'+
     '</details>'+
-    '<div class="section-title"><h2>MTN + Airtel merchant cash rails</h2><button class="btn small ghost" id="refreshCashReadiness">Refresh</button></div>'+
+    '<div class="section-title"><h2>MTN launch readiness</h2><button class="btn small ghost" id="refreshCashReadiness">Refresh</button></div>'+
     '<div class="card">'+
-      '<p class="auth-note">Predict UG uses the existing MTN and Airtel merchant codes only. Direct MTN/Airtel developer APIs, sandbox and production API onboarding are not part of the customer cash flow.</p>'+
+      '<p class="auth-note">MTN is the only active merchant cash rail. Airtel is paused until separately verified. The helper APK is optional: strong MTN merchant-side evidence can satisfy the operational proof gate without weakening wallet or ledger controls.</p>'+
       '<div class="statgrid">'+
         '<div class="stat"><small>Cash launch</small><b>'+(cl.cash_launch_ready?'READY':'BLOCKED')+'</b></div>'+
         '<div class="stat"><small>Financial controls</small><b>'+(cl.financial_control_ready?'READY':'BLOCKED')+'</b></div>'+
@@ -3118,25 +3493,84 @@ function renderAdmin(){
       '</div>'+
       '<div class="meta"><span>Deposit method</span><b>Merchant code</b></div>'+
       '<div class="meta"><span>Withdrawal method</span><b>Merchant business-wallet payout</b></div>'+
-      '<div class="meta"><span>Required liquidity</span><b>'+ugx(cl.required_liquidity_ugx||0)+'</b></div>'+
+      '<div class="meta"><span>Required liquidity</span><b>'+cashRequiredLiquidityLabel(cl)+'</b></div>'+
       '<div class="meta"><span>Risk limits funded/configured</span><b>'+(cl.risk_limits_configured?'YES':'NO')+'</b></div>'+
-      '<div class="meta"><span>MTN phone</span><b>'+(mc.mtn?.phone_connected?'CONNECTED':'STALE / OFFLINE')+'</b></div>'+
-      '<div class="meta"><span>Airtel phone</span><b>'+(mc.airtel?.phone_connected?'CONNECTED':'STALE / OFFLINE')+'</b></div>'+
-      '<div class="meta"><span>Deposit verification</span><b>Transaction reference + merchant SMS reconciliation</b></div>'+
+      '<div class="timeline" style="margin:12px 0">'+
+        '<div class="item"><b>1. MTN rail proof · '+((Number(cl.operational_merchant_rails||0)>=Number(cl.enabled_merchant_rails||0)&&Number(cl.enabled_merchant_rails||0)>0)?'READY ✓':'ACTION NEEDED')+'</b><br><small>'+((Number(cl.operational_merchant_rails||0)>=Number(cl.enabled_merchant_rails||0)&&Number(cl.enabled_merchant_rails||0)>0)?'Fresh paired-device or strong operator proof is recorded.':'Open Merchant test & SMS verification and verify the existing MTN test against the MTN merchant portal/app/statement.')+'</small></div>'+
+        '<div class="item"><b>2. Merchant liquidity · '+(cl.liquidity_covered?'READY ✓':'ACTION NEEDED')+'</b><br><small>'+(cl.liquidity_covered?'Fresh MTN merchant liquidity covers required customer/payout/reserve obligations.':'Open MTN liquidity & reserve controls and record the actual MTN merchant balance from a strong source.')+'</small></div>'+
+        '<div class="item"><b>3. Reserve & risk limits · '+(cl.risk_limits_configured?'READY ✓':'ACTION NEEDED')+'</b><br><small>'+(cl.risk_limits_configured?'Funded reserve and cash liability/payout limits are configured.':'After strong liquidity evidence exists, recognize real reserve funding and set max market liability + max single-bet payout.')+'</small></div>'+
+      '</div>'+
+      '<div class="meta"><span>MTN helper phone</span><b>'+(mc.mtn?.phone_connected?'CONNECTED':'OPTIONAL / OFFLINE')+'</b></div>'+
+      '<div class="meta"><span>Airtel rail</span><b>PAUSED / UNVERIFIED</b></div>'+
+      '<div class="meta"><span>Deposit verification</span><b>Exact paired event OR strong MTN merchant-side evidence</b></div>'+
       '<div class="meta"><span>Duplicate protection</span><b>Enabled</b></div>'+
-      '<div class="meta"><span>Direct provider API</span><b>DISABLED</b></div>'+
+      '<div class="meta"><span>Direct provider API</span><b>NOT USED</b></div>'+
+      '<p class="auth-note" style="margin-top:10px">One MTN merchant portal/app/statement check can verify the existing paid transaction and record the current merchant balance. No new payment is required.</p>'+
+      (mtnPaidTest?'<button class="btn primary" id="completeMtnReadinessProof" data-test-id="'+esc(mtnPaidTest.id)+'" style="margin-top:8px">Verify MTN payment + balance</button>':'')+
       ((cl.blockers||[]).length?'<div class="timeline" style="margin-top:10px">'+cl.blockers.map(x=>'<div class="item"><small>'+esc(String(x).replace(/_/g,' '))+'</small></div>').join('')+'</div>':'')+
       '<p class="auth-note" style="margin-top:10px">'+(cl.cash_launch_ready?'Financial controls report ready, but activation still requires explicit approved launch action.':'Physical, financial or compliance proof is still incomplete. Cash flags remain fail-closed.')+'</p>'+
     '</div>'+
-    '<details class="admin-disclosure"><summary>Merchant phone setup</summary>'+
-    '<div class="section-title"><h2>Merchant phone automation</h2></div>'+
+    '<details class="admin-disclosure"><summary>Cash & Android compliance gates</summary>'+
+    '<div class="section-title"><h2>Production compliance</h2><span class="statuschip">'+(comp.cash_ready?'CASH READY':'CASH BLOCKED')+'</span></div>'+
     '<div class="card">'+
-      '<p class="auth-note">Use this same Android phone as the merchant verifier. Predict UG keeps the merchant codes on the server; the phone only forwards matching MTN/Airtel transaction SMS. Use Nomad Gateway in SMS-only mode — do not enable call or notification forwarding.</p>'+
+      '<div class="statgrid">'+
+        '<div class="stat"><small>Cash compliance</small><b>'+(comp.cash_ready?'READY':'BLOCKED')+'</b></div>'+
+        '<div class="stat"><small>Cash gates missing</small><b>'+Number((comp.missing_cash_gates||[]).length)+'</b></div>'+
+        '<div class="stat"><small>Android production</small><b>'+(comp.android_production_ready?'READY':'BLOCKED')+'</b></div>'+
+        '<div class="stat"><small>Android gates missing</small><b>'+Number((comp.missing_android_gates||[]).length)+'</b></div>'+
+      '</div>'+
+      '<p class="auth-note">These are real legal, regulatory and operating approvals—not software switches. Predict UG shows them here for handover and audit visibility, but does not provide a one-tap clearance action.</p>'+
+      '<div class="timeline" style="margin-top:12px">'+((comp.gates||[]).length?comp.gates.map(g=>
+        '<div class="item"><b>'+esc(g.label||g.gate_key)+' · '+(g.cleared?'CLEARED ✓':'OPEN')+'</b><br>'+
+        '<small>'+esc(g.authority||'Authority not specified')+(g.required_for_cash?' · CASH':'')+(g.required_for_android_production?' · ANDROID':'')+'</small>'+
+        '<br><small>'+esc(g.evidence_note||'Evidence still required.')+'</small>'+
+        (g.cleared_at?'<br><small>Cleared '+dt(g.cleared_at)+'</small>':'')+'</div>'
+      ).join(''):'<div class="empty">Compliance status unavailable.</div>')+'</div>'+
+    '</div>'+
+    '</details>'+
+    '<details class="admin-disclosure" id="merchantProofPanel"><summary>MTN merchant-record verification</summary>'+
+    '<div class="section-title"><h2>Merchant cash-rail proof</h2><button class="btn small ghost" id="refreshCashRailTests">Refresh tests</button></div>'+
+    '<div class="card" style="border-color:rgba(51,214,159,.28)">'+
+      '<p><b>'+(mtnPaidTest?(mtnPaidTest.status==='manual_verified'?'Complete the existing MTN proof.':'Existing MTN proof recorded. Automatic connectivity is separate.'):'Start a safe real-world merchant proof.')+'</b></p>'+
+      '<p class="auth-note">'+(mtnPaidTest?('Your UGX '+Number(mtnPaidTest.amount_ugx||0).toLocaleString('en-UG')+' payment is already captured with transaction reference '+esc(mtnPaidTest.transaction_reference)+'. Do not pay again. '+(mtnPaidTest.status==='manual_verified'?'Verify that same transaction against the MTN merchant portal/app/statement below.':'This proof is recorded. It does not establish automatic delivery or enable cash trading.')):('This creates a 2-hour test expectation only. It does not credit a customer wallet and does not enable cash trading. Send money only after the test below shows PENDING.'))+'</p>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">'+
+        (mtnPaidTest?'<span class="statuschip">Existing MTN payment captured ✓</span>':'<button class="btn primary" id="startMtnCashRailTest">Start MTN UGX 500 test</button>')+
+        '<span class="auth-note" style="align-self:center">Airtel paused until separately verified.</span>'+
+      '</div>'+
+      '<div class="card" style="margin-top:12px;background:var(--k-foreground)">'+
+        '<b>Live MTN verification on this phone</b>'+
+        '<p class="auth-note">Paste the full MTN payment SMS exactly as received. Your fingerprint/face/PIN is required before Predict UG records the proof. This is a live manual verifier: it does not pretend to be automatic SMS capture, does not create a paired-device event, and does not credit a customer wallet.</p>'+
+        '<textarea class="input" id="merchantSmsPaste" rows="5" maxlength="5000" placeholder="Paste the full MTN transaction SMS here"></textarea>'+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'+
+          '<button class="btn primary" id="verifyMerchantSms">Verify pasted merchant SMS</button>'+
+          '<button class="btn ghost" id="clearMerchantSms">Clear</button>'+
+        '</div>'+
+        '<div id="merchantSmsStatus" class="auth-note" style="margin-top:8px"></div>'+
+      '</div>'+
+      '<div class="timeline">'+((state.cashRailTests||[]).length
+        ?state.cashRailTests.slice(0,8).map(x=>
+          '<div class="item"><b>'+esc(x.network)+' · '+ugx(x.amount_ugx||0)+' · '+esc(String(x.status||'unknown').toUpperCase())+'</b><br>'+
+          '<small>Started '+dt(x.started_at)+' · expires '+dt(x.expires_at)+'</small>'+
+          (x.transaction_reference?'<br><small>Reference: '+esc(x.transaction_reference)+'</small>':'')+
+          (x.status==='manual_verified'?'<br><small>Manual payer-side SMS proof ✓ · zero wallet effect · waiting for strong MTN merchant-side proof</small>':'')+
+          (x.status==='operator_verified'&&x.operator_evidence_id?'<br><small style="color:var(--green)">Strong MTN operator proof verified '+dt(x.operator_verified_at||x.matched_at)+' ✓ · rail proof satisfied without helper APK</small>':'')+
+          (x.status==='matched'&&x.matched_event_id?'<br><small style="color:var(--green)">Paired-device merchant proof matched '+dt(x.matched_at)+' ✓</small>':'')+
+          (x.network==='MTN'&&x.status==='manual_verified'&&x.transaction_reference?'<br><button class="btn small primary" style="margin-top:8px" data-verify-rail-operator="'+x.id+'" data-amount="'+Number(x.amount_ugx||0)+'" data-ref="'+esc(x.transaction_reference)+'">Verify with MTN merchant record</button>':'')+
+          (x.network==='MTN'&&['manual_verified','operator_verified','matched'].includes(String(x.status||'').toLowerCase())&&x.transaction_reference?'<br><button class="btn small" style="margin-top:8px" data-shadow-deposit-approval="'+x.id+'" data-amount="'+Number(x.amount_ugx||0)+'" data-ref="'+esc(x.transaction_reference)+'">Passkey-check deposit approval · no credit</button>':'')+
+          '</div>'
+        ).join('')
+        :'<div class="empty">No fresh test. Tap MTN above.</div>')+'</div>'+
+    '</div>'+
+    '</details>'+
+    '<details id="merchantPhoneSetupPanel" class="admin-disclosure"><summary>Merchant phone setup</summary>'+
+    '<div class="section-title"><h2>Automatic merchant phone</h2></div>'+
+    '<div class="card">'+
+      '<p class="auth-note">Automatic capture requires a paired helper device. Your current Predict UG app is already usable as a live manual verifier above; the devices listed here refer only to automatic forwarding.</p>'+
       '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
-        '<button class="btn primary small" id="connectMerchantPhone">Connect this phone (MTN + Airtel)</button>'+
+        '<button class="btn primary small" id="connectMerchantPhone">Connect this phone (MTN)</button>'+
+        '<button class="btn small ghost" id="updateMerchantApp">Merchant helper (optional)</button>'+
         '<button class="btn small" id="pairMtnDevice">Separate MTN phone</button>'+
-        '<button class="btn small" id="pairAirtelDevice">Separate Airtel phone</button>'+
-        '<button class="btn small ghost" id="pairWebhookDevice">Advanced: Nomad Gateway</button>'+
+                '<button class="btn small ghost" id="pairWebhookDevice">Advanced: Nomad Gateway</button>'+
       '</div>'+
       '<div class="timeline" style="margin-top:12px">'+((state.merchantDevices||[]).length
         ?state.merchantDevices.map(d=>
@@ -3155,24 +3589,69 @@ function renderAdmin(){
         :'<div class="empty">No merchant phones paired yet.</div>')+
       '</div>'+
     '</div>'+    '</details>'+
+    '<details class="admin-disclosure"><summary>MTN liquidity & reserve controls</summary>'+
+    '<div class="section-title"><h2>MTN liquidity & reserve</h2></div>'+
+    '<div class="card">'+
+      '<p class="auth-note">Record only real MTN merchant/provider balance evidence. Weak manual evidence can be stored for audit but cannot fund the sportsbook reserve. These controls do not enable real-money execution.</p>'+
+      '<div class="statgrid">'+
+        '<div class="stat"><small>Fresh strong MTN liquidity</small><b>'+ugx(state.merchantLiquidity?.support?.fresh_strong_merchant_liquidity_ugx||0)+'</b></div>'+
+        '<div class="stat"><small>Customer cash liability</small><b>'+ugx(state.merchantLiquidity?.support?.customer_wallet_liability_ugx||0)+'</b></div>'+
+        '<div class="stat"><small>Worst pending payout</small><b>'+ugx(state.merchantLiquidity?.support?.pending_portfolio_worst_case_payout_ugx||0)+'</b></div>'+
+        '<div class="stat"><small>Max supported reserve</small><b>'+ugx(state.merchantLiquidity?.support?.maximum_supported_reserve_ugx||0)+'</b></div>'+
+      '</div>'+
+      '<div class="meta"><span>Funded sportsbook reserve</span><b>'+ugx(state.sportsbookRisk?.cash_book_reserve_ugx||0)+'</b></div>'+
+      '<div class="meta"><span>Max market net liability</span><b>'+ugx(state.sportsbookRisk?.max_market_net_liability_ugx||0)+'</b></div>'+
+      '<div class="meta"><span>Max single-bet payout</span><b>'+ugx(state.sportsbookRisk?.max_single_bet_payout_ugx||0)+'</b></div>'+
+      '<div class="auth-wrap" style="margin-top:14px">'+
+        '<input class="input" id="mtnLiquidityBalance" type="number" min="0" step="1" placeholder="Actual MTN merchant balance (UGX)">'+
+        '<select class="input" id="mtnLiquiditySource"><option value="merchant_portal">MTN merchant portal</option><option value="provider_statement">Provider statement</option><option value="merchant_app_statement">Merchant app statement</option><option value="manual_verified">Manual note (weak evidence only)</option></select>'+
+        '<input class="input" id="mtnLiquidityRef" maxlength="120" placeholder="Evidence reference / statement ID">'+
+        '<input class="input" id="mtnLiquidityNote" maxlength="300" placeholder="Optional note">'+
+        '<button class="btn primary" id="recordMtnLiquidity">Record MTN liquidity evidence</button>'+
+        '<div id="mtnLiquidityStatus" class="auth-note"></div>'+
+      '</div>'+
+      '<div class="auth-wrap" style="margin-top:14px">'+
+        '<b>Recognize reserve funding from strong evidence</b>'+
+        '<input class="input" id="reserveFundingAmount" type="number" min="1" step="1" placeholder="Reserve funding amount (UGX)">'+
+        '<input class="input" id="reserveFundingEvidenceId" placeholder="Liquidity evidence ID">'+
+        '<button class="btn" id="recordReserveFunding">Record reserve funding</button>'+
+      '</div>'+
+      '<div class="auth-wrap" style="margin-top:14px">'+
+        '<b>Configure cash risk limits</b>'+
+        '<input class="input" id="maxMarketLiability" type="number" min="1" step="1" placeholder="Max market net liability (UGX)">'+
+        '<input class="input" id="maxSinglePayout" type="number" min="1" step="1" placeholder="Max single-bet payout (UGX)">'+
+        '<button class="btn" id="configureCashRisk">Save cash risk limits</button>'+
+      '</div>'+
+      '<div class="timeline" style="margin-top:14px">'+((state.merchantLiquidity?.recent_evidence||[]).length?state.merchantLiquidity.recent_evidence.map(x=>
+        '<div class="item"><b>'+ugx(x.balance_ugx||0)+' · '+esc(x.source_kind)+'</b><br><small>'+dt(x.observed_at)+' · '+(x.strong_reserve_evidence?'strong reserve evidence':'weak/audit-only')+'</small><br><small>Evidence ID: '+esc(x.id)+'</small><br><small>Ref: '+esc(x.evidence_reference||'—')+'</small></div>'
+      ).join(''):'<div class="empty">No MTN liquidity evidence recorded yet.</div>')+'</div>'+
+    '</div>'+
+    '</details>'+
     '<div class="section-title"><h2>Payments needing review</h2></div>'+
+    '<p class="auth-note">For each withdrawal, send the exact amount to the listed phone through the merchant wallet. Then verify the outgoing transaction and confirm the payout here.</p>'+
     '<div class="admin-list">'+((state.manualMomo||[]).length
-      ?state.manualMomo.map(x=>
-        '<div class="item"><b>'+esc(x.network)+' '+esc(x.direction.toUpperCase())+' · '+ugx(x.amount_ugx)+'</b><br>'+
+      ?state.manualMomo.map(x=>{
+        const oe=(state.operatorEvidence?.items||[]).find(y=>y.attached_payment_intent_id===x.payment_intent_id);
+        const ref=String(x.direction==='deposit'?(x.user_transaction_reference||''):(x.payout_transaction_reference||oe?.transaction_reference||'')).trim().toUpperCase();
+        const pe=ref?(state.merchantEvents||[]).find(y=>String(y.network||'').toUpperCase()==='MTN'&&String(y.direction||'').toLowerCase()===(x.direction==='deposit'?'incoming':'outgoing')&&Number(y.amount_ugx||0)===Number(x.amount_ugx||0)&&String(y.transaction_reference||'').trim().toUpperCase()===ref&&String(y.merchant_code||'')===String(x.merchant_code||'')&&['parsed','matched'].includes(String(y.parse_status||'').toLowerCase())&&Number(y.parse_confidence||0)>=0.70&&(x.direction==='deposit'||String(y.counterparty_phone||'').replace(/\D/g,'')===String(x.customer_phone||'').replace(/\D/g,''))&&(y.matched_payment_intent_id==null||y.matched_payment_intent_id===x.payment_intent_id)):null;
+        const evidenceOk=!!pe||!!oe;
+        return '<div class="item"><b>'+esc(x.network)+' '+esc(x.direction.toUpperCase())+' · '+ugx(x.amount_ugx)+'</b><br>'+
         '<small>'+esc(x.customer_phone)+' · '+esc(x.review_status)+' · '+dt(x.created_at)+'</small>'+
         (x.merchant_code?'<br><small>Merchant code: '+esc(x.merchant_code)+'</small>':'')+
         (x.user_transaction_reference?'<br><small>User transaction: '+esc(x.user_transaction_reference)+'</small>':'')+
+        (oe?'<br><small style="color:var(--green)">MTN merchant-side evidence attached ✓ · '+esc(oe.source_kind)+' · '+esc(oe.evidence_reference||'')+'</small>':'')+
+        (x.direction==='deposit'?(evidenceOk?'<br><small style="color:var(--green)">'+(pe?'Paired MTN merchant event':'Strong MTN operator evidence')+' found ✓ · deposit can pass the evidence gate</small>':'<br><small style="color:var(--warn)">Paired merchant event or strong MTN operator evidence required before wallet credit.</small>'):(evidenceOk?'<br><small style="color:var(--green)">'+(pe?'Paired outgoing merchant report verified ✓':'Strong MTN payout evidence attached ✓')+'</small>':'<br><small style="color:var(--warn)">After sending the MTN payout, verify the outgoing merchant record before completing it.</small>'))+
         '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px">'+
           (x.direction==='deposit'
-            ?'<button class="btn small primary" data-manual-confirm-deposit="'+x.payment_intent_id+'" data-ref="'+esc(x.user_transaction_reference||'')+'">Confirm deposit</button>'
-            :'<button class="btn small primary" data-manual-complete-payout="'+x.payment_intent_id+'">Mark payout sent</button>')+
+            ?'<button class="btn small" data-record-operator-evidence="'+x.payment_intent_id+'" data-amount="'+Number(x.amount_ugx||0)+'" data-phone="'+esc(x.customer_phone||'')+'" data-ref="'+esc(x.user_transaction_reference||'')+'">Verify in MTN merchant record</button><button class="btn small primary" '+(evidenceOk?'':'disabled title="Merchant-side evidence required"')+' data-manual-confirm-deposit="'+x.payment_intent_id+'" data-ref="'+esc(x.user_transaction_reference||'')+'">Confirm deposit</button>'
+            :'<button class="btn small" data-record-operator-withdrawal-evidence="'+x.payment_intent_id+'" data-amount="'+Number(x.amount_ugx||0)+'" data-phone="'+esc(x.customer_phone||'')+'">Verify payout in MTN merchant record</button><button class="btn small primary" '+(evidenceOk?'':'disabled title="Exact paired or strong MTN merchant evidence required"')+' data-manual-complete-payout="'+x.payment_intent_id+'" data-ref="'+esc(ref)+'">Confirm verified payout</button>')+
           '<button class="btn small danger" data-manual-reject="'+x.payment_intent_id+'">Reject</button>'+
         '</div></div>'
-      ).join('')
+      }).join('')
       :'<div class="empty">No manual MoMo payments waiting.</div>')+
     '</div>'+
-    '<details style="margin-top:18px"><summary class="section-title" style="cursor:pointer"><h2 style="display:inline">Merchant SMS reconciliation</h2></summary>'+
-      '<p class="auth-note">Transaction messages are parsed automatically. Only unmatched or ambiguous events need human review.</p>'+
+    '<details id="merchantReportingPanel" open style="margin-top:18px"><summary class="section-title" style="cursor:pointer"><h2 style="display:inline">MTN reporting history — merchant phone events</h2></summary>'+
+      '<p class="auth-note">These are device-forwarded notification observations, including any outgoing payment notices. They are not independently verified incoming MTN merchant receipts. Never credit a wallet based only on this list.</p>'+
       '<div class="timeline">'+((state.merchantEvents||[]).length
         ?state.merchantEvents.slice(0,20).map(x=>
           '<div class="item"><b>'+esc(x.network)+' '+esc(x.direction)+' · '+ugx(x.amount_ugx||0)+'</b><br>'+
@@ -3211,8 +3690,157 @@ function renderAdmin(){
     '<div class="section-title"><h2>Agent findings</h2></div><div class="admin-list">'+((a.open_agent_findings||[]).length?a.open_agent_findings.slice(0,20).map(x=>'<div class="item"><b>'+esc(x.summary)+'</b><br><small>'+esc(x.agent_key)+' · '+esc(x.severity)+' · '+dt(x.created_at)+'</small></div>').join(''):'<div class="empty">No open findings.</div>')+'</div>'+
     '</details>'+
     '<div class="section-title"><h2>Business finances</h2></div><div class="card"><div class="meta"><span>Open markets</span><b>'+Number(c.totals?.open_markets||0)+'</b></div><div class="meta"><span>Sportsbook net result</span><b>'+ugx(state.treasury?.sportsbook_net_result_ugx??state.treasury?.realized_platform_revenue_ugx??0)+'</b></div><div class="meta"><span>Customer funds owed</span><b>'+ugx(state.treasury?.total_customer_liability_ugx||0)+'</b></div><div class="meta"><span>Unsettled market stakes</span><b>'+ugx(state.treasury?.unsettled_market_stakes_ugx||0)+'</b></div><p class="auth-note" style="margin-top:10px">Fixed-odds sportsbook result is stakes received minus winning payouts. Customer balances and unsettled liabilities remain reserved for users.</p></div>';
+  if($('#topShadowDepositApproval'))$('#topShadowDepositApproval').onclick=async()=>{
+    const btn=$('#topShadowDepositApproval'),status=$('#topShadowDepositStatus');
+    const test=(state.cashRailTests||[]).find(x=>String(x.network||'').toUpperCase()==='MTN'&&['manual_verified','operator_verified','matched'].includes(String(x.status||'').toLowerCase())&&String(x.transaction_reference||'').trim());
+    if(!test){if(status)status.textContent='No verified MTN rail proof is loaded yet. Tap Use this phone live for MTN verification, then Refresh tests.';openMerchantProof();return}
+    btn.disabled=true;btn.textContent='Waiting for fingerprint / face / PIN…';
+    try{
+      const response=await runMerchantPasskeyAdminAction('shadow_validate_deposit_approval',{
+        test_id:test.id,network:'MTN',amount_ugx:Math.trunc(Number(test.amount_ugx||0)),transaction_reference:String(test.transaction_reference||'').trim()
+      });
+      const result=response?.result;
+      if(!response?.passkey_verified||!result?.ready||result?.wallet_effect!=='none')throw new Error('Deposit approval shadow test did not pass');
+      if(status)status.textContent='Passed ✓ Passkey + MTN proof validated. No wallet credit.';
+      btn.textContent='Deposit approval test passed ✓';
+    }catch(e){
+      if(status)status.textContent=e.message||'Deposit approval shadow test failed';
+      btn.disabled=false;btn.textContent='Final deposit approval test · no credit';
+    }
+  };
+  if($('#refreshPaymentRehearsals'))$('#refreshPaymentRehearsals').onclick=async()=>{await loadAdmin();render();};
+  document.querySelectorAll('[data-complete-rehearsal]').forEach(btn=>{
+    btn.onclick=async()=>{
+      const rehearsalId=String(btn.dataset.completeRehearsal||'').trim();
+      if(!rehearsalId)return;
+      btn.disabled=true;const old=btn.textContent;btn.textContent='Waiting for fingerprint / face / PIN…';
+      try{
+        const response=await runMerchantPasskeyAdminAction('complete_deposit_rehearsal',{rehearsal_id:rehearsalId});
+        const result=response?.result;
+        if(!response?.passkey_verified||result?.status!=='completed_rehearsal'||result?.wallet_effect!=='none'){
+          throw new Error('Rehearsal passkey review did not complete safely');
+        }
+        toast('Rehearsal admin review passed ✓ No money moved.');
+        await loadAdmin();render();
+      }catch(e){
+        toast(e.message||'Rehearsal review failed',true);
+        if(btn.isConnected){btn.disabled=false;btn.textContent=old}
+      }
+    };
+  });
   if($('#refreshCashReadiness'))$('#refreshCashReadiness').onclick=async()=>{await loadAdmin();render();};
-  $('#admCreate').onclick=async()=>{try{const title=$('#admTitle').value.trim(),cat=$('#admCat').value,close=$('#admClose').value,rule=$('#admRule').value.trim(),source=$('#admSource').value.trim();if(!title||!close||!rule)throw new Error('Title, close time and rule are required');await rpc('create_market',{p_title:title,p_category:cat,p_description:'',p_close_time:new Date(close).toISOString(),p_resolution_rule:rule,p_outcomes:[{label:'YES',seed_liquidity_ugx:50000},{label:'NO',seed_liquidity_ugx:50000}],p_source_name:source?'Primary source':null,p_source_url:source||null,p_platform_share_bps:900});toast('Market created');await loadMarkets();await loadAdmin();render()}catch(e){toast(e.message,true)}};
+  if($('#updateMerchantApp'))$('#updateMerchantApp').onclick=()=>{alert('The Merchant helper APK is optional for MTN operator mode. The old debug APK is no longer the required path because Android Play Protect rejected it. Use Merchant cash-rail proof → Verify with MTN merchant record, or pair a trusted merchant device later when the stable-signed helper is available.');};
+  if($('#refreshCashRailTests'))$('#refreshCashRailTests').onclick=async()=>{await loadAdmin();render();};
+  if($('#clearMerchantSms'))$('#clearMerchantSms').onclick=()=>{if($('#merchantSmsPaste'))$('#merchantSmsPaste').value='';if($('#merchantSmsStatus'))$('#merchantSmsStatus').textContent='';};
+  if($('#verifyMerchantSms'))$('#verifyMerchantSms').onclick=async()=>{
+    const btn=$('#verifyMerchantSms'),status=$('#merchantSmsStatus');
+    const message=String($('#merchantSmsPaste')?.value||'').trim();
+    if(!message){if(status)status.textContent='Paste the full transaction SMS first.';return}
+    btn.disabled=true;if(status)status.textContent='Waiting for fingerprint / face / PIN…';
+    try{
+      const response=await runMerchantPasskeyAdminAction('verify_manual_merchant_sms_proof',{message});
+      const data=response?.result;
+      if(!response?.passkey_verified)throw new Error('Merchant passkey verification failed');
+      if(!data?.ok||!data?.matched)throw new Error(data?.reason||'No matching pending merchant test');
+      if(status)status.textContent='Live verification passed ✓ '+String(data.network||'')+' · '+ugx(data.amount_ugx||0)+' · '+String(data.transaction_reference||'reference not parsed');
+      toast('Merchant SMS verified with passkey ✓');
+      await loadAdmin();render();
+    }catch(e){if(status)status.textContent=e.message||'Could not verify merchant SMS';toast(e.message||'Could not verify merchant SMS',true)}
+    finally{if(btn&&btn.isConnected)btn.disabled=false}
+  };
+  const startCashRailTest=async(network)=>{
+    const btn=network==='MTN'?$('#startMtnCashRailTest'):$('#startAirtelCashRailTest');
+    if(!btn)return;
+    const original=btn.textContent;btn.disabled=true;btn.textContent='Starting…';
+    try{
+      const result=await rpc('admin_start_merchant_cash_rail_test',{p_network:network,p_amount_ugx:500});
+      if(!result?.test_id||String(result.status||'').toLowerCase()!=='pending')throw new Error('Could not create a pending '+network+' test');
+      toast(network+' UGX 500 test started');
+      await loadAdmin();render();
+    }catch(e){toast(e.message||('Could not start '+network+' test'),true);if(btn){btn.disabled=false;btn.textContent=original}}
+  };
+  if($('#startMtnCashRailTest'))$('#startMtnCashRailTest').onclick=()=>startCashRailTest('MTN');
+  if($('#completeMtnReadinessProof'))$('#completeMtnReadinessProof').onclick=async()=>{
+    const btn=$('#completeMtnReadinessProof');
+    const testId=btn?.dataset?.testId||'';
+    if(!testId){toast('Existing MTN proof test is not available',true);return}
+    const source=(prompt('Strong MTN source: merchant_portal, provider_statement, or merchant_app_statement','merchant_portal')||'').trim().toLowerCase();
+    if(!source)return;
+    const evidenceRef=(prompt('Enter the MTN merchant portal/app/statement record ID or statement reference','')||'').trim();
+    if(evidenceRef.length<4){toast('Merchant evidence reference is required',true);return}
+    const balanceText=(prompt('Enter the CURRENT MTN merchant balance in UGX from that same source','')||'').replace(/,/g,'').trim();
+    if(!balanceText)return;
+    const balance=Number(balanceText);
+    if(!Number.isFinite(balance)||balance<0){toast('Enter a valid current MTN merchant balance',true);return}
+    const note=(prompt('Optional note','Verified paid MTN test and current merchant balance from the same strong source')||'').trim();
+    btn.disabled=true;const old=btn.textContent;btn.textContent='Verifying…';
+    try{
+      const result=await rpc('admin_record_mtn_readiness_bundle',{p_test_id:testId,p_balance_ugx:Math.trunc(balance),p_observed_at:new Date().toISOString(),p_source_kind:source,p_evidence_reference:evidenceRef,p_evidence_note:note||null});
+      if(!result?.ok)throw new Error('MTN readiness proof was not accepted');
+      toast('MTN rail proof + balance recorded ✓');
+      await loadAdmin();render();
+    }catch(e){toast(e.message||'Could not record MTN readiness proof',true)}
+    finally{if(btn.isConnected){btn.disabled=false;btn.textContent=old}}
+  };
+  document.querySelectorAll('[data-shadow-deposit-approval]').forEach(btn=>{
+    btn.onclick=async()=>{
+      const testId=btn.dataset.shadowDepositApproval;
+      const amount=Number(btn.dataset.amount||0);
+      const ref=String(btn.dataset.ref||'').trim();
+      if(!testId||!ref||!Number.isFinite(amount)||amount<=0){toast('Shadow deposit proof details are incomplete',true);return}
+      btn.disabled=true;const old=btn.textContent;btn.textContent='Waiting for fingerprint / face / PIN…';
+      try{
+        const response=await runMerchantPasskeyAdminAction('shadow_validate_deposit_approval',{
+          test_id:testId,
+          network:'MTN',
+          amount_ugx:Math.trunc(amount),
+          transaction_reference:ref
+        });
+        const result=response?.result;
+        if(!response?.passkey_verified||!result?.ready||result?.wallet_effect!=='none')throw new Error('Shadow deposit approval validation failed');
+        toast('Deposit approval gate passed ✓ No wallet credit.');
+        btn.textContent='Deposit approval gate passed ✓';
+      }catch(e){
+        toast(e.message||'Could not validate deposit approval gate',true);
+        btn.disabled=false;btn.textContent=old;
+      }
+    };
+  });
+  document.querySelectorAll('[data-verify-rail-operator]').forEach(btn=>{
+    btn.onclick=async()=>{
+      const testId=btn.dataset.verifyRailOperator;
+      const amount=Number(btn.dataset.amount||0);
+      const ref=String(btn.dataset.ref||'').trim();
+      if(!testId||!ref||!Number.isFinite(amount)||amount<=0){toast('Cash-rail proof details are incomplete',true);return}
+      const source=(prompt('Strong MTN evidence source: merchant_portal, provider_statement, or merchant_app_statement','merchant_portal')||'').trim().toLowerCase();
+      if(!source)return;
+      const evidenceRef=(prompt('Enter the MTN merchant portal/app/statement record ID for transaction '+ref,'')||'').trim();
+      if(evidenceRef.length<4){toast('Merchant evidence reference is required',true);return}
+      const note=(prompt('Optional note','Verified in MTN merchant-side records')||'').trim();
+      btn.disabled=true;
+      try{
+        const observedAt=new Date().toISOString();
+        const saved=await rpc('admin_record_mtn_merchant_operator_evidence',{p_direction:'deposit',p_amount_ugx:Math.trunc(amount),p_transaction_reference:ref,p_counterparty_phone:null,p_observed_at:observedAt,p_source_kind:source,p_evidence_reference:evidenceRef,p_evidence_note:note||null});
+        const verified=await rpc('admin_attach_mtn_operator_evidence_to_cash_rail_test',{p_test_id:testId,p_evidence_id:saved.evidence_id});
+        if(!verified?.verified)throw new Error('MTN operator proof was not accepted');
+        let liquidityRecorded=false;
+        const balanceText=prompt('Optional: enter the CURRENT MTN merchant balance in UGX from the same portal/app/statement. Leave blank to skip.','');
+        if(balanceText!==null&&String(balanceText).trim()!==''){
+          const balance=Number(String(balanceText).replace(/,/g,'').trim());
+          if(Number.isFinite(balance)&&balance>=0){
+            try{
+              await rpc('admin_record_merchant_wallet_liquidity_evidence',{p_network:'MTN',p_balance_ugx:Math.trunc(balance),p_observed_at:observedAt,p_source_kind:source,p_evidence_reference:evidenceRef,p_evidence_note:(note?note+' · ':'')+'Same strong MTN source used for cash-rail proof'});
+              liquidityRecorded=true;
+            }catch(le){toast('Rail proof verified, but liquidity was not recorded: '+(le.message||'check balance evidence'),true)}
+          }else toast('Rail proof verified. Merchant balance was not recorded because the amount was invalid.',true);
+        }
+        toast(liquidityRecorded?'MTN rail proof + liquidity evidence recorded ✓':'MTN cash rail operator-verified ✓');
+        await loadAdmin();render();
+      }catch(e){toast(e.message||'Could not verify MTN merchant record',true)}
+      finally{if(btn.isConnected)btn.disabled=false}
+    };
+  });
+    $('#admCreate').onclick=async()=>{try{const title=$('#admTitle').value.trim(),cat=$('#admCat').value,close=$('#admClose').value,rule=$('#admRule').value.trim(),source=$('#admSource').value.trim();if(!title||!close||!rule)throw new Error('Title, close time and rule are required');await rpc('create_market',{p_title:title,p_category:cat,p_description:'',p_close_time:new Date(close).toISOString(),p_resolution_rule:rule,p_outcomes:[{label:'YES',seed_liquidity_ugx:50000},{label:'NO',seed_liquidity_ugx:50000}],p_source_name:source?'Primary source':null,p_source_url:source||null,p_platform_share_bps:900});toast('Market created');await loadMarkets();await loadAdmin();render()}catch(e){toast(e.message,true)}};
 
 
   const connectAiKey=async(rawKey)=>{
@@ -3405,13 +4033,21 @@ function renderAdmin(){
   if($('#connectMerchantPhone'))$('#connectMerchantPhone').onclick=quickConnectMerchantPhone;
 
   if($('#pairMtnDevice'))$('#pairMtnDevice').onclick=()=>pairMerchantDevice('MTN');
-  if($('#pairAirtelDevice'))$('#pairAirtelDevice').onclick=()=>pairMerchantDevice('AIRTEL');
+  if($('#recordMtnLiquidity'))$('#recordMtnLiquidity').onclick=async()=>{
+    const btn=$('#recordMtnLiquidity'),status=$('#mtnLiquidityStatus');
+    const balance=Number($('#mtnLiquidityBalance')?.value||NaN),source=$('#mtnLiquiditySource')?.value||'merchant_portal',ref=String($('#mtnLiquidityRef')?.value||'').trim(),note=String($('#mtnLiquidityNote')?.value||'').trim();
+    if(!Number.isFinite(balance)||balance<0||ref.length<4){if(status)status.textContent='Enter the real MTN balance and an evidence reference.';return}
+    btn.disabled=true;if(status)status.textContent='Recording evidence…';
+    try{const saved=await rpc('admin_record_merchant_wallet_liquidity_evidence',{p_network:'MTN',p_balance_ugx:Math.trunc(balance),p_observed_at:new Date().toISOString(),p_source_kind:source,p_evidence_reference:ref,p_evidence_note:note||null});if(status)status.textContent='Recorded ✓ Evidence ID: '+String(saved?.id||'');toast(saved?.strong_reserve_evidence?'Strong MTN liquidity evidence recorded ✓':'Audit-only MTN evidence recorded');await loadAdmin();render()}catch(e){if(status)status.textContent=e.message||'Could not record MTN liquidity';toast(e.message||'Could not record MTN liquidity',true)}finally{if(btn)btn.disabled=false}
+  };
+  if($('#recordReserveFunding'))$('#recordReserveFunding').onclick=async()=>{const amount=Number($('#reserveFundingAmount')?.value||NaN),evidence=String($('#reserveFundingEvidenceId')?.value||'').trim();if(!Number.isFinite(amount)||amount<=0||!evidence){toast('Enter funding amount and evidence ID',true);return}try{await rpc('admin_record_sportsbook_reserve_funding',{p_amount_ugx:Math.trunc(amount),p_evidence_id:evidence,p_note:'Recorded from Predict UG Admin'});toast('Reserve funding recorded ✓');await loadAdmin();render()}catch(e){toast(e.message||'Reserve funding was not accepted',true)}};
+  if($('#configureCashRisk'))$('#configureCashRisk').onclick=async()=>{const market=Number($('#maxMarketLiability')?.value||NaN),payout=Number($('#maxSinglePayout')?.value||NaN);if(!Number.isFinite(market)||market<=0||!Number.isFinite(payout)||payout<=0){toast('Enter positive risk limits',true);return}try{await rpc('admin_configure_sportsbook_cash_risk_limits',{p_max_market_net_liability_ugx:Math.trunc(market),p_max_single_bet_payout_ugx:Math.trunc(payout),p_note:'Configured from Predict UG Admin'});toast('Cash risk limits saved ✓');await loadAdmin();render()}catch(e){toast(e.message||'Cash risk limits were not accepted',true)}};
 
   if($('#pairWebhookDevice'))$('#pairWebhookDevice').onclick=async()=>{
     try{
       const label=(prompt('Name this Android merchant phone','My merchant phone')||'').trim();
       if(!label)return;
-      const pairing=await rpc('admin_pair_merchant_ingest_device',{p_label:label,p_network_scope:'BOTH'});
+      const pairing=await rpc('admin_pair_merchant_ingest_device',{p_label:label,p_network_scope:'MTN'});
       const installUrl='https://github.com/we-digital/android-nomad-gateway/releases';
       const config=[
         'USE THIS PHONE AS THE PREDICT UG MERCHANT VERIFIER',
@@ -3428,12 +4064,11 @@ function renderAdmin(){
         '• Allow Auto-start / start in background if your phone offers that switch.',
         '• Do NOT enable call-log forwarding or notification-content forwarding.',
         '',
-        '3. In Nomad Gateway create TWO SMS rules:',
+        '3. In Nomad Gateway create ONE SMS rule:',
         '• MTN rule: sender must exactly match the MTN/MoMo sender name or number shown in your Messages app.',
-        '• Airtel rule: sender must exactly match the Airtel Money sender name or number shown in your Messages app.',
         'Never use * as the sender filter on a personal phone.',
         '',
-        '4. For both rules use this webhook URL:',
+        '4. Use this webhook URL for the MTN rule:',
         pairing.ingest_url,
         '',
         '5. Add these custom headers:',
@@ -3487,6 +4122,52 @@ function renderAdmin(){
     };
   });
 
+  document.querySelectorAll('[data-record-operator-evidence]').forEach(btn=>{
+    btn.onclick=async()=>{
+      const paymentIntentId=btn.dataset.recordOperatorEvidence;
+      const amount=Number(btn.dataset.amount||0);
+      const phone=btn.dataset.phone||'';
+      const ref=String(btn.dataset.ref||'').trim();
+      if(!ref){toast('Customer MTN transaction reference is required first.',true);return}
+      const source=(prompt('Evidence source: merchant_portal, provider_statement, or merchant_app_statement','merchant_portal')||'').trim().toLowerCase();
+      if(!source)return;
+      const evidenceRef=(prompt('Enter the MTN merchant record / statement reference','')||'').trim();
+      if(evidenceRef.length<4){toast('Evidence reference is required',true);return}
+      const note=(prompt('Optional verification note','Verified against MTN merchant-side record')||'').trim();
+      btn.disabled=true;
+      try{
+        const saved=await rpc('admin_record_mtn_merchant_operator_evidence',{p_direction:'deposit',p_amount_ugx:Math.trunc(amount),p_transaction_reference:ref,p_counterparty_phone:phone||null,p_observed_at:new Date().toISOString(),p_source_kind:source,p_evidence_reference:evidenceRef,p_evidence_note:note||null});
+        await rpc('admin_attach_mtn_operator_evidence',{p_payment_intent_id:paymentIntentId,p_evidence_id:saved.evidence_id});
+        toast('MTN merchant-side evidence attached ✓');
+        await loadAdmin();render();
+      }catch(e){toast(e.message||'Could not attach MTN merchant evidence',true)}
+      finally{if(btn.isConnected)btn.disabled=false}
+    };
+  });
+
+  document.querySelectorAll('[data-record-operator-withdrawal-evidence]').forEach(btn=>{
+    btn.onclick=async()=>{
+      const paymentIntentId=btn.dataset.recordOperatorWithdrawalEvidence;
+      const amount=Number(btn.dataset.amount||0);
+      const phone=btn.dataset.phone||'';
+      const ref=(prompt('Enter the outgoing MTN transaction reference after sending this payout','')||'').trim().toUpperCase();
+      if(ref.length<6){toast('Outgoing MTN transaction reference is required',true);return}
+      const source=(prompt('Evidence source: merchant_portal, provider_statement, or merchant_app_statement','merchant_portal')||'').trim().toLowerCase();
+      if(!source)return;
+      const evidenceRef=(prompt('Enter the MTN merchant record / statement reference','')||'').trim();
+      if(evidenceRef.length<4){toast('Evidence reference is required',true);return}
+      const note=(prompt('Optional verification note','Verified outgoing MTN payout against merchant-side record')||'').trim();
+      btn.disabled=true;
+      try{
+        const saved=await rpc('admin_record_mtn_merchant_operator_evidence',{p_direction:'withdrawal',p_amount_ugx:Math.trunc(amount),p_transaction_reference:ref,p_counterparty_phone:phone,p_observed_at:new Date().toISOString(),p_source_kind:source,p_evidence_reference:evidenceRef,p_evidence_note:note||null});
+        await rpc('admin_attach_mtn_operator_evidence',{p_payment_intent_id:paymentIntentId,p_evidence_id:saved.evidence_id});
+        toast('MTN payout evidence attached ✓');
+        await loadAdmin();render();
+      }catch(e){toast(e.message||'Could not attach MTN payout evidence',true)}
+      finally{if(btn.isConnected)btn.disabled=false}
+    };
+  });
+
   document.querySelectorAll('[data-manual-confirm-deposit]').forEach(btn=>{
     btn.onclick=async()=>{
       if(btn.disabled||!state.user||!state.isAdmin)return;
@@ -3515,7 +4196,7 @@ function renderAdmin(){
       const userId=state.user.id;
       btn.disabled=true;
       try{
-        const ref=(prompt('Outgoing MoMo transaction ID after sending payout','')||'').trim();
+        const ref=(prompt('Outgoing MTN transaction ID after sending payout',btn.dataset.ref||'')||'').trim();
         if(!ref)return;
         await runMerchantPasskeyAdminAction('complete_manual_momo_payout',{
           payment_intent_id:btn.dataset.manualCompletePayout,
@@ -3653,60 +4334,117 @@ function showPasswordReset(recoveryMode=false){
   };
 }
 
+/* APP_UPDATE_BEGIN */
+/* Shared updater for the live web shell and bundled Android fallback. */
+function installedAndroidBuild(){
+  const match=String(navigator.userAgent||'').match(/\bPredictUG\/(\d+\.\d+\.\d+(?:-[a-z0-9.]+)?)/i);
+  if(!match)return null;
+  const version=match[1],channel=version.includes('-merchant')?'merchant':'customer';
+  const versionCode=typeof APP_VERSION_CODE!=='undefined'&&version===APP_BUILD?APP_VERSION_CODE:null;
+  return {version,versionCode,channel};
+}
 function trustedApkDownload(value){
-  try{
-    const u=new URL(String(value||''),PUBLIC_ORIGIN);
-    if(u.protocol==='https:'&&u.host==='predict-ug-app.onrender.com'&&u.pathname.startsWith('/downloads/')){
-      return u.toString();
-    }
-  }catch{}
-  return PUBLIC_ORIGIN+'/downloads/predict-ug.apk';
+  const u=new URL(String(value||''),PUBLIC_ORIGIN);
+  if(u.protocol!=='https:'||u.origin!==PUBLIC_ORIGIN||u.username||u.password
+    ||!/^\/downloads\/predict-ug(?:-customer-\d+\.\d+\.\d+)?\.apk$/.test(u.pathname)
+    ||u.search||u.hash)throw new Error('Untrusted APK download');
+  return u.toString();
+}
+function androidApkDownload(meta){
+  // External to the WebView origin, so already-installed versions hand this to
+  // Android's browser. Pin repository and immutable artifact commit.
+  return 'https://raw.githubusercontent.com/festusakona40-code/Predict-UG-Core/'
+    +meta.sourceArtifactCommit+'/predict-ug.apk';
 }
 async function fetchReleaseMetadata(){
-  const r=await fetch(INSTALL_ORIGIN+'?release=1&t='+Date.now(),{cache:'no-store'});
+  // The bundled asset origin cannot read Render JSON without CORS. The existing
+  // public backend release proxy supplies CORS and forwards the same metadata.
+  const endpoint=location.origin===PUBLIC_ORIGIN
+    ?PUBLIC_ORIGIN+'/downloads/latest.json?t='+Date.now()
+    :INSTALL_ORIGIN+'?release=1&t='+Date.now();
+  const r=await fetch(endpoint,{
+    cache:'no-store',signal:AbortSignal.timeout(8000)
+  });
   if(!r.ok)throw new Error('Could not check for app updates');
   const meta=await r.json();
-  const code=Number(meta?.versionCode||0);
-  if(!Number.isSafeInteger(code)||code<1)throw new Error('Update information is invalid');
+  if(!/^\d+\.\d+\.\d+$/.test(String(meta?.version||''))
+    ||!Number.isSafeInteger(meta?.versionCode)||meta.versionCode<1
+    ||!/^[a-f0-9]{64}$/i.test(String(meta?.sha256||''))
+    ||!Number.isSafeInteger(meta?.sizeBytes)||meta.sizeBytes<1
+    ||!/^[a-f0-9]{64}$/i.test(String(meta?.signingCertificateSha256||''))
+    ||!/^[a-f0-9]{40}$/i.test(String(meta?.sourceArtifactCommit||'')))
+    throw new Error('Update information is invalid');
+  const download=trustedApkDownload(meta.immutableDownload);
+  if(new URL(download).pathname!=='/downloads/predict-ug-customer-'+meta.version+'.apk')
+    throw new Error('APK version does not match update information');
   return meta;
 }
-async function checkForAppUpdate(interactive=false){
-  if(!state.online){
-    if(interactive)toast('Offline: reconnect to check for updates.',true);
-    return null;
+function newerAndroidRelease(meta,installed){
+  if(Number.isSafeInteger(installed.versionCode))return meta.versionCode>installed.versionCode;
+  const next=meta.version.split('.').map(Number),current=installed.version.split('.').map(Number);
+  for(let i=0;i<3;i++){
+    if(next[i]!==current[i])return next[i]>current[i];
   }
+  return false;
+}
+async function checkForAppUpdate(interactive=false){
+  const installed=installedAndroidBuild();
+  if(!installed||installed.channel!=='customer')return null;
+  if(!state.online){if(interactive)toast('Offline: reconnect to check for updates.',true);return null}
   try{
-    const meta=await fetchReleaseMetadata();
-    const latestCode=Number(meta.versionCode||0);
-    const newer=latestCode>APP_VERSION_CODE;
+    const meta=await fetchReleaseMetadata(),newer=newerAndroidRelease(meta,installed);
     state.releaseUpdate=newer?meta:null;
-    if(newer){
-      const version=String(meta.version||'new version');
-      if(interactive){
-        if(confirm('Predict UG '+version+' is available. Open the verified APK download?')){
-          location.href=trustedApkDownload(meta.canonicalDownload);
+    if(newer&&!interactive){
+      const key='predict_ug_update_notice_'+meta.versionCode;
+      try{
+        if(localStorage.getItem(key)!=='1'){
+          localStorage.setItem(key,'1');
+          toast('Predict UG '+meta.version+' is available · Profile → Update app');
         }
-      }else{
-        const key='predict_ug_update_notice_'+latestCode;
-        try{
-          if(localStorage.getItem(key)!=='1'){
-            localStorage.setItem(key,'1');
-            toast('Predict UG '+version+' is available · Profile → Update app');
-          }
-        }catch{}
-      }
-    }else if(interactive){
-      toast('Predict UG '+APP_BUILD+' is up to date');
+      }catch{}
     }
     return meta;
-  }catch(e){
-    if(interactive)toast(e.message||'Could not check for updates',true);
-    return null;
+  }catch(error){if(interactive)toast('Could not check for app updates. Try again.',true);return null}
+}
+async function refreshAppInterface(){
+  if('serviceWorker' in navigator){
+    const regs=await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.filter(reg=>{
+      const scope=new URL(reg.scope);
+      return scope.origin===location.origin&&(scope.pathname==='/'||scope.pathname.startsWith('/functions/v1/predict-ug'));
+    }).map(reg=>reg.unregister()));
   }
+  if('caches' in window){
+    const keys=await caches.keys();
+    await Promise.all(keys.filter(key=>key.startsWith('predict-ug')).map(key=>caches.delete(key)));
+  }
+  const current=new URL(location.href);
+  const target=location.hostname==='appassets.androidplatform.net'?new URL(PUBLIC_ORIGIN+'/'):current;
+  if(target!==current){target.search=current.search;target.hash=current.hash}
+  target.searchParams.set('app_update',String(Date.now()));
+  location.replace(target.toString());
 }
 async function forceAppUpdate(){
-  return checkForAppUpdate(true);
+  if(!state.online){toast('Offline: reconnect before updating Predict UG.',true);return}
+  if(state.appUpdateBusy)return;
+  state.appUpdateBusy=true;
+  try{
+    const installed=installedAndroidBuild();
+    if(installed?.channel==='customer'){
+      toast('Checking your installed app for updates…');
+      const meta=await fetchReleaseMetadata();
+      if(newerAndroidRelease(meta,installed)){
+        toast('Downloading Predict UG '+meta.version+'. Confirm Install in Android, then reopen Predict UG.');
+        location.href=androidApkDownload(meta);
+        return;
+      }
+    }
+    toast('Refreshing the latest Predict UG interface and data…');
+    await refreshAppInterface();
+  }catch(error){toast('Could not update Predict UG. Check your connection and try again.',true)}
+  finally{state.appUpdateBusy=false}
 }
+/* APP_UPDATE_END */
 async function runAppCheck(){
   const out=[];
   try{
@@ -3718,39 +4456,36 @@ async function runAppCheck(){
     const s=await supabase.auth.getSession();
     out.push(s.data?.session?'Session: signed in':'Session: signed out');
   }catch{out.push('Session: check failed')}
-  try{
-    const meta=await fetchReleaseMetadata();
-    out.push(Number(meta.versionCode)>APP_VERSION_CODE
-      ?('Update: '+String(meta.version||'new version')+' available')
-      :('App: Android '+APP_BUILD+' · latest'));
-  }catch{
-    out.push('App: Android '+APP_BUILD+' · update check unavailable');
-  }
+  const installed=installedAndroidBuild();
+  out.push('App: '+(installed?'Android '+installed.version:'web '+APP_BUILD));
   return out.join(' · ');
 }
+
 function showAuth(){
   const referralPrefill=pendingReferralCode();
   $('#overlay').innerHTML=
     '<div class="modal"><div class="sheet" style="max-width:480px">'+
       '<button class="close" id="authClose">✕</button>'+
-      '<h2>Welcome to Predict UG</h2>'+
-      '<p class="auth-note">No email needed. Enter your phone number and password. If the phone number is new, Predict UG creates the account automatically.</p>'+
+      '<h2>Start predicting in Uganda</h2>'+
+      '<p class="auth-note">No email needed. Use a Ugandan phone number (07… or +256…) and password. New number? We create your account. Returning? The same button signs you in.</p>'+
       '<div class="auth-wrap">'+
         '<input class="input" id="phone" type="tel" inputmode="tel" autocomplete="tel" aria-label="Phone number" placeholder="Phone number">'+
-        '<input class="input" id="password" type="password" autocomplete="current-password" aria-label="Password" placeholder="Password">'+
+        '<input class="input" id="password" type="password" autocomplete="current-password" aria-label="Password" placeholder="Password (8+ characters for new accounts)">'+
+        '<button class="btn small ghost" type="button" id="showAuthPassword">Show password</button>'+
         '<input class="input" id="referralCode" inputmode="text" autocomplete="off" maxlength="10" placeholder="Referral code (optional)" value="'+esc(referralPrefill)+'">'+
-        '<button class="btn primary" id="continueAuth">Continue</button>'+
+        '<button class="btn primary" id="continueAuth">Continue with phone</button>'+
         '<div id="authStatus" class="auth-note" style="min-height:22px"></div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
           '<button class="btn small" id="authCheck">Check app</button>'+
           '<button class="btn small ghost" id="authUpdate">Update app</button>'+
         '</div>'+
       '</div>'+
-      '<p class="auth-note"><b>What happens next:</b> you receive practice credits, choose a market, pick YES or NO, review the payout/risk, then confirm. Practice credits are not withdrawable cash.</p>'+
+      '<p class="auth-note"><b>Next:</b> pick YES or NO on a Uganda market, review your possible return in Practice UGX, and track the result. Practice UGX is not cash and cannot be converted or withdrawn.</p>'+
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn small ghost" id="authPrivacy">Privacy</button><button class="btn small ghost" id="authTerms">Terms</button><button class="btn small ghost" id="authDeleteInfo">Delete account</button></div>'+
     '</div></div>';
 
   $('#authClose').onclick=()=>$('#overlay').innerHTML='';
+  $('#showAuthPassword').onclick=()=>{const input=$('#password'),btn=$('#showAuthPassword');if(!input||!btn)return;input.type=input.type==='password'?'text':'password';btn.textContent=input.type==='text'?'Hide password':'Show password';};
   $('#authPrivacy').onclick=()=>openHosted('/privacy.html');
   $('#authTerms').onclick=()=>openHosted('/terms.html');
   $('#authDeleteInfo').onclick=()=>openHosted('/account-deletion.html');
@@ -3785,7 +4520,8 @@ function showAuth(){
         trackBehavior('signup_completed',{metadata:{method:'phone_password'}});
         const referral=await claimReferralForNewAccount(referralCode);
         await loadBalance();
-        toast(referral?.claimed?'Account created · referral recorded · 50,000 practice credits ready':'Account created · 50,000 practice credits ready');
+        const displayBalance=state.balance==null?'your practice balance is loading':practiceUgx(state.balance);
+        toast('Account created · '+(referral?.claimed?'referral recorded · ':'')+displayBalance);
       }else{
         trackBehavior('login_completed',{metadata:{method:'phone_password'}});
         await loadBalance();
@@ -3892,7 +4628,7 @@ async function profileMenu(){
         '<button class="btn" data-tab="notifications">Notifications</button>'+
         '<button class="btn" data-tab="leaderboard">Leaderboard</button>'+
         '<button class="btn" id="profileCheck">Check app</button>'+
-        '<button class="btn" id="profileUpdate">Update app</button>'+
+        '<button class="btn" id="profileUpdate">Update Predict UG</button>'+
         '<button class="btn" id="profileResponsible">Responsible use & limits</button>'+
         '<button class="btn" id="profilePrivacy">Privacy policy</button>'+
         '<button class="btn" id="profileTerms">Terms of use</button>'+
@@ -3982,9 +4718,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.getRegistrations().then(regs=>Promise.all(regs.filter(r=>r.scope.includes('/functions/v1/predict-ug-web')).map(r=>r.unregister()))).catch(()=>{});
   if(isInstallOrigin()){navigator.serviceWorker.register(INSTALL_ORIGIN+'?asset=sw&v=14',{scope:'/functions/v1/predict-ug-live',updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});}
 }
-if('caches' in window){
-  caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('predict-ug')).map(k=>caches.delete(k)))).catch(()=>{});
-}
+// Normal startup preserves the active offline shell; the service worker retires owned old caches.
 $('#authBtn').onclick=profileMenu;
 $('#inviteBtn').onclick=showInvite;
 $('#merchantQuickConnect').onclick=quickConnectMerchantPhone;

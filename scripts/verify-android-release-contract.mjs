@@ -18,12 +18,18 @@ if(appVersionCode!==versionCode)fail("Bundled APP_VERSION_CODE does not match Gr
 
 const required=[
   "async function fetchReleaseMetadata()",
+  "PUBLIC_ORIGIN+'/downloads/latest.json?t='",
   "INSTALL_ORIGIN+'?release=1&t='",
-  "latestCode>APP_VERSION_CODE",
+  "meta.versionCode>installed.versionCode",
+  "newerAndroidRelease(meta,installed)",
   "function trustedApkDownload(value)",
-  "u.protocol==='https:'",
-  "u.host==='predict-ug-app.onrender.com'",
-  "u.pathname.startsWith('/downloads/')",
+  "u.protocol!=='https:'",
+  "u.origin!==PUBLIC_ORIGIN",
+  "function androidApkDownload(meta)",
+  "https://raw.githubusercontent.com/festusakona40-code/Predict-UG-Core/",
+  "sourceArtifactCommit",
+  "refreshAppInterface",
+  "location.href=androidApkDownload(meta)",
   "setTimeout(()=>checkForAppUpdate(false),600)"
 ];
 for(const marker of required){
