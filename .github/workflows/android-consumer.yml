@@ -105,6 +105,26 @@ jobs:
         working-directory: android
         run: gradle --no-daemon :app:testConsumerDebugUnitTest :app:assembleConsumerDebug :app:bundleConsumerRelease
 
+      - name: Prove consumer unit tests actually executed
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          results = Path("android/app/build/test-results/testConsumerDebugUnitTest")
+          reports = list(results.glob("*.xml"))
+          total = 0
+          failures = 0
+          for report in reports:
+              root = ET.parse(report).getroot()
+              total += int(root.attrib.get("tests", 0))
+              failures += int(root.attrib.get("failures", 0)) + int(root.attrib.get("errors", 0))
+          print(f"consumer JUnit evidence: {total} tests, {failures} failures, {len(reports)} reports")
+          if total < 3 or failures:
+              raise SystemExit("Consumer CI requires at least the three existing security unit tests to execute and pass.")
+          PY
+
       - name: Verify consumer permission boundary
         shell: bash
         run: |
