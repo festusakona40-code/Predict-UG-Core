@@ -51,6 +51,23 @@ jobs:
           const targets = [
             {name: "Render customer frontend", url: "https://predict-ug-app.onrender.com", valid: (body) => body.includes("<title>Predict UG</title>") && body.includes("predict-ug-payments")},
             {name: "Supabase public health", url: "https://rnvyrlmrwhfauuskyhje.supabase.co/functions/v1/predict-ug-live?health=1", valid: (body) => { try { const j = JSON.parse(body); return j.ok === true && j.app === "Predict UG" && typeof j.version === "string" && (j.version.startsWith("live-v") || j.version.startsWith("web-")); } catch { return false; } }},
+            {name: "Customer APK release metadata", url: "https://predict-ug-app.onrender.com/downloads/latest.json", valid: (body) => {
+              try {
+                const j = JSON.parse(body);
+                const fileUrl = new URL(j.canonicalDownload);
+                return j.channel === "customer" &&
+                  /^0\\.7\\.[0-9]+$/.test(j.version) &&
+                  Number.isSafeInteger(j.versionCode) && j.versionCode > 0 &&
+                  /^[a-f0-9]{64}$/i.test(j.sha256) &&
+                  Number.isSafeInteger(j.sizeBytes) && j.sizeBytes > 1000000 &&
+                  j.productionMoneyEnabled === false &&
+                  j.betaSigning === true &&
+                  j.signingIdentity === "Android Debug" &&
+                  /^[a-f0-9]{64}$/i.test(j.signingCertificateSha256) &&
+                  fileUrl.origin === "https://predict-ug-app.onrender.com" &&
+                  fileUrl.pathname === "/downloads/predict-ug.apk";
+              } catch { return false; }
+            }},
           ];
           const results = await Promise.all(targets.map(async ({name, url, valid}) => {
             let lastError = "no attempt";
