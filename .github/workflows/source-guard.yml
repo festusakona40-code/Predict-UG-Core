@@ -1,6 +1,8 @@
 name: Public Source Guard
 
 on:
+  schedule:
+    - cron: "17 */3 * * *"
   pull_request:
   push:
     branches: [main]
@@ -31,3 +33,44 @@ jobs:
 
       - name: Verify exact private-source export parity
         run: node scripts/verify-public-export.mjs
+
+  live-smoke:
+    name: anonymous-live-health
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify public consumer endpoints (read-only)
+        shell: bash
+        run: |
+          import fs from "node:fs";
+          const targets = [
+            {name: "Render customer frontend", url: "https://predict-ug-app.onrender.com", valid: (body) => body.includes("<title>Predict UG</title>") && body.includes("predict-ug-payments")},
+            {name: "Supabase public health", url: "https://rnvyrlmrwhfauuskyhje.supabase.co/functions/v1/predict-ug-live?health=1", valid: (body) => { try { const j = JSON.parse(body); return j.ok === true && j.app === "Predict UG" && typeof j.version === "string" && j.version.startsWith("live-v"); } catch { return false; } }},
+          ];
+          const results = await Promise.all(targets.map(async ({name, url, valid}) => {
+            let lastError = "no attempt";
+            for (let attempt = 1; attempt <= 3; attempt++) {
+              try {
+                const started = Date.now();
+                const response = await fetch(url, {signal: AbortSignal.timeout(35000), headers: {"accept":"text/html,application/json"}});
+                const body = await response.text();
+                if (!response.ok || !valid(body)) throw new Error(`unexpected HTTP/contract status ${response.status}`);
+                return {name, ok: true, attempts: attempt, latency_ms: Date.now() - started};
+              } catch (error) {
+                lastError = String(error instanceof Error ? error.message : error).slice(0,160);
+                if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 8000));
+              }
+            }
+            return {name, ok: false, attempts: 3, error: lastError};
+          }));
+          const lines = ["### Predict UG anonymous production health", "", "| Check | Result | Attempts |", "| --- | --- | --- |"];
+          for (const r of results) {
+            console.log(`${r.ok ? "PASS" : "FAIL"} ${r.name} after ${r.attempts} attempt(s)${r.error ? ": " + r.error : ""}`);
+            lines.push(`| ${r.name} | ${r.ok ? "PASS" : "FAIL"} | ${r.attempts} |`);
+          }
+          if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n");
+          if (results.some(r => !r.ok)) process.exitCode = 1;
