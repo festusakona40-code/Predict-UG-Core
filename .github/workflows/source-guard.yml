@@ -56,7 +56,7 @@ jobs:
                 const j = JSON.parse(body);
                 const fileUrl = new URL(j.canonicalDownload);
                 return j.channel === "customer" &&
-                  /^0\\.7\\.[0-9]+$/.test(j.version) &&
+                  /^0[.]7[.][0-9]+$/.test(j.version) &&
                   Number.isSafeInteger(j.versionCode) && j.versionCode > 0 &&
                   /^[a-f0-9]{64}$/i.test(j.sha256) &&
                   Number.isSafeInteger(j.sizeBytes) && j.sizeBytes > 1000000 &&
