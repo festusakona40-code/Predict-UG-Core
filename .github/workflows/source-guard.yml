@@ -50,7 +50,7 @@ jobs:
           import fs from "node:fs";
           const targets = [
             {name: "Render customer frontend", url: "https://predict-ug-app.onrender.com", valid: (body) => body.includes("<title>Predict UG</title>") && body.includes("predict-ug-payments")},
-            {name: "Supabase public health", url: "https://rnvyrlmrwhfauuskyhje.supabase.co/functions/v1/predict-ug-live?health=1", valid: (body) => { try { const j = JSON.parse(body); return j.ok === true && j.app === "Predict UG" && typeof j.version === "string" && j.version.startsWith("live-v"); } catch { return false; } }},
+            {name: "Supabase public health", url: "https://rnvyrlmrwhfauuskyhje.supabase.co/functions/v1/predict-ug-live?health=1", valid: (body) => { try { const j = JSON.parse(body); return j.ok === true && j.app === "Predict UG" && typeof j.version === "string" && (j.version.startsWith("live-v") || j.version.startsWith("web-")); } catch { return false; } }},
           ];
           const results = await Promise.all(targets.map(async ({name, url, valid}) => {
             let lastError = "no attempt";
