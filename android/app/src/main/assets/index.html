@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.83. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.84. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#ffffff"/>
@@ -56,8 +56,6 @@
     .admin-list{display:grid;gap:8px;max-height:360px;overflow:auto}
     .toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:100;background:var(--k-greenTint);color:var(--k-green);border:1px solid var(--k-greenPressed);padding:10px 14px;border-radius:12px;box-shadow:var(--shadow)}
     .toast.err{background:var(--k-redTint);color:var(--k-red);border-color:var(--k-redPressed)}
-    .merchant-quick{position:fixed;right:14px;bottom:calc(82px + env(safe-area-inset-bottom));z-index:55;border:0;border-radius:999px;padding:13px 16px;background:var(--green);color:var(--k-greenTint);font-weight:900;box-shadow:0 12px 34px var(--k-overlay);max-width:calc(100vw - 28px)}
-    .merchant-quick:disabled{opacity:.62}
     .hidden{display:none!important}
     @media(min-width:900px){.bottomnav{position:sticky;top:63px;bottom:auto;border-top:0;border-bottom:1px solid var(--k-foreground);padding:7px}.bottomnav .inner{grid-template-columns:repeat(4,130px);justify-content:center}.app{padding-bottom:20px}}
     .homehero{background:linear-gradient(135deg,var(--k-greenTint),var(--k-blueTint) 48%,var(--k-foreground));border:1px solid var(--k-greenTint);border-radius:24px;padding:22px;margin-bottom:14px;overflow:hidden;position:relative}.homehero:after{content:'';position:absolute;width:180px;height:180px;border-radius:50%;right:-70px;top:-90px;background:var(--k-greenTint);filter:blur(8px)}.homehero h1{font-size:clamp(1.8rem,6vw,3rem);letter-spacing:-.055em;margin:0 0 8px;max-width:760px}.homehero p{color:var(--muted);max-width:720px;margin:0}.hero-kpis{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.hero-kpi{padding:8px 11px;border:1px solid var(--k-foreground);border-radius:999px;background:var(--k-line-soft);font-size:.78rem}
@@ -448,7 +446,6 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--green);outline-offs
   <main class="container" id="view"><div class="loading">Loading Predict UG…</div></main>
 </div>
 <div id="overlay"></div>
-<button id="merchantQuickConnect" class="merchant-quick hidden" aria-label="Connect MTN merchant phone">⚡ Connect MTN merchant</button>
 <div id="toast"></div>
 
 <script>
@@ -495,8 +492,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.83';
-const APP_VERSION_CODE=83;
+const APP_BUILD='0.7.84';
+const APP_VERSION_CODE=84;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -624,12 +621,13 @@ async function showInvite(){
 async function showMarketSuggestion(prefill={}){
   if(!state.user){showAuth();return}
   const suggestionSurface=String(prefill?.surface||'home');
+  const suggestionCategory=String(prefill?.category||'').trim().slice(0,50);
   trackBehavior('market_suggestion_opened',{metadata:{surface:suggestionSurface}});
   $('#overlay').innerHTML=
     '<div class="modal"><div class="sheet" style="max-width:560px">'+
       '<button class="close" id="suggestClose">✕</button>'+
       '<div class="media-label">Help shape Predict UG</div><h2>Suggest a Uganda market</h2>'+
-      '<p class="auth-note">Tell us a clear YES/NO question and the reliable source that could settle it. Suggestions are reviewed — they never auto-publish.</p>'+
+      '<p class="auth-note">'+(suggestionCategory?'Category: '+esc(suggestionCategory)+'. ':'')+'Tell us a clear YES/NO question, event deadline and the official source that could settle it. Suggestions are reviewed — they never auto-publish.</p>'+
       '<div class="auth-wrap">'+
         '<textarea class="input" id="suggestQuestion" maxlength="240" rows="3" placeholder="Example: Will Uganda Cranes beat ...?"></textarea>'+
         '<input class="input" id="suggestSource" maxlength="240" placeholder="Official / reliable verification source">'+
@@ -710,8 +708,18 @@ async function loadBehaviorPrefs(){
     state.behaviorPrefs=[];return [];
   }
 }
+function marketQuestionReviewReason(title){
+  const text=String(title||'').toLowerCase();
+  if(/publish (a |an )?(new )?video/i.test(text))return 'routine_upload';
+  if(/publish.*(new|official|follow-up|government).*(update|report|book|follow-up|data|inquiry|accountability|degrees|expansion|incommunicado)/i.test(text))return 'routine_publication';
+  if(/nche.*(registry record|register|registry|record)/i.test(text))return 'registry_change';
+  return '';
+}
 function personalizeMarkets(rows){
-  const list=Array.isArray(rows)?[...rows]:[];
+  const all=Array.isArray(rows)?[...rows]:[];
+  // Category browsing must be as carefully curated as the homepage. Only an
+  // explicit search may surface older routine publications for reference.
+  const list=state.search?all:all.filter(m=>!marketQuestionReviewReason(m?.title));
   if(!state.user||state.category||state.search||!state.behaviorPrefs?.length)return list;
   const scores=new Map(state.behaviorPrefs.map(x=>[String(x.category||'').toLowerCase(),Number(x.score||0)]));
   return list.map((m,i)=>({
@@ -720,14 +728,18 @@ function personalizeMarkets(rows){
   })).sort((a,b)=>b.s-a.s||a.i-b.i).map(x=>x.m);
 }
 const FIRST_USE_GUIDE_KEY='predictug_first_use_guide_v1';
+const dismissedFirstUseGuides=new Set();
 function firstUseGuideStorageKey(){
   return FIRST_USE_GUIDE_KEY+':'+String(state.user?.id||'anonymous');
 }
 function firstUseGuideSeen(){
-  try{return localStorage.getItem(firstUseGuideStorageKey())==='1'}catch{return false}
+  const key=firstUseGuideStorageKey();
+  if(dismissedFirstUseGuides.has(key))return true;
+  try{return localStorage.getItem(key)==='1'}catch{return false}
 }
-function markFirstUseGuideSeen(){
-  try{localStorage.setItem(firstUseGuideStorageKey(),'1')}catch{}
+function markFirstUseGuideSeen(key=firstUseGuideStorageKey()){
+  dismissedFirstUseGuides.add(key);
+  try{localStorage.setItem(key,'1')}catch{}
 }
 function maybeShowFirstUseGuide(){
   if(!state.user||firstUseGuideSeen())return false;
@@ -740,6 +752,7 @@ function maybeShowFirstUseGuide(){
 function starterMarketCandidate(){
   const rows=Array.isArray(state.markets)?state.markets:[];
   const eligible=rows.filter(m=>{
+    if(marketQuestionReviewReason(m?.title))return false;
     const close=Date.parse(m?.close_time||'');
     return !!m?.market_id&&!m?.external_benchmark&&
       !isPoliticalCategory(m?.category||m?.category_key)&&
@@ -783,6 +796,7 @@ async function openStarterMarket(source='guide'){
 }
 
 function showHowItWorks(firstUse=false){
+  const guideKey=firstUseGuideStorageKey();
   trackBehavior('screen_view',{metadata:{screen:'how_it_works',first_use:firstUse}});
   $('#overlay').innerHTML=
     '<div class="modal"><div class="sheet" style="max-width:560px">'+
@@ -794,11 +808,11 @@ function showHowItWorks(firstUse=false){
         '<div class="item"><b>3 · Practice first</b><br><small>The public beta uses Practice UGX: simulated amounts displayed in Ugandan shillings. These are not real money and cannot be converted, deposited or withdrawn.</small></div>'+
         '<div class="item"><b>4 · Settlement is rule-based</b><br><small>Every market has a published resolution rule and source. Predict UG does not settle a market just because AI or users think an outcome happened.</small></div>'+
       '</div>'+
-      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.83 · bundled frontend</p></div>'+
+      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.84 · bundled frontend</p></div>'+
       '<div class="auth-wrap" style="margin-top:12px"><button class="btn primary" id="howStart">Try a starter market</button><button class="btn ghost" id="howDone">Browse all markets</button><button class="btn ghost" id="howFeedback">Something is confusing</button></div>'+
     '</div></div>';
-  $('#howClose').onclick=()=>{$('#overlay').innerHTML='';trackBehavior('first_use_guide_dismissed',{metadata:{first_use:firstUse}})};
-  $('#howDone').onclick=()=>{if(firstUse)markFirstUseGuideSeen();trackBehavior('first_use_guide_browse_all',{metadata:{first_use:firstUse}});$('#overlay').innerHTML=''};
+  $('#howClose').onclick=()=>{markFirstUseGuideSeen(guideKey);$('#overlay').innerHTML='';trackBehavior('first_use_guide_dismissed',{metadata:{first_use:firstUse}})};
+  $('#howDone').onclick=()=>{if(firstUse)markFirstUseGuideSeen(guideKey);trackBehavior('first_use_guide_browse_all',{metadata:{first_use:firstUse}});$('#overlay').innerHTML=''};
   const starter=starterMarketCandidate();
   if($('#howStart')){
     const starterCat=String(starter?.category||starter?.category_key||'').toLowerCase();
@@ -1072,52 +1086,107 @@ function aiProviderSetupUrl(provider){
 }
 function cachedAgeLabel(entry){if(!entry?.saved_at)return '';const ms=Date.now()-new Date(entry.saved_at).getTime();if(ms<60000)return 'just now';if(ms<3600000)return Math.floor(ms/60000)+'m ago';return Math.floor(ms/3600000)+'h ago'}
 async function loadAdminStatus(){
-  if(!state.user){state.isAdmin=false;return false}
+  const userId=state.user?.id,request=(state.adminStatusRequest||0)+1;
+  state.adminStatusRequest=request;state.isAdmin=false;
+  if(!userId)return false;
+  const current=()=>state.user?.id===userId&&state.adminStatusRequest===request;
   for(let attempt=0;attempt<2;attempt++){
-    try{state.isAdmin=!!(await promiseTimeout(rpc('is_admin'),3500,'Admin status check timed out'));return state.isAdmin}
-    catch{if(attempt===0)await new Promise(resolve=>setTimeout(resolve,250))}
+    if(!current())return false;
+    try{
+      const result=await promiseTimeout(rpc('is_admin'),3500,'Admin status check timed out');
+      if(!current())return false;
+      if(typeof result!=='boolean')throw new Error('Invalid admin status');
+      state.isAdmin=result;return result;
+    }catch{
+      if(!current())return false;
+      if(attempt===0)await new Promise(resolve=>setTimeout(resolve,250));
+    }
   }
-  state.isAdmin=false;return false;
+  if(current())state.isAdmin=false;
+  return false;
 }
 async function loadSession(){
-  const {data}=await promiseTimeout(supabase.auth.getSession(),4500,'Session restore timed out');
-  state.session=data?.session||null;state.user=data?.session?.user||null;
+  const request=(state.sessionRequest||0)+1;state.sessionRequest=request;
+  const current=()=>state.sessionRequest===request;
+  let result;
+  try{result=await promiseTimeout(supabase.auth.getSession(),4500,'Session restore timed out')}
+  catch(error){if(!current())return false;throw error}
+  if(!current())return false;
+  if(result?.error)throw result.error;
+  const data=result?.data;
+  if(!data||!Object.prototype.hasOwnProperty.call(data,'session')||
+     (data.session!==null&&(!data.session||typeof data.session.user?.id!=='string'||!data.session.user.id)))throw new Error('Invalid saved session response');
+  state.session=data.session;state.user=data.session?.user||null;
   await loadAdminStatus();
+  return current();
 }
 async function restoreSessionAfterPublicRender(){
+  const request=(state.sessionRequest||0)+1;
   try{
-    await loadSession();authRestoreFailed=false;
+    const restored=await loadSession();if(!restored||state.sessionRequest!==request)return false;
+    authRestoreFailed=false;
     try{sessionStorage.removeItem('predictug_auth_recovery_once')}catch{}
     return true;
   }catch(e){
+    if(state.sessionRequest!==request)return false;
     authRestoreFailed=true;state.session=null;state.user=null;state.isAdmin=false;
     reportClientError(e.message||'Session restore timed out',e.stack||'',{kind:'session_restore_timeout'});
-    let recovered=false;
-    try{
-      if(sessionStorage.getItem('predictug_auth_recovery_once')!=='1'){
-        sessionStorage.setItem('predictug_auth_recovery_once','1');clearStoredAuthSession();recovered=true;
-      }
-    }catch{}
-    if(recovered){setTimeout(()=>location.reload(),80);return false}
-    toast('Saved session could not be restored. Public markets are still available; sign in again.',true);
+    toast('Saved sign-in is temporarily unavailable. Public markets are still available. Reconnect and tap Update to retry, or sign in again.',true);
     return false;
   }
 }
 function installAuthListener(){
-  if(authListenerInstalled||authRestoreFailed)return;
+  if(authListenerInstalled)return;
   authListenerInstalled=true;
   supabase.auth.onAuthStateChange((event,session)=>{
+    state.sessionRequest=(state.sessionRequest||0)+1;
+    state.adminStatusRequest=(state.adminStatusRequest||0)+1;
+    const revision=state.sessionRequest,userId=session?.user?.id;
+    const current=()=>state.sessionRequest===revision&&state.user?.id===userId;
+    authRestoreFailed=false;
     const previousUserId=state.user?.id;state.session=session||null;state.user=session?.user||null;if(previousUserId!==state.user?.id){state.notifications=[];state.notificationsLoaded=false;state.notificationsError='';state.unreadNotifications=0;state.admin=null;state.ceo=null;state.portfolio=null;state.paymentHistory=[];state.balance=null;state.balanceMode='forecast_credit';state.watchlist=[];state.watchlistError='';state.behaviorPrefs=[];state.betaMission=null}state.isAdmin=false;render();
-    if(state.user){setTimeout(async()=>{try{await loadAdminStatus();await Promise.all([loadBalance(),loadUnreadNotifications(),loadBehaviorPrefs(),loadBetaMission()]);state.markets=personalizeMarkets(state.markets);render();const legalOk=await ensureLegalAcceptance();if(legalOk)maybeShowFirstUseGuide()}catch{}},0)}
+    if(state.user){setTimeout(async()=>{if(!current())return;try{await loadAdminStatus();if(!current())return;await Promise.all([loadBalance(),loadUnreadNotifications(),loadBehaviorPrefs(),loadBetaMission()]);if(!current())return;state.markets=personalizeMarkets(state.markets);render();const legalOk=await ensureLegalAcceptance();if(current()&&legalOk)maybeShowFirstUseGuide()}catch{}},0)}
     else{state.balance=null;state.unreadNotifications=0}
   });
 }
 
 async function ensureLegalAcceptance(surface='startup'){
-  if(!state.user)return true;
+  const userId=state.user?.id;
+  if(!userId)return true;
+  const sameUser=()=>state.user?.id===userId;
+  const signOutCurrent=async()=>{
+    if(!sameUser()||state.legalSignoutPendingUserId===userId)return;
+    const btn=$('#legalSignout'),status=$('#legalStatus');
+    if(!btn||btn.onclick!==signOutCurrent)return;
+    state.legalSignoutPendingUserId=userId;btn.disabled=true;
+    let confirmed=false;
+    try{
+      trackBehavior('legal_gate_signout',{metadata:{surface}});
+      const result=await supabase.auth.signOut();
+      if(result?.error)throw result.error;
+      if(!result||typeof result!=='object'||!Object.prototype.hasOwnProperty.call(result,'error'))throw new Error('Could not verify sign-out');
+      confirmed=true;
+      if(state.user&&!sameUser())return;
+      await loadSession();
+      if(state.user&&!sameUser())return;
+      if(state.user)throw new Error('The session is still active');
+      if($('#legalSignout')!==btn)return;
+      $('#overlay').innerHTML='';render();
+    }catch(error){
+      if(state.user&&!sameUser())return;
+      if($('#legalSignout')!==btn)return;
+      const message=confirmed?'Signed out, but the screen could not refresh. Tap Update to retry.':'Could not sign out. Check your connection and retry.';
+      if(status)status.textContent=message;
+      toast(message,true);
+    }finally{
+      if(state.legalSignoutPendingUserId===userId)state.legalSignoutPendingUserId=null;
+      btn.disabled=false;
+    }
+  };
   try{
     const legal=await rpc('my_legal_acceptance_status');
-    if(legal?.complete)return true;
+    if(!sameUser())return false;
+    if(legal?.complete===true)return true;
     trackBehavior('legal_gate_shown',{metadata:{surface}});
     $('#overlay').innerHTML=
       '<div class="modal"><div class="sheet" style="max-width:500px">'+
@@ -1134,8 +1203,11 @@ async function ensureLegalAcceptance(surface='startup'){
       '</div></div>';
     $('#legalTerms').onclick=()=>{trackBehavior('legal_terms_opened',{metadata:{surface}});openHosted('/terms.html')};
     $('#legalPrivacy').onclick=()=>{trackBehavior('legal_privacy_opened',{metadata:{surface}});openHosted('/privacy.html')};
-    $('#legalSignout').onclick=async()=>{trackBehavior('legal_gate_signout',{metadata:{surface}});await supabase.auth.signOut();$('#overlay').innerHTML='';await loadSession();render()};
-    $('#legalAccept').onclick=async()=>{
+    $('#legalSignout').onclick=signOutCurrent;
+    const acceptButton=$('#legalAccept');
+    const gateCurrent=()=>sameUser()&&$('#legalAccept')===acceptButton;
+    acceptButton.onclick=async()=>{
+      if(!gateCurrent())return;
       const status=$('#legalStatus');
       if(!state.online){trackBehavior('legal_acceptance_blocked',{metadata:{reason:'offline'}});status.textContent='Offline: reconnect before accepting legal documents.';return}
       if(!$('#legalAgree').checked){trackBehavior('legal_acceptance_blocked',{metadata:{reason:'agreement_not_checked'}});status.textContent='Tick the agreement box to continue.';return}
@@ -1143,19 +1215,29 @@ async function ensureLegalAcceptance(surface='startup'){
       const btn=$('#legalAccept');btn.disabled=true;status.textContent='Saving…';
       try{
         const saved=await rpc('accept_current_legal_documents',{p_source:'app'});
-        if(!saved?.complete)throw new Error('Acceptance could not be saved');
+        if(!gateCurrent())return;
+        if(saved?.complete!==true)throw new Error('Acceptance could not be saved');
         trackBehavior('legal_acceptance_completed',{metadata:{surface}});
         $('#overlay').innerHTML='';
         await loadBetaMission();
+        if(!sameUser())return;
         render();
         toast('Terms accepted');
-        if(surface==='startup')setTimeout(()=>maybeShowFirstUseGuide(),180);
-      }catch(e){trackBehavior('legal_acceptance_failed',{metadata:{message:String(e?.message||'unknown').slice(0,120)}});status.textContent=e.message||'Could not save acceptance';btn.disabled=false}
+        if(surface==='startup')setTimeout(()=>{if(sameUser())maybeShowFirstUseGuide()},180);
+      }catch(e){if(!gateCurrent())return;trackBehavior('legal_acceptance_failed',{metadata:{message:String(e?.message||'unknown').slice(0,120)}});status.textContent=e.message||'Could not save acceptance';btn.disabled=false}
     };
     return false;
   }catch(e){
     reportClientError(e.message||'Legal acceptance check failed',e.stack||'',{kind:'legal_acceptance'});
-    return true;
+    if(!sameUser())return false;
+    $('#overlay').innerHTML=
+      '<div class="modal"><div class="sheet" style="max-width:500px">'+
+      '<h2>Could not check your agreement</h2><p>Reconnect and retry before continuing. We could not verify your agreement status.</p>'+
+      '<div class="auth-wrap"><button class="btn primary" id="legalRetry">Retry</button>'+
+      '<button class="btn ghost" id="legalSignout">Sign out</button></div></div></div>';
+    $('#legalRetry').onclick=()=>{if(sameUser())return ensureLegalAcceptance(surface)};
+    $('#legalSignout').onclick=signOutCurrent;
+    return false;
   }
 }
 async function loadBalance(){
@@ -1276,8 +1358,8 @@ async function bootstrap(){
 
   window.__predictUgBootPhase='session-restore';
   const sessionOk=await restoreSessionAfterPublicRender();
+  installAuthListener();
   if(sessionOk){
-    installAuthListener();
     if(state.user){
       await loadBehaviorPrefs();
       state.markets=personalizeMarkets(state.markets);
@@ -1351,8 +1433,6 @@ function render(){
   $('#authBtn').textContent=state.user?(state.isAdmin?'Admin':'Profile'):'Sign in';
   const inviteBtn=$('#inviteBtn');
   if(inviteBtn)inviteBtn.classList.toggle('hidden',!state.user);
-  const merchantQuick=$('#merchantQuickConnect');
-  if(merchantQuick)merchantQuick.classList.toggle('hidden',!(state.user&&state.isAdmin&&state.tab!=='admin'));
   const balanceBtn=$('#balanceBtn');
   if(balanceBtn){
     if(state.user&&state.balance!=null){balanceBtn.classList.remove('hidden');balanceBtn.textContent=state.balanceMode==='cash'?ugx(state.balance):practiceUgx(state.balance);balanceBtn.title=state.balanceMode==='cash'?'Available real-money wallet':'Practice only · not real money or withdrawable'}
@@ -1396,6 +1476,7 @@ function marketCard(m,openSource='market_card'){
     '<div class="market-main-row"><div class="market-title">'+esc(displayTitle)+'</div><div class="market-price">'+pct(y)+'<small>YES chance</small></div></div>'+
     (y==null?'<div class="auth-note">Chance unavailable · open market for details</div>':'<div class="bar"><span style="width:'+y+'%"></span></div>')+
     '<div class="market-actions"><button type="button" class="market-mini y" data-market="'+m.market_id+'" data-market-side="YES" aria-label="Choose YES"><span>YES</span><b>'+yesOdds+'</b></button><button type="button" class="market-mini n" data-market="'+m.market_id+'" data-market-side="NO" aria-label="Choose NO"><span>NO</span><b>'+noOdds+'</b></button></div>'+
+    '<p class="auth-note market-odds-note">Displayed odds can change. Confirm your live odds and possible return before predicting.</p>'+ 
     '<div class="meta"><span class="trust-mark">✓ '+esc(trust)+'</span><span>'+(m.watched?'★ Saved':'View market →')+'</span></div>'+
   '</article>';
 }
@@ -1548,7 +1629,7 @@ function renderMarkets(){
 
     (diverseTopPicks.length?'<div class="market-feed-header"><div><span class="feed-kicker">Featured</span><h2>Top picks across Uganda</h2></div><small style="color:var(--muted)">One strong market from each category</small></div><div class="grid">'+diverseTopPicks.map(m=>marketCard(m,'top_picks')).join('')+'</div>':'')+
     '<div class="market-feed-header"><div><span class="feed-kicker">'+(unfilteredHome?'Explore':esc(feedHeading.kicker))+'</span><h2>'+(unfilteredHome?'All Uganda markets':esc(feedHeading.title))+'</h2></div><button class="btn small ghost" data-tab="media">Open Pulse</button></div>'+
-    (remainingLocalMarkets.length?'<div class="grid">'+remainingLocalMarkets.map(m=>state.feedSort==='pending'?pendingMarketCard(m):marketCard(m,'all_markets')).join('')+'</div>':'<div class="empty">'+(state.feedSort==='today'?'No matching markets close today in Uganda. Choose Live to see upcoming questions.':state.feedSort==='pending'?'No matching markets are awaiting a result.':state.feedSort==='closing'?'No matching markets close within the next 72 hours.':'No Uganda markets match your filters right now.')+'</div>')+
+    (remainingLocalMarkets.length?'<div class="grid">'+remainingLocalMarkets.map(m=>state.feedSort==='pending'?pendingMarketCard(m):marketCard(m,'all_markets')).join('')+'</div>':'<div class="empty">'+(state.feedSort==='today'?'No matching markets close today in Uganda. Choose Live to see upcoming questions.':state.feedSort==='pending'?'No matching markets are awaiting a result.':state.feedSort==='closing'?'No matching markets close within the next 72 hours.':(state.category&&!state.search?'No strong prediction questions in this category yet. <button class="btn small" type="button" data-category="">Explore all markets</button> <button class="btn small ghost" type="button" data-suggest-category="'+esc(state.category)+'">Suggest an event with evidence</button>':'No Uganda markets match your filters right now.'))+'</div>')+
 
     '<details class="home-discovery"><summary>Explore events & universities</summary><div class="home-discovery-content">'+
     (events.length?'<div class="section-title"><div><span class="feed-kicker">Events</span><h2>Explore by event</h2></div><small style="color:var(--muted)">Browse related questions</small></div><div class="event-rail">'+events.map(eventHubCard).join('')+'</div>':'')+
@@ -1596,27 +1677,37 @@ function renderMarkets(){
     if(state.tab==='markets'){render();document.querySelector('.market-toolbar')?.scrollIntoView({behavior:'smooth',block:'start'})}
   });
 }
+let marketOpenRequestId=0;
 async function openMarket(id,{updateUrl=true,preselectLabel=null,openSource='feed'}={}){
+  const requestId=++marketOpenRequestId;
+  const openingUserId=state.user?.id||null;
+  const stillCurrent=()=>requestId===marketOpenRequestId&&(state.user?.id||null)===openingUserId;
   const key='market:'+id;
   let page=null;
   try{
     page=await rpc('market_page',{p_market_id:id});
+    if(!stillCurrent())return;
     page.__offline_cache=false;
     if(state.user&&state.online){
       try{
         const {data:user}=await supabase.auth.getUser();
+        if(!stillCurrent())return;
         const uid=user.user?.id;
         const {data:ex}=await supabase.from('watchlist').select('id').eq('user_id',uid).eq('market_id',id).maybeSingle();
+        if(!stillCurrent())return;
         page.__watched=!!ex;
       }catch{page.__watched=false}
     }else page.__watched=false;
+    if(!stillCurrent())return;
     cacheWrite(key,page);
   }catch(e){
+    if(!stillCurrent())return;
     const cached=cacheRead(key);
     if(!cached){toast(e.message||'Could not open market',true);return}
     page={...(cached.value||{}),__offline_cache:true,__offline_saved_at:cached.saved_at};
     toast('Offline: showing last synced market ('+cachedAgeLabel(cached)+')');
   }
+  if(!stillCurrent())return;
   if(preselectLabel)page.__preselect_label=String(preselectLabel).toUpperCase();
   state.market=page;
   trackBehavior('market_view',{category:page?.market?.category||page?.market?.category_key,marketId:id,metadata:{open_source:openSource,preselected_side:preselectLabel?String(preselectLabel).toUpperCase():null}});
@@ -1847,7 +1938,7 @@ function drawMarket(){
     '</div><aside><div class="card tradebox"><h3>Make a prediction</h3><p class="trade-lead">Pick a side first. Your exact odds, maximum loss and possible return appear before confirmation.</p><div class="outcome-btns">'+
       '<button class="outcome-btn y" data-outcome="'+(yes?.id||'')+'" data-label="YES"><span class="outcome-label">YES</span><span class="outcome-chance">'+(yes?pct(yes.display_probability):'—')+' chance</span><span class="outcome-odds">'+(yes?oddsText(yes.offered_odds,yes.display_probability):'—')+'</span></button>'+
       '<button class="outcome-btn n" data-outcome="'+(no?.id||'')+'" data-label="NO"><span class="outcome-label">NO</span><span class="outcome-chance">'+(no?pct(no.display_probability):'—')+' chance</span><span class="outcome-odds">'+(no?oddsText(no.offered_odds,no.display_probability):'—')+'</span></button>'+
-      '</div><div class="trade-divider"></div>'+
+      '</div><p class="auth-note" id="marketOddsContext">These are indicative odds, not a locked price. Choose YES or NO and an amount to get your live odds and possible return before confirmation.</p><div class="trade-divider"></div>'+
       '<label class="auth-note">Amount</label><input class="input" id="stakeInput" type="number" min="100" step="100" value="5000"><div class="quick-stakes"><button class="quick-stake" data-stake="1000">1K</button><button class="quick-stake" data-stake="5000">5K</button><button class="quick-stake" data-stake="10000">10K</button></div><div id="quoteBox" class="quote"><div class="quote-row"><span>Risk & return</span><b>Choose YES or NO</b></div><div class="auth-note">We will show what you risk and what you can receive before you confirm.</div></div>'+
       '<button class="btn primary" style="width:100%" id="placeBtn" disabled>Review prediction</button>'+
       '<button class="btn ghost" style="width:100%;margin-top:8px" id="watchBtn">'+(d.__watched?'★ Watching':'☆ Save this market')+'</button>'+
@@ -2037,11 +2128,26 @@ function drawMarket(){
       const slipLabel=cash?'Final cash prediction':'Practice prediction review';
       const confirmLabel=cash?'Place cash prediction':'Place practice prediction';
       const practiceNotice=cash?'':'<div class=\"card\" style=\"margin:12px 0;background:var(--k-greenTint);border-color:var(--k-greenPressed)\"><b>Practice UGX · not cash</b><p class=\"auth-note\" style=\"margin:6px 0 0\">This is a simulated stake in UGX denominations. Practice balances and wins cannot be converted or withdrawn.</p></div>';
-      document.body.insertAdjacentHTML('beforeend',
+            // The final review is a market CONTRACT, not merely a price quotation.
+      const resolutionRule=String(m.resolution_rule||'').trim();
+      const resolutionSource=String(m.source_name||'').trim();
+      if(!resolutionRule||!resolutionSource||!m.close_time||
+         !Number.isFinite(Date.parse(m.close_time))){
+        toast('Settlement terms are unavailable. This market cannot accept predictions yet.',true);
+        return;
+      }
+document.body.insertAdjacentHTML('beforeend',
         '<div id=\"tradeReviewOverlay\" class=\"modal\" style=\"z-index:90\"><div class=\"sheet\" style=\"max-width:520px\">'+
           '<button class=\"close\" id=\"reviewTradeClose\">✕</button>'+
           '<div class=\"media-label\">'+esc(slipLabel)+'</div><h2>Check your odds and risk</h2>'+practiceNotice+
           '<div class=\"review-hero\"><span class=\"review-side '+(snapshot.outcome.label==='NO'?'no':'')+'\">'+esc(snapshot.outcome.label)+' @ '+odds.toFixed(2)+'</span><h3 style=\"margin:10px 0 4px\">'+esc(m.title)+'</h3><div class=\"auth-note\">Stake: '+esc(amount(stake))+'</div></div>'+
+          '<div class=\"quote\" role=\"group\" aria-label=\"Final market and settlement terms\">'+
+            '<div class=\"quote-row\"><span>YES probability</span><b>'+pct(yes?.display_probability)+'</b></div>'+
+            '<div class=\"quote-row\"><span>NO probability</span><b>'+pct(no?.display_probability)+'</b></div>'+
+            '<div class=\"quote-row\"><span>Trading closes</span><b>'+dt(m.close_time)+'</b></div>'+
+            '<div class=\"quote-row\"><span>Resolution source</span><b>'+esc(resolutionSource)+'</b></div>'+
+            '<details open style=\"margin-top:8px\"><summary class=\"auth-note\">Settlement rule · read before confirming</summary><p class=\"auth-note\" style=\"margin:8px 0 0;white-space:pre-wrap\">'+esc(resolutionRule)+'</p></details>'+
+          '</div>'+
           '<div class=\"risk-grid\"><div class=\"risk-card win\"><small>If correct</small><div class=\"risk-number\">'+esc(amount(q.if_correct_return_ugx??q.estimated_payout_ugx))+'</div><div class=\"auth-note\">return · profit '+esc((net>=0?'+':'')+amount(net))+'</div></div>'+
           '<div class=\"risk-card loss\"><small>If wrong</small><div class=\"risk-number\">− '+esc(amount(q.if_wrong_loss_ugx??stake))+'</div><div class=\"auth-note\">return 0</div></div></div>'+
           '<div class=\"quote\"><div class=\"quote-row\"><span>Accepted odds</span><b>'+odds.toFixed(2)+'</b></div><div class=\"quote-row\"><span>Predict UG margin</span><b>'+marginText+'</b></div><div class=\"quote-row\"><span>Extra settlement fee</span><b>None</b></div><div class=\"quote-row\"><span>Price type</span><b>Fixed once accepted</b></div></div>'+
@@ -2072,7 +2178,7 @@ function drawMarket(){
   $('#stakeInput').oninput=()=>{invalidateQuote();clearTimeout(quoteTimer);quoteTimer=setTimeout(updateQuote,280)};
   document.querySelectorAll('[data-stake]').forEach(b=>b.onclick=()=>{$('#stakeInput').value=b.dataset.stake;updateQuote()});
   $('#placeBtn').onclick=reviewPrediction;
-  $('#watchBtn').onclick=async()=>{if(!state.online){toast('Offline: reconnect before changing your watchlist.',true);return}if(!state.user){showAuth();return}try{const {data:user}=await supabase.auth.getUser();const uid=user.user?.id;const {data:ex}=await supabase.from('watchlist').select('id').eq('user_id',uid).eq('market_id',m.id).maybeSingle();if(ex)await supabase.from('watchlist').delete().eq('id',ex.id);else await supabase.from('watchlist').insert({user_id:uid,market_id:m.id});toast(ex?'Removed from watchlist':'Added to watchlist');const page=await rpc('market_page',{p_market_id:m.id});page.__watched=!ex;state.market=page;drawMarket()}catch(e){toast(e.message,true)}};
+  $('#watchBtn').onclick=()=>toggleSavedMarket(m.id);
   if($('#settleRequestBtn'))$('#settleRequestBtn').onclick=async()=>{if(!state.online){toast('Offline: reconnect before requesting settlement.',true);return}if(!state.user){showAuth();return}try{await rpc('request_market_settlement',{p_market_id:m.id,p_suggested_outcome_id:null,p_note:'User requested settlement review from market page.'});toast('Settlement request submitted')}catch(e){toast(e.message,true)}};
   if($('#challengeResolutionBtn'))$('#challengeResolutionBtn').onclick=async()=>{
     if(!state.online){toast('Offline: reconnect before challenging a resolution.',true);return}
@@ -2114,7 +2220,7 @@ function drawMarket(){
     if($('#adminVoidBtn'))$('#adminVoidBtn').onclick=async()=>{const note=(prompt('Reason for voiding market','Market cannot be resolved under the published rule')||'').trim();if(!confirm('Void this market and refund eligible positions?'))return;try{await rpc('void_market',{p_market_id:m.id,p_resolution_note:note||null});toast('Market voided');await reload()}catch(e){toast(e.message,true)}};
   }
   $('#shareMarket').onclick=()=>shareMarketLink(m.id,m.title);
-  $('#closeMarket').onclick=()=>{stopMarketRealtime();$('#overlay').innerHTML='';state.market=null;setMarketUrl(null,true)};
+  $('#closeMarket').onclick=()=>{marketOpenRequestId++;stopMarketRealtime();$('#overlay').innerHTML='';state.market=null;setMarketUrl(null,true)};
 }
 async function loadDiscover(){
   let b;
@@ -2890,6 +2996,12 @@ function paymentActivityHtml(){
     return '<div class="item"><div class="eyebrow"><span>'+title+' · '+provider+'</span><span class="statuschip '+(verified?'':'warn')+'">'+esc(status)+'</span></div><b>'+ugx(x.amount_ugx||0)+'</b><br><small>'+dt(x.created_at)+'</small>'+receipt+note+'</div>';
   }).join('')+'</div>';
 }
+function portfolioReturnHtml(position,valueText){
+  const raw=position?.realized_payout_ugx;
+  const amount=(typeof raw==='number'||(typeof raw==='string'&&/^\d+$/.test(raw)))?Number(raw):NaN;
+  if(!Number.isSafeInteger(amount)||amount<0)return '<p class="auth-note">Return unavailable · refresh to retry.</p>';
+  return '<p class="auth-note"><b>Returned · '+valueText(amount)+'</b></p>';
+}
 function renderPortfolio(){
   if(!state.user){
     $('#view').innerHTML='<section class="hero"><h1>Portfolio</h1><p>Sign in to see your balance, predictions and results.</p></section><button class="btn primary" id="signInNow">Sign in</button>';
@@ -2930,7 +3042,7 @@ function renderPortfolio(){
     (openHistory.length?'<div class="timeline">'+openHistory.map(x=>'<button class="item" data-open-market="'+esc(x.market_id)+'" style="width:100%;text-align:left;color:inherit"><div class="eyebrow"><span>'+esc(x.outcome_label)+' · '+valueText(x.total_stake_ugx)+'</span>'+chip(x)+'</div><b style="display:block;margin:7px 0">'+esc(x.market_title)+'</b><small>Odds '+(Number(x.effective_odds_decimal||0)>1?Number(x.effective_odds_decimal).toFixed(2):'—')+' · potential return '+valueText(x.quoted_payout_ugx||0)+' · '+dt(x.last_trade_at)+'</small></button>').join('')+'</div>':'<div class="empty">No open predictions. Pick a market and choose YES or NO.</div>')+
     (active.length?'<div class="section-title"><h2>Exit early</h2></div><div class="timeline">'+active.map(x=>'<div class="item"><b>'+esc(x.market_title)+'</b><br><span>'+esc(x.outcome_label)+' · '+ugx(x.stake_ugx)+'</span><br><small>'+ugx(x.sellable_stake_ugx)+' can be exited</small><br><button class="btn small primary" style="margin-top:8px" data-cashout="'+x.position_id+'">'+(cashMode?'Cash out':'Exit prediction')+'</button></div>').join('')+'</div>':'')+
     '<div class="section-title"><h2>Results</h2></div>'+
-    (settled.length?'<div class="timeline">'+settled.map(x=>'<button class="item" data-open-market="'+esc(x.market_id)+'" style="width:100%;text-align:left;color:inherit"><div class="eyebrow"><span>'+esc(x.outcome_label)+' · '+valueText(x.total_stake_ugx)+'</span>'+chip(x)+'</div><b style="display:block;margin:7px 0">'+esc(x.market_title)+'</b><small>Odds '+(Number(x.effective_odds_decimal||0)>1?Number(x.effective_odds_decimal).toFixed(2):'—')+' · '+dt(x.last_trade_at)+'</small></button>').join('')+'</div>':'<div class="empty">Settled results will appear here.</div>')+
+    (settled.length?'<div class="timeline">'+settled.map(x=>'<button class="item" data-open-market="'+esc(x.market_id)+'" style="width:100%;text-align:left;color:inherit"><div class="eyebrow"><span>'+esc(x.outcome_label)+' · '+valueText(x.total_stake_ugx)+'</span>'+chip(x)+'</div><b style="display:block;margin:7px 0">'+esc(x.market_title)+'</b><small>Odds '+(Number(x.effective_odds_decimal||0)>1?Number(x.effective_odds_decimal).toFixed(2):'—')+' · '+dt(x.last_trade_at)+'</small>'+portfolioReturnHtml(x,valueText)+'</button>').join('')+'</div>':'<div class="empty">Settled results will appear here.</div>')+
     (cashMode?'<div class="card" style="margin-top:18px"><div class="section-title" style="margin-top:0"><h2>Wallet</h2><small style="color:var(--muted)">MTN & Airtel Money</small></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn primary" id="cashDepositBtn">Deposit</button><button class="btn" id="cashWithdrawBtn">Withdraw</button></div><p class="auth-note">Deposits are credited only after the backend verifies the Mobile Money transaction. Withdrawals remain locked until payout completion is confirmed.</p><div class="section-title"><h3>Recent Mobile Money activity</h3><button class="btn small ghost" id="refreshPaymentHistory">Refresh</button></div>'+paymentActivityHtml()+'</div>':'<div class="card" style="margin-top:18px"><b>Real-money wallet is not active</b><p class="auth-note">Your balance is Practice UGX only. It is simulated, cannot be exchanged for real Uganda shillings and cannot be withdrawn while cash launch gates remain off.</p>'+(state.isAdmin?'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn small" id="previewDepositBtn">Rehearse customer deposit</button><button class="btn small" id="previewWithdrawBtn">Preview withdrawal</button></div><button class="btn primary" style="margin-top:10px;width:100%" id="safePasskeyDepositTest">Safe deposit approval test · no money</button><p class="auth-note">This verifies your registered fingerprint/face/PIN against the real merchant passkey backend. It does not create a deposit, credit a wallet, send a payout, or enable cash mode.</p>':'')+'</div>');
   if($('#findMarketBtn'))$('#findMarketBtn').onclick=()=>{state.tab='markets';render()};
   if($('#practiceUgxExplainer'))$('#practiceUgxExplainer').onclick=showPracticeUgxInfo;
@@ -2955,17 +3067,58 @@ function renderPortfolio(){
   document.querySelectorAll('[data-open-market]').forEach(b=>b.onclick=()=>openMarket(b.dataset.openMarket));
   document.querySelectorAll('[data-cashout]').forEach(b=>b.onclick=()=>{const x=active.find(p=>p.position_id===b.dataset.cashout);if(x)cashOutSimple(x)});
 }
+async function toggleSavedMarket(marketId){
+  if(!state.online){toast('Offline: reconnect before changing your watchlist.',true);return}
+  if(!state.user){showAuth();return}
+  const userId=state.user.id;
+  if(state.savedMarketMutation)return;
+  const operation={userId,marketId};state.savedMarketMutation=operation;
+  const button=$('#watchBtn');if(button)button.disabled=true;
+  const sameUser=()=>state.user?.id===userId;
+  const sameMarket=()=>sameUser()&&state.market?.market?.id===marketId;
+  try{
+    const auth=await supabase.auth.getUser();
+    if(!sameUser())return;
+    if(auth.error||auth.data?.user?.id!==userId)throw new Error('Could not verify your account. Sign in again before changing saved markets.');
+    const lookup=await supabase.from('watchlist').select('id').eq('user_id',userId).eq('market_id',marketId).maybeSingle();
+    if(!sameUser())return;
+    if(lookup.error)throw lookup.error;
+    const existing=lookup.data;
+    const result=existing
+      ?await supabase.from('watchlist').delete().eq('id',existing.id).eq('user_id',userId).eq('market_id',marketId).select('id').single()
+      :await supabase.from('watchlist').insert({user_id:userId,market_id:marketId}).select('id').single();
+    if(!sameUser())return;
+    if(result.error)throw result.error;
+    if(!result.data?.id)throw new Error('The server did not confirm the saved-market change. Refresh before trying again.');
+    toast(existing?'Removed from watchlist':'Added to watchlist');
+    if(!sameMarket())return;
+    try{
+      const page=await rpc('market_page',{p_market_id:marketId});
+      if(!sameMarket())return;
+      page.__watched=!existing;state.market=page;drawMarket();
+    }catch{
+      if(sameMarket())toast('Saved-market change confirmed. Refresh this market to update its display.',true);
+    }
+  }catch(error){if(sameUser())toast(error.message||'Could not change saved markets. Try again.',true)}
+  finally{
+    if(state.savedMarketMutation===operation)state.savedMarketMutation=null;
+    if(button?.isConnected)button.disabled=false;
+  }
+}
 async function loadWatchlist(){
   const userId=state.user?.id;if(!userId)return;
   const request=(state.watchlistRequest||0)+1;state.watchlistRequest=request;
   const current=()=>state.user?.id===userId&&state.watchlistRequest===request;
   try{
-    const {data,error}=await supabase.from('watchlist').select('market_id,created_at').eq('user_id',userId).order('created_at',{ascending:false});
-    if(!current())return;if(error)throw error;
-    const ids=(data||[]).map(x=>x.market_id);
-    const all=ids.length?await rpc('sportsbook_market_feed',{p_category:null,p_search:null,p_limit:100,p_uganda_first:false}):[];
-    if(!current())return;
-    state.watchlist=(all||[]).filter(x=>ids.includes(x.market_id));state.watchlistError='';
+    const rows=[],seen=new Set(),pageSize=100;
+    for(let page=0;page<20;page++){
+      const data=await rpc('saved_sportsbook_market_feed',{p_limit:pageSize,p_offset:page*pageSize});
+      if(!current())return;
+      if(!Array.isArray(data)||data.length>pageSize||data.some(row=>!row||typeof row!=='object'||Array.isArray(row)||typeof row.market_id!=='string'||!row.market_id))throw new Error('Invalid saved-market page');
+      for(const row of data){if(!seen.has(row.market_id)){seen.add(row.market_id);rows.push(row)}}
+      if(data.length<pageSize){state.watchlist=rows;state.watchlistError='';return}
+    }
+    throw new Error('Saved-market page limit exceeded');
   }catch(error){
     if(!current())return;
     state.watchlistError='Could not refresh saved markets. Check your connection and try again.';
@@ -2977,7 +3130,8 @@ function renderWatchlist(){
   $('#view').innerHTML='<section class="hero"><h1>Saved markets</h1><p>Your saved open markets. Follow a market for relevant updates.</p></section><button class="btn small" id="refreshSavedMarkets">Refresh saved markets</button>'+
     (state.watchlistError?'<div class="empty" role="status">'+esc(state.watchlistError)+'</div>':'')+
     (!state.watchlist.length?'<div class="empty">No saved open markets yet. Open a market and tap Save this market.</div>':'<div class="grid">'+state.watchlist.map(marketCard).join('')+'</div>');
-  $('#refreshSavedMarkets').onclick=async()=>{const btn=$('#refreshSavedMarkets');btn.disabled=true;try{await loadWatchlist()}catch{}finally{if(state.tab==='watchlist')renderWatchlist()}};
+  const userId=state.user.id,btn=$('#refreshSavedMarkets');
+  btn.onclick=async()=>{if(state.user?.id!==userId)return;btn.disabled=true;try{await loadWatchlist()}catch{}finally{if(state.user?.id===userId&&state.tab==='watchlist')renderWatchlist()}};
 }
 async function loadNotifications(){
   const userId=state.user?.id;if(!userId)return;
@@ -2986,7 +3140,8 @@ async function loadNotifications(){
   try{
     const data=await rpc('notification_inbox',{p_limit:100});
     if(!current())return;
-    state.notifications=data||[];state.notificationsLoaded=true;state.notificationsError='';
+    if(!Array.isArray(data)||data.some(n=>!n||typeof n!=='object'||Array.isArray(n)))throw new Error('Invalid notification inbox');
+    state.notifications=data;state.notificationsLoaded=true;state.notificationsError='';
     await loadUnreadNotifications();
   }catch(error){if(!current())return;state.notificationsError='Could not load updates. Check your connection and try again.';throw error}
 }
@@ -3010,6 +3165,8 @@ setInterval(refreshNotificationUpdates,30000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshNotificationUpdates()});
 function renderNotifications(){
   if(!state.user){$('#view').innerHTML='<section class="hero"><h1>Notifications</h1><p>Sign in to see updates about your predictions and account.</p></section><button class="btn primary" id="notificationSignIn">Sign in</button>';$('#notificationSignIn').onclick=showAuth;return}
+  const userId=state.user.id;
+  const sameUser=()=>state.user?.id===userId;
   const rows=state.notifications||[];
   $('#view').innerHTML='<section class="hero"><h1>Notifications</h1><p>Updates about markets you follow, results and your account.</p><p class="auth-note">In-app updates refresh while Predict UG is open or visible. OS push notifications are not enabled in this beta.</p></section>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small" id="refreshNotifications">Refresh updates</button>'+
@@ -3019,10 +3176,10 @@ function renderNotifications(){
     '<div class="timeline" style="margin-top:12px">'+rows.map(n=>'<div class="item" style="'+(!n.is_read?'border-color:var(--k-blue)':'')+'"><b>'+esc(n.title)+'</b>'+(!n.is_read?' <span class="statuschip">New</span>':'')+'<p>'+esc(n.body)+'</p><small>'+dt(n.created_at)+'</small><div style="display:flex;gap:8px;margin-top:10px">'+
       (n.market_id?'<button class="btn small" data-notification-market="'+esc(n.market_id)+'">View market</button>':'')+
       (!n.is_read?'<button class="btn small ghost" data-notification-read="'+esc(n.id)+'">Mark read</button>':'')+'</div></div>').join('')+'</div>';
-  $('#refreshNotifications').onclick=async()=>{const btn=$('#refreshNotifications');btn.disabled=true;try{await loadNotifications()}catch{}finally{if(state.tab==='notifications')renderNotifications();updateNotificationBadge()}};
-  if($('#readAll'))$('#readAll').onclick=async()=>{const btn=$('#readAll');btn.disabled=true;try{await rpc('mark_all_notifications_read');await loadNotifications();renderNotifications();updateNotificationBadge();toast('Notifications marked read')}catch{toast('Could not mark updates read. Try again.',true);if(btn.isConnected)btn.disabled=false}};
-  document.querySelectorAll('[data-notification-read]').forEach(btn=>btn.onclick=async()=>{btn.disabled=true;try{const changed=await rpc('mark_notification_read',{p_notification_id:btn.dataset.notificationRead});if(!changed)throw Error('Update unavailable');await loadNotifications();if(state.tab==='notifications')renderNotifications();updateNotificationBadge()}catch{toast('Could not mark this update read. Try again.',true);if(btn.isConnected)btn.disabled=false}});
-  document.querySelectorAll('[data-notification-market]').forEach(btn=>btn.onclick=()=>openMarket(btn.dataset.notificationMarket,{openSource:'notification'}));
+  $('#refreshNotifications').onclick=async()=>{if(!sameUser())return;const btn=$('#refreshNotifications');btn.disabled=true;try{await loadNotifications()}catch{}finally{if(sameUser()){if(state.tab==='notifications')renderNotifications();updateNotificationBadge()}}};
+  if($('#readAll'))$('#readAll').onclick=async()=>{if(!sameUser())return;const btn=$('#readAll');btn.disabled=true;try{await rpc('mark_all_notifications_read');if(!sameUser())return;await loadNotifications();if(!sameUser())return;if(state.tab==='notifications')renderNotifications();updateNotificationBadge();toast('Notifications marked read')}catch{if(!sameUser())return;toast('Could not mark updates read. Try again.',true);if(btn.isConnected)btn.disabled=false}};
+  document.querySelectorAll('[data-notification-read]').forEach(btn=>btn.onclick=async()=>{if(!sameUser())return;btn.disabled=true;try{const changed=await rpc('mark_notification_read',{p_notification_id:btn.dataset.notificationRead});if(!sameUser())return;if(!changed)throw Error('Update unavailable');await loadNotifications();if(!sameUser())return;if(state.tab==='notifications')renderNotifications();updateNotificationBadge()}catch{if(!sameUser())return;toast('Could not mark this update read. Try again.',true);if(btn.isConnected)btn.disabled=false}});
+  document.querySelectorAll('[data-notification-market]').forEach(btn=>btn.onclick=()=>{if(sameUser())openMarket(btn.dataset.notificationMarket,{openSource:'notification'})});
 }
 async function loadLeaderboard(){state.leaderboard=await rpc('forecasting_leaderboard',{p_limit:50})||[]}
 function renderLeaderboard(){
@@ -3321,6 +3478,44 @@ document.addEventListener('click',e=>{
   if(e.target.closest('[data-passkey-register]'))registerMerchantPasskey();
 });
 
+function adminOverdueReviewPanel(){
+  const owner=state.user?.id||null;
+  const loaded=state.isAdmin&&owner&&state.adminOverdueReview?.owner===owner
+    ?state.adminOverdueReview.data:null;
+  const rows=Array.isArray(loaded?.markets)?loaded.markets:[];
+  const ready=Boolean(loaded&&loaded.review_only===true&&loaded.settlement_authorized===false);
+  const loading=Boolean(state.adminOverdueReviewLoading&&state.adminOverdueReviewLoadingOwner===owner);
+  const error=state.adminOverdueReviewErrorOwner===owner?String(state.adminOverdueReviewError||''):'';
+  return '<div class="section-title"><h2>Overdue resolution review</h2><span class="statuschip">EVIDENCE ONLY</span></div>'+
+    '<div class="card" aria-label="Overdue resolution review">'+
+    '<p class="auth-note">Closed customer markets still awaiting verified evidence. Review exact event date, frozen rules, official sources and dispute window. This panel cannot resolve, void, credit or pay any market.</p>'+
+    '<button class="btn small" id="refreshOverdueReview"'+(loading?' disabled':'')+'>'+(loading?'Checking…':'Refresh overdue markets')+'</button>'+
+    (error?'<p class="auth-note" role="alert">'+esc(error)+'</p>':'')+
+    (!ready?'<div class="empty">'+(loading?'Loading reviewer-only records…':'Select Refresh to load the restricted reviewer queue.')+'</div>':
+      !rows.length?'<div class="empty">No overdue closed customer markets found in the reviewer worklist.</div>':
+      '<p class="auth-note" role="status">'+rows.length+' overdue customer market(s) · reviewer-only leads, not settlement proof</p>'+
+      '<div class="timeline">'+rows.slice(0,20).map(m=>
+        '<div class="item">'+
+          '<b>'+esc(m.title||'Untitled market')+'</b>'+
+          '<div class="meta"><span>'+esc(m.category||'Other')+' · '+Math.max(0,Math.trunc(Number(m.hours_since_close)||0))+' hours since closing</span><span class="statuschip">NEEDS HUMAN REVIEW</span></div>'+
+          '<small>Market ID: '+esc(m.market_id||'—')+' · Closed '+dt(m.close_time)+'</small>'+
+          '<p class="auth-note">Frozen rule: '+esc(m.frozen_resolution_rule||'No resolution rule recorded')+'</p>'+
+          '<small>Frozen source: '+esc(m.frozen_source_name||'—')+' · '+esc(m.frozen_source_url||'—')+'</small>'+
+          (m.frozen_event_date?'<br><small>Scheduled event: '+esc(m.frozen_event_date)+'</small>':'')+
+          '<br><small>Evidence: '+Math.max(0,Math.trunc(Number(m.evidence_count)||0))+' · Proposals: '+Math.max(0,Math.trunc(Number(m.proposal_count)||0))+'</small>'+
+          (m.review_observation_id&&Number(m.review_match_count)===1?
+            '<br><small>Official-source candidate #'+esc(m.review_observation_id)+
+            ' · reported '+esc(m.review_reported_score||'No score extracted')+
+            ' · source '+esc(m.review_source_url||'—')+'</small>'+
+            '<p class="auth-note"><b>Unverified candidate.</b> Date, full-time outcome and frozen source still require independent confirmation.</p>':
+            (Number(m.review_match_count)>1?
+              '<p class="auth-note"><b>Ambiguous official-source leads ('+Math.max(2,Math.trunc(Number(m.review_match_count)))+').</b> No article was selected as the correct result. Verify the exact fixture, event date and publisher before proposing evidence.</p>':
+              '<p class="auth-note"><b>No linked official result candidate.</b> Review the original publisher archive or contractual void conditions.</p>'))+
+        '</div>'
+      ).join('')+'</div>')+
+    '</div>';
+}
+
 function renderAdmin(){
   if(!state.isAdmin){$('#view').innerHTML='<div class="empty">Admin access required.</div>';return}
   if(!state.admin){
@@ -3337,6 +3532,7 @@ function renderAdmin(){
   const mtnPaidTest=(state.cashRailTests||[]).find(x=>String(x.network||'').toUpperCase()==='MTN'&&['manual_verified','operator_verified','matched'].includes(String(x.status||'').toLowerCase())&&String(x.transaction_reference||'').trim());
   const sh=state.securityHealth||{},sb=sh.security_boundaries||{},lp=sh.native_leaked_password_protection||{},pm=sh.application_password_mitigation||{};
   $('#view').innerHTML=merchantAdminActions()+'<section class="hero"><h1>Admin / CEO</h1><p>Business overview, customer support and merchant operations.</p></section>'+
+    adminOverdueReviewPanel()+
     '<div class="section-title"><h2>Customer deposit rehearsal</h2><span class="statuschip">NO MONEY</span></div>'+
     '<div class="card"><p class="auth-note">This queue mirrors the customer deposit handoff using the real MTN merchant instructions, but it never creates a payment intent, wallet credit or manual cash review.</p>'+
       '<div class="timeline">'+((state.paymentRehearsals||[]).length
@@ -3706,6 +3902,33 @@ function renderAdmin(){
     }catch(e){
       if(status)status.textContent=e.message||'Deposit approval shadow test failed';
       btn.disabled=false;btn.textContent='Final deposit approval test · no credit';
+    }
+  };
+  if($('#refreshOverdueReview'))$('#refreshOverdueReview').onclick=async()=>{
+    if(!state.isAdmin||!state.user||(state.adminOverdueReviewLoading&&state.adminOverdueReviewLoadingOwner===state.user.id))return;
+    const userId=state.user.id;
+    const requestId=(state.adminOverdueReviewRequest||0)+1;
+    state.adminOverdueReviewRequest=requestId;
+    state.adminOverdueReviewLoading=true;
+    state.adminOverdueReviewLoadingOwner=userId;
+    state.adminOverdueReviewError='';
+    state.adminOverdueReviewErrorOwner=userId;
+    renderAdmin();
+    try{
+      const data=await rpc('admin_overdue_market_review_queue',{p_limit:20});
+      if(!state.isAdmin||state.user?.id!==userId||requestId!==state.adminOverdueReviewRequest)return;
+      if(data?.review_only!==true||data?.settlement_authorized!==false||!Array.isArray(data?.markets))throw new Error('Review queue safety response was invalid');
+      state.adminOverdueReview={owner:userId,data};
+    }catch(e){
+      if(state.isAdmin&&state.user?.id===userId&&requestId===state.adminOverdueReviewRequest){
+        state.adminOverdueReviewError='Could not refresh the restricted review queue. Existing records may be stale; retry.';
+        state.adminOverdueReviewErrorOwner=userId;
+      }
+    }finally{
+      if(state.isAdmin&&state.user?.id===userId&&requestId===state.adminOverdueReviewRequest){
+        state.adminOverdueReviewLoading=false;
+        if(state.tab==='admin')renderAdmin();
+      }
     }
   };
   if($('#refreshPaymentRehearsals'))$('#refreshPaymentRehearsals').onclick=async()=>{await loadAdmin();render();};
@@ -4272,64 +4495,154 @@ async function applyReturnedSession(data){
   if(error)throw error;
 }
 
-function showPasswordReset(recoveryMode=false){
+// Phone-login metadata is an identifier, NOT evidence of phone ownership.
+// Only the authenticated provider's phone_confirmed_at can establish SMS proof.
+function confirmedPhoneForUser(user,expected){
+  return Boolean(
+    user?.id&&user?.phone_confirmed_at&&
+    normalizePhone(user?.phone||'')===expected&&
+    normalizePhone(user?.user_metadata?.phone_login||'')===expected
+  );
+}
+async function showPhoneVerification(){
+  if(!state.user){showAuth();return}
+  if(!state.online){toast('Connect to the internet to verify your phone.',true);return}
+  const accountId=state.user.id;
+  const current=()=>state.user?.id===accountId;
+  const {data:auth,error:authError}=await supabase.auth.getUser();
+  if(authError)throw authError;
+  const user=auth?.user;
+  if(!current()||user?.id!==accountId)throw new Error('Account changed. Sign in again.');
+  const phone=userIdentifier(user)?.value;
+  if(!phone)throw new Error('No valid account phone number found. Contact support.');
+  // The original phone-alias email is immutable. User metadata alone can be edited,
+  // so it cannot authorize linking a different phone to this login identity.
+  const encoded=new TextEncoder().encode('predict-ug-phone:'+phone);
+  const digest=await crypto.subtle.digest('SHA-256',encoded);
+  const hex=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
+  const alias='phone-'+hex+'@login.predictug.invalid';
+  if(!current()||String(user.email||'').toLowerCase()!==alias){
+    throw new Error('Phone login does not match your account identity. Contact support.');
+  }
+  const already=confirmedPhoneForUser(user,phone);
+  $('#overlay').innerHTML=
+    '<div class="modal"><div class="sheet" style="max-width:480px">'+
+      '<button class="close" id="phoneVerifyClose">✕</button>'+
+      '<h2>Verify your phone</h2>'+
+      '<p class="auth-note">Account number: '+esc(phone)+'</p>'+
+      '<p class="auth-note">'+(already?'Your phone number is confirmed by the sign-in provider.':'Your number is not yet SMS verified. Receiving a code requires an active SMS provider. Your phone/password login alone is not proof of phone ownership.')+'</p>'+
+      (already?'':'<div class="auth-wrap">'+
+        '<button class="btn primary" id="sendPhoneOtp">Send SMS verification code</button>'+
+        '<div id="phoneOtpEntry" style="display:none">'+
+          '<input class="input" id="phoneOtpToken" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6-digit SMS code">'+
+          '<button class="btn primary" id="confirmPhoneOtp">Confirm SMS code</button>'+
+        '</div>'+
+        '<p class="auth-note" id="phoneOtpStatus" role="status"></p>'+
+      '</div>')+
+    '</div></div>';
+  $('#phoneVerifyClose').onclick=()=>$('#overlay').innerHTML='';
+  if(already)return;
+  let sent=false;
+  const status=$('#phoneOtpStatus');
+  const sendBtn=$('#sendPhoneOtp'),confirmBtn=$('#confirmPhoneOtp');
+  sendBtn.onclick=async()=>{
+    if(!current()||!state.online){status.textContent='Reconnect or sign in again.';return}
+    sendBtn.disabled=true;
+    try{
+      // Supabase sends a provider OTP. We never create or accept local fake codes.
+      const {data,error}=await supabase.auth.updateUser({phone});
+      if(error)throw error;
+      if(!current()||data?.user?.id!==accountId)throw new Error('Account changed during phone verification.');
+      sent=true;$('#phoneOtpEntry').style.display='block';
+      status.textContent='Request accepted. Enter the SMS code if it arrives. Do not share it.';
+    }catch(e){
+      sent=false;
+      status.textContent='SMS verification unavailable: '+String(e?.message||'please retry later')+'. No number was marked verified.';
+    }finally{sendBtn.disabled=false}
+  };
+  confirmBtn.onclick=async()=>{
+    if(!sent||!current()||!state.online){status.textContent='Request a code while signed in and online.';return}
+    const token=String($('#phoneOtpToken')?.value||'').trim();
+    if(!/^[0-9]{6}$/.test(token)){status.textContent='Enter the six digits from your SMS.';return}
+    confirmBtn.disabled=true;
+    try{
+      const {error}=await supabase.auth.verifyOtp({phone,token,type:'phone_change'});
+      if(error)throw error;
+      const check=await supabase.auth.getUser();
+      if(check.error)throw check.error;
+      if(!current()||check.data?.user?.id!==accountId||!confirmedPhoneForUser(check.data?.user,phone)){
+        throw new Error('The sign-in provider has not yet confirmed this number. Please try again.');
+      }
+      status.textContent='Phone ownership verified by SMS.';
+      await loadSession();
+      if(current()){toast('Phone verified');profileMenu()}
+    }catch(e){status.textContent=String(e?.message||'Could not verify this code')}
+    finally{confirmBtn.disabled=false}
+  };
+}
+
+function showPasswordReset(){
+  if(!state.user){showAuth();return}
+  const accountId=state.user.id;
   $('#overlay').innerHTML=
     '<div class="modal"><div class="sheet" style="max-width:480px">'+
       '<button class="close" id="resetClose">✕</button>'+
       '<h2>Change password</h2>'+
-      '<p class="auth-note">Use a strong password. Predict UG checks new passwords against known breach data and blocks weak or leaked passwords.</p>'+
+      '<p class="auth-note">Confirm your current password first. The new one is checked for known breaches and stored through our secure account service.</p>'+
       '<div class="auth-wrap">'+
-        (!recoveryMode?'<input class="input" id="currentPassword" type="password" autocomplete="current-password" placeholder="Current password">':'')+
+        '<input class="input" id="currentPassword" type="password" autocomplete="current-password" placeholder="Current password">'+
         '<input class="input" id="newPassword" type="password" autocomplete="new-password" placeholder="New password">'+
         '<input class="input" id="confirmPassword" type="password" autocomplete="new-password" placeholder="Confirm new password">'+
         '<button class="btn primary" id="saveNewPassword">Save new password</button>'+
+        '<p id="passwordChangeStatus" class="auth-note" role="status"></p>'+
       '</div>'+
     '</div></div>';
-
   $('#resetClose').onclick=()=>$('#overlay').innerHTML='';
   $('#saveNewPassword').onclick=async()=>{
     if(!state.online){toast('Offline: reconnect before changing your password.',true);return}
-    const password=$('#newPassword').value;
-    const confirmPassword=$('#confirmPassword').value;
-    if(password!==confirmPassword){toast('Passwords do not match',true);return}
-    if(!passwordLooksStrong(password)){
-      toast('Use at least 8 characters for a new password.',true);
-      return;
-    }
-
-    $('#saveNewPassword').disabled=true;
+    if(state.user?.id!==accountId){toast('Account changed. Sign in again.',true);return}
+    const currentPassword=$('#currentPassword')?.value||'';
+    const nextPassword=$('#newPassword')?.value||'';
+    const confirmPassword=$('#confirmPassword')?.value||'';
+    if(!currentPassword){toast('Enter your current password',true);return}
+    if(nextPassword!==confirmPassword){toast('Passwords do not match',true);return}
+    if(!passwordLooksStrong(nextPassword)){toast('Use at least 8 characters for a new password.',true);return}
+    if(nextPassword===currentPassword){toast('Choose a different new password',true);return}
+    const button=$('#saveNewPassword');
+    button.disabled=true;
     try{
-      const user=state.user||(await supabase.auth.getUser()).data?.user;
-      const identifier=userIdentifier(user);
-      if(!identifier)throw new Error('Your phone account could not be verified');
-
-      if(!recoveryMode){
-        const currentPassword=$('#currentPassword')?.value||'';
-        if(!currentPassword)throw new Error('Enter your current password');
-        await phonePasswordRequest(identifier.value,currentPassword,'signin');
-      }
-
-      const checkRes=await fetch(SUPABASE_URL+'/functions/v1/secure-signup',{
+      const sessionResult=await supabase.auth.getSession();
+      if(sessionResult?.error)throw sessionResult.error;
+      const token=sessionResult?.data?.session?.access_token;
+      const identifier=userIdentifier(state.user);
+      if(!token||!identifier)throw new Error('Please sign in again to change your password');
+      if(state.user?.id!==accountId)throw new Error('Account changed. Sign in again.');
+      const response=await fetch(SUPABASE_URL+'/functions/v1/secure-signup',{
         method:'POST',
-        headers:{'content-type':'application/json'},
-        body:JSON.stringify({phone:identifier.value,password,dry_run:true})
+        headers:{'content-type':'application/json',authorization:'Bearer '+token},
+        body:JSON.stringify({
+          action:'change_password',phone:identifier.value,
+          password:currentPassword,new_password:nextPassword
+        })
       });
-      const checkData=await checkRes.json();
-      if(!checkRes.ok){
-        const extra=Array.isArray(checkData.reasons)&&checkData.reasons.length?' '+checkData.reasons.join('. '):'';
-        throw new Error((checkData.error||'Password security check failed')+extra);
+      const result=await response.json().catch(()=>({}));
+      if(!response.ok||result?.password_updated!==true){
+        const reasons=Array.isArray(result?.reasons)?result.reasons.join('. '):'';
+        throw new Error((result?.error||'Password change could not be confirmed')+(reasons?' '+reasons:''));
       }
-
-      const {error}=await supabase.auth.updateUser({password});
-      if(error)throw error;
+      if(state.user?.id!==accountId)return;
       $('#overlay').innerHTML='';
-      toast('Password updated');
+      toast('Password updated. Use your new password next time you sign in.');
       await loadSession();
       render();
-    }catch(e){
-      toast(e.message||'Could not update password',true);
+    }catch(error){
+      if(state.user?.id===accountId){
+        const message=error?.message||'Password change could not be completed';
+        if($('#passwordChangeStatus'))$('#passwordChangeStatus').textContent=message;
+        toast(message,true);
+      }
     }finally{
-      if($('#saveNewPassword'))$('#saveNewPassword').disabled=false;
+      if($('#saveNewPassword')===button)button.disabled=false;
     }
   };
 }
@@ -4474,6 +4787,7 @@ function showAuth(){
         '<button class="btn small ghost" type="button" id="showAuthPassword">Show password</button>'+
         '<input class="input" id="referralCode" inputmode="text" autocomplete="off" maxlength="10" placeholder="Referral code (optional)" value="'+esc(referralPrefill)+'">'+
         '<button class="btn primary" id="continueAuth">Continue with phone</button>'+
+        '<button class="btn small ghost" id="authForgot">Forgot password?</button>'+
         '<div id="authStatus" class="auth-note" style="min-height:22px"></div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
           '<button class="btn small" id="authCheck">Check app</button>'+
@@ -4486,6 +4800,11 @@ function showAuth(){
 
   $('#authClose').onclick=()=>$('#overlay').innerHTML='';
   $('#showAuthPassword').onclick=()=>{const input=$('#password'),btn=$('#showAuthPassword');if(!input||!btn)return;input.type=input.type==='password'?'text':'password';btn.textContent=input.type==='text'?'Hide password':'Show password';};
+  $('#authForgot').onclick=()=>{
+    $('#overlay').innerHTML='';
+    toast('Phone-only password recovery requires verified ownership and is not available yet. Contact support; never share your password.',true);
+    openHosted('/support.html');
+  };
   $('#authPrivacy').onclick=()=>openHosted('/privacy.html');
   $('#authTerms').onclick=()=>openHosted('/terms.html');
   $('#authDeleteInfo').onclick=()=>openHosted('/account-deletion.html');
@@ -4617,29 +4936,37 @@ function showDeleteAccount(){
 async function profileMenu(){
   if(!state.user){showAuth();return}
   const displayPhone=state.user?.user_metadata?.phone_login||state.user?.phone||'Phone account';
+  const smsVerified=Boolean(state.user?.phone_confirmed_at&&state.user?.phone&&
+    state.user.phone===state.user?.user_metadata?.phone_login);
   $('#overlay').innerHTML=
     '<div class="modal"><div class="sheet" style="max-width:480px">'+
       '<button class="close" id="profClose">✕</button>'+
       '<h2>Account</h2>'+
       '<p>'+esc(displayPhone)+'</p>'+
       '<p class="auth-note">Predict UG · public beta '+esc(APP_BUILD)+'</p>'+
+      '<p class="auth-note">Phone ownership: '+(smsVerified?'SMS verified':'Not SMS verified')+'</p>'+
       '<div id="profileStatus" class="auth-note" style="min-height:22px"></div>'+
       '<div class="auth-wrap">'+
         '<button class="btn" data-tab="notifications">Notifications</button>'+
         '<button class="btn" data-tab="leaderboard">Leaderboard</button>'+
         '<button class="btn" id="profileCheck">Check app</button>'+
+        '<button class="btn" id="profilePassword">Change password</button>'+
+        '<button class="btn" id="profileVerifyPhone">Verify phone number</button>'+
         '<button class="btn" id="profileUpdate">Update Predict UG</button>'+
         '<button class="btn" id="profileResponsible">Responsible use & limits</button>'+
         '<button class="btn" id="profilePrivacy">Privacy policy</button>'+
         '<button class="btn" id="profileTerms">Terms of use</button>'+
         '<button class="btn" id="profileSupport">Support</button>'+
-        (state.isAdmin?'<button class="btn" data-tab="admin">Admin / CEO</button>':'')+
+        (state.isAdmin?'<button class="btn" data-tab="admin">Admin / CEO</button><button class="btn" id="merchantQuickConnect">Connect MTN merchant</button>':'')+
         '<button class="btn danger" id="profileDelete">Delete account</button>'+
         '<button class="btn danger" id="signout">Sign out</button>'+
       '</div>'+
     '</div></div>';
   $('#profClose').onclick=()=>$('#overlay').innerHTML='';
+  if(state.isAdmin)$('#merchantQuickConnect').onclick=quickConnectMerchantPhone;
   $('#profileUpdate').onclick=forceAppUpdate;
+  $('#profilePassword').onclick=showPasswordReset;
+  $('#profileVerifyPhone').onclick=()=>showPhoneVerification().catch(e=>toast(e?.message||'Phone verification unavailable',true));
   $('#profileResponsible').onclick=showResponsiblePlay;
   $('#profilePrivacy').onclick=()=>openHosted('/privacy.html');
   $('#profileTerms').onclick=()=>openHosted('/terms.html');
@@ -4651,13 +4978,27 @@ async function profileMenu(){
     const result=await runAppCheck();
     if(el)el.textContent=result;
   };
-  $('#signout').onclick=async()=>{
-    await supabase.auth.signOut();
-    $('#overlay').innerHTML='';
-    await loadSession();
-    state.portfolio=null;
-    render();
-    toast('Signed out');
+  const signoutUserId=state.user.id,signoutButton=$('#signout');
+  signoutButton.onclick=async()=>{
+    if(!signoutUserId||state.user?.id!==signoutUserId||state.signoutPendingUserId===signoutUserId)return;
+    state.signoutPendingUserId=signoutUserId;signoutButton.disabled=true;
+    let confirmed=false;
+    try{
+      const result=await supabase.auth.signOut();
+      if(result?.error)throw result.error;
+      if(!result||typeof result!=='object'||!Object.prototype.hasOwnProperty.call(result,'error'))throw new Error('Could not verify sign-out');
+      confirmed=true;
+      if(state.user&&state.user.id!==signoutUserId)return;
+      await loadSession();
+      if(state.user)return;
+      $('#overlay').innerHTML='';state.portfolio=null;render();toast('Signed out');
+    }catch(error){
+      if(state.user&&state.user.id!==signoutUserId)return;
+      toast(confirmed?'Signed out. Could not refresh the account view. Tap Update to retry.':(error?.message||'Could not sign out. Please try again.'),true);
+    }finally{
+      if(state.signoutPendingUserId===signoutUserId)state.signoutPendingUserId=null;
+      signoutButton.disabled=false;
+    }
   };
 }
 
@@ -4697,6 +5038,10 @@ document.addEventListener('click',async e=>{
     return;
   }
   if(t?.dataset.market){const card=t.closest('.market-card');openMarket(t.dataset.market,{openSource:card?.dataset.openSource||'market_card'});return}
+  if(t?.dataset.suggestCategory!==undefined){
+    showMarketSuggestion({surface:'empty_category',category:t.dataset.suggestCategory});
+    return;
+  }
   if(t?.dataset.category!==undefined){state.category=t.dataset.category;trackBehavior('category_view',{category:state.category||null});state.loading=true;render();try{await loadMarkets()}catch{toast('Could not load this category. Check your connection and tap Refresh.',true)}finally{state.loading=false;render()}document.querySelector('.market-toolbar')?.scrollIntoView({behavior:'smooth',block:'start'});return}
 });
 let deferredInstallPrompt=null;
@@ -4721,7 +5066,6 @@ if('serviceWorker' in navigator){
 // Normal startup preserves the active offline shell; the service worker retires owned old caches.
 $('#authBtn').onclick=profileMenu;
 $('#inviteBtn').onclick=showInvite;
-$('#merchantQuickConnect').onclick=quickConnectMerchantPhone;
 async function openAccountShortcut(tab,load){
   const request=(state.navigationRequest||0)+1;
   state.navigationRequest=request;state.tab=tab;state.loading=true;
@@ -4733,8 +5077,8 @@ async function openAccountShortcut(tab,load){
 $('#notifBtn').onclick=()=>openAccountShortcut('notifications',loadNotifications);
 $('#balanceBtn').onclick=()=>openAccountShortcut('portfolio',loadPortfolio);
 $('#refreshBtn').onclick=refreshAll;
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){stopMarketRealtime();$('#overlay').innerHTML='';if(state.market){state.market=null;setMarketUrl(null,true)}}});
-window.addEventListener('popstate',async()=>{const id=linkedMarketId();if(id){await openMarket(id,{updateUrl:false})}else{stopMarketRealtime();$('#overlay').innerHTML='';state.market=null}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){marketOpenRequestId++;stopMarketRealtime();$('#overlay').innerHTML='';if(state.market){state.market=null;setMarketUrl(null,true)}}});
+window.addEventListener('popstate',async()=>{const id=linkedMarketId();if(id){await openMarket(id,{updateUrl:false})}else{marketOpenRequestId++;stopMarketRealtime();$('#overlay').innerHTML='';state.market=null}});
 bootstrap().catch(e=>{reportClientError(e.message||'Bootstrap failed',e.stack||'',{kind:'bootstrap'});window.__predictUgShowStartupFailure(e.message||'Predict UG could not load');});
 
 })();
