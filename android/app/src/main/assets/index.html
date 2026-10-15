@@ -1459,7 +1459,7 @@ function statusHtml(){
   const mode=state.status?.trading_mode||'forecast_credit';
   const offline=state.status?.offline_cache||!state.online;
   return '<div class="statusbar">'+
-    '<span class="statuschip '+(offline?'warn':'ok')+'">'+(offline?'Offline · last synced data':'Live market data')+'</span>'+
+    '<span class="statuschip '+(offline?'warn':'ok')+'">'+(offline?'Saved questions · reconnect for odds':'Feed connected · review live odds')+'</span>'+
     '<span class="statuschip '+(mode==='cash'?'ok':'warn')+'">'+(mode==='cash'?'Cash trading enabled':'Cash rails pending approval')+'</span>'+
     '<span class="statuschip">'+(state.markets?.length||0)+' open markets</span>'+
     '</div>';
@@ -1470,13 +1470,14 @@ function marketCard(m,openSource='market_card'){
   const originLabel=String(m.trend_badge||'')||(origin==='uganda_creator'?'Uganda creator':origin==='external_benchmark'?'Global benchmark':'Uganda');
   const displayTitle=String(m.title||'').replace(/^\[SHADOW\]\s*/i,'');
   const trust=m.data_status==='verified'?'Verified source':m.data_status==='source_attached'?'Source attached':'Resolution source';
-  const yesOdds=oddsText(m.yes_odds,y),noOdds=oddsText(m.no_odds,n);
+  const savedPreview=!!state.status?.offline_cache||state.online===false;
+  const yesOdds=savedPreview?'—':oddsText(m.yes_odds,y),noOdds=savedPreview?'—':oddsText(m.no_odds,n);
   return '<article class="card market-card" data-market="'+m.market_id+'" data-open-source="'+esc(openSource)+'">'+
     '<div class="eyebrow"><span>'+esc(m.category)+' · '+esc(originLabel)+'</span><span>Closes '+dt(m.close_time)+'</span></div>'+
-    '<div class="market-main-row"><div class="market-title">'+esc(displayTitle)+'</div><div class="market-price">'+pct(y)+'<small>YES chance</small></div></div>'+
-    (y==null?'<div class="auth-note">Chance unavailable · open market for details</div>':'<div class="bar"><span style="width:'+y+'%"></span></div>')+
-    '<div class="market-actions"><button type="button" class="market-mini y" data-market="'+m.market_id+'" data-market-side="YES" aria-label="Choose YES"><span>YES</span><b>'+yesOdds+'</b></button><button type="button" class="market-mini n" data-market="'+m.market_id+'" data-market-side="NO" aria-label="Choose NO"><span>NO</span><b>'+noOdds+'</b></button></div>'+
-    '<p class="auth-note market-odds-note">Displayed odds can change. Confirm your live odds and possible return before predicting.</p>'+ 
+    '<div class="market-main-row"><div class="market-title">'+esc(displayTitle)+'</div><div class="market-price">'+(savedPreview?'—':pct(y))+'<small>'+(savedPreview?'Saved preview':'YES chance')+'</small></div></div>'+
+    (savedPreview?'<div class="auth-note">Offline or unavailable feed · reconnect to review current probabilities.</div>':y==null?'<div class="auth-note">Chance unavailable · open market for details</div>':'<div class="bar"><span style="width:'+y+'%"></span></div>')+
+    '<div class="market-actions">'+(savedPreview?'<div class="auth-note" role="status">Saved question only · reconnect to review live YES/NO odds.</div>':'<button type="button" class="market-mini y" data-market="'+m.market_id+'" data-market-side="YES" aria-label="Choose YES"><span>YES</span><b>'+yesOdds+'</b></button><button type="button" class="market-mini n" data-market="'+m.market_id+'" data-market-side="NO" aria-label="Choose NO"><span>NO</span><b>'+noOdds+'</b></button>')+'</div>'+
+    '<p class="auth-note market-odds-note">'+(savedPreview?'No live quote is available from saved data. Reconnect before predicting.':'Displayed odds can change. Confirm your live odds and possible return before predicting.')+'</p>'+ 
     '<div class="meta"><span class="trust-mark">✓ '+esc(trust)+'</span><span>'+(m.watched?'★ Saved':'View market →')+'</span></div>'+
   '</article>';
 }
@@ -1628,8 +1629,9 @@ function renderMarkets(){
     (closingSoon.length?'<div class="market-feed-header"><div><span class="feed-kicker">Time sensitive</span><h2>Closing soon</h2></div><small style="color:var(--muted)">Short-horizon markets</small></div><div class="grid">'+closingSoon.map(m=>marketCard(m,'closing_soon')).join('')+'</div>':'')+
 
     (diverseTopPicks.length?'<div class="market-feed-header"><div><span class="feed-kicker">Featured</span><h2>Top picks across Uganda</h2></div><small style="color:var(--muted)">One strong market from each category</small></div><div class="grid">'+diverseTopPicks.map(m=>marketCard(m,'top_picks')).join('')+'</div>':'')+
-    '<div class="market-feed-header"><div><span class="feed-kicker">'+(unfilteredHome?'Explore':esc(feedHeading.kicker))+'</span><h2>'+(unfilteredHome?'All Uganda markets':esc(feedHeading.title))+'</h2></div><button class="btn small ghost" data-tab="media">Open Pulse</button></div>'+
-    (remainingLocalMarkets.length?'<div class="grid">'+remainingLocalMarkets.map(m=>state.feedSort==='pending'?pendingMarketCard(m):marketCard(m,'all_markets')).join('')+'</div>':'<div class="empty">'+(state.feedSort==='today'?'No matching markets close today in Uganda. Choose Live to see upcoming questions.':state.feedSort==='pending'?'No matching markets are awaiting a result.':state.feedSort==='closing'?'No matching markets close within the next 72 hours.':(state.category&&!state.search?'No strong prediction questions in this category yet. <button class="btn small" type="button" data-category="">Explore all markets</button> <button class="btn small ghost" type="button" data-suggest-category="'+esc(state.category)+'">Suggest an event with evidence</button>':'No Uganda markets match your filters right now.'))+'</div>')+
+    ((!unfilteredHome||remainingLocalMarkets.length||!localMarkets.length)?(
+    '<div class="market-feed-header"><div><span class="feed-kicker">'+(unfilteredHome?'Explore':esc(feedHeading.kicker))+'</span><h2>'+(unfilteredHome?'More Uganda markets':esc(feedHeading.title))+'</h2></div><button class="btn small ghost" data-tab="media">Open Pulse</button></div>'+
+    (remainingLocalMarkets.length?'<div class="grid">'+remainingLocalMarkets.map(m=>state.feedSort==='pending'?pendingMarketCard(m):marketCard(m,'all_markets')).join('')+'</div>':'<div class="empty">'+(state.feedSort==='today'?'No matching markets close today in Uganda. Choose Live to see upcoming questions.':state.feedSort==='pending'?'No matching markets are awaiting a result.':state.feedSort==='closing'?'No matching markets close within the next 72 hours.':(state.category&&!state.search?'No strong prediction questions in this category yet. <button class="btn small" type="button" data-category="">Explore all markets</button> <button class="btn small ghost" type="button" data-suggest-category="'+esc(state.category)+'">Suggest an event with evidence</button>':'No Uganda markets match your filters right now.'))+'</div>')): '')+
 
     '<details class="home-discovery"><summary>Explore events & universities</summary><div class="home-discovery-content">'+
     (events.length?'<div class="section-title"><div><span class="feed-kicker">Events</span><h2>Explore by event</h2></div><small style="color:var(--muted)">Browse related questions</small></div><div class="event-rail">'+events.map(eventHubCard).join('')+'</div>':'')+
@@ -1644,7 +1646,7 @@ function renderMarkets(){
 
     (!state.user?'<div class="compact-info"><div><strong>New to prediction markets?</strong><small>Start free with Practice UGX, shown in familiar shillings but not real money. Every market explains how the result is checked.</small></div><button class="btn small primary" id="homeSignIn">Sign in</button></div>':'')+
 
-    '<div class="card" style="margin-top:18px"><div class="auth-note">Predict UG public beta · Practice UGX is simulated; it cannot be converted or withdrawn.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn small primary" id="footerHowItWorks">How it works</button><button class="btn small ghost" id="homePrivacy">Privacy</button><button class="btn small ghost" id="homeTerms">Terms</button><button class="btn small ghost" id="homeSuggestMarket">Suggest a market</button><button class="btn small ghost" id="homeSupport">Support</button><button class="btn small ghost" id="homeBusiness">Advertise</button><button class="btn small" id="homeInstallApp">Get app</button></div></div>';
+    '<div class="card" style="margin-top:18px"><div class="auth-note">Predict UG public beta · Practice UGX is simulated; it cannot be converted or withdrawn.</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn small primary" id="footerHowItWorks">How it works</button><button class="btn small ghost" id="homePrivacy">Privacy</button><button class="btn small ghost" id="homeTerms">Terms</button><button class="btn small ghost" id="homeSuggestMarket">Suggest a market</button><button class="btn small ghost" id="homeSupport">Support</button><button class="btn small" id="homeInstallApp">Get app</button></div></div>';
 
   document.querySelectorAll('[data-event]').forEach(el=>el.onclick=()=>openEvent(el.dataset.event));
   document.querySelectorAll('[data-university-market]').forEach(el=>el.onclick=()=>openMarket(el.dataset.universityMarket));
@@ -1662,7 +1664,6 @@ function renderMarkets(){
   if($('#homeTerms'))$('#homeTerms').onclick=()=>openHosted('/terms.html');
   if($('#homeSuggestMarket'))$('#homeSuggestMarket').onclick=showMarketSuggestion;
   if($('#homeSupport'))$('#homeSupport').onclick=()=>openHosted('/support.html');
-  if($('#homeBusiness'))$('#homeBusiness').onclick=()=>openHosted('/business.html');
   if($('#homeInstallApp'))$('#homeInstallApp').onclick=()=>{const install=$('#installBtn');if(install&&!install.classList.contains('hidden'))install.click();else forceAppUpdate()};
   if($('#searchBtn'))$('#searchBtn').onclick=async()=>{state.search=$('#searchInput').value.trim();state.loading=true;render();try{await loadMarkets()}catch{toast('Could not search markets. Check your connection and tap Search again.',true)}finally{state.loading=false;render()}};
   if($('#searchInput'))$('#searchInput').onkeydown=e=>{if(e.key==='Enter')$('#searchBtn').click()};
@@ -2199,25 +2200,72 @@ document.body.insertAdjacentHTML('beforeend',
     if($('#adminStatusBtn'))$('#adminStatusBtn').onclick=async()=>{const s=(prompt('Status: open, suspended, closed','closed')||'').trim().toLowerCase();if(!s)return;try{await rpc('set_market_status',{p_market_id:m.id,p_status:s});toast('Market status updated');await reload()}catch(e){toast(e.message,true)}};
     if($('#adminEvidenceBtn'))$('#adminEvidenceBtn').onclick=async()=>{const url=(prompt('Evidence source URL',m.source_url||'')||'').trim();if(!url)return;const name=(prompt('Source name',m.source_name||'Primary source')||'Primary source').trim();const note=(prompt('Evidence note','Evidence supporting resolution review')||'').trim();if(!note)return;try{await rpc('admin_add_market_evidence',{p_market_id:m.id,p_source_name:name,p_source_url:url,p_evidence_note:note,p_captured_at:new Date().toISOString()});toast('Evidence added');await reload()}catch(e){toast(e.message,true)}};
     if($('#adminClarifyBtn'))$('#adminClarifyBtn').onclick=async()=>{const txt=(prompt('Clarification (does not rewrite frozen rules)','')||'').trim();if(!txt)return;const url=(prompt('Optional source URL','')||'').trim();try{await rpc('admin_publish_market_clarification',{p_market_id:m.id,p_clarification_text:txt,p_source_url:url||null});toast('Clarification published');await reload()}catch(e){toast(e.message,true)}};
-    if($('#adminProposeBtn'))$('#adminProposeBtn').onclick=async()=>{const side=(prompt('Propose YES, NO, or VOID','YES')||'').trim().toUpperCase();if(!['YES','NO','VOID'].includes(side))return;const rationale=(prompt('Resolution rationale','Evidence-backed resolution proposal')||'').trim();if(rationale.length<10){toast('Rationale must be at least 10 characters',true);return}const type=side==='VOID'?'void':'resolve';const outcome=side==='YES'?yes?.id:side==='NO'?no?.id:null;try{await rpc('admin_propose_market_resolution',{p_market_id:m.id,p_proposal_type:type,p_proposed_outcome_id:outcome||null,p_rationale:rationale});toast('Resolution proposed');await reload()}catch(e){toast(e.message,true)}};
-    if($('#adminReviewBtn'))$('#adminReviewBtn').onclick=async()=>{const p=d.resolution?.latest_proposal;if(!p?.id){toast('No proposal to review',true);return}if(!confirm('Approve this resolution proposal?'))return;try{await rpc('admin_review_market_resolution',{p_proposal_id:p.id,p_decision:'approved',p_review_note:'Approved from Predict UG Ops web'});toast('Proposal approved');await reload()}catch(e){toast(e.message,true)}};
+    if($('#adminProposeBtn'))$('#adminProposeBtn').onclick=async()=>{
+      const side=(prompt('Type YES, NO, or VOID (no default): '+m.title,'')||'').trim().toUpperCase();
+      if(!['YES','NO','VOID'].includes(side)){toast('Explicitly type YES, NO, or VOID to propose a result.',true);return}
+      const rationale=(prompt('Explain the frozen rule, event date and official evidence (20+ characters)','')||'').trim();
+      if(rationale.length<20){toast('Give a specific, evidence-backed explanation (at least 20 characters).',true);return}
+      const type=side==='VOID'?'void':'resolve';
+      const outcome=side==='YES'?yes?.id:side==='NO'?no?.id:null;
+      if(side!=='VOID'&&!outcome){toast('Selected outcome is unavailable.',true);return}
+      if(!confirm('Propose '+side+' for '+m.title+'? This must match the frozen rules and exact dated official evidence.'))return;
+      try{await rpc('admin_propose_market_resolution',{p_market_id:m.id,p_proposal_type:type,p_proposed_outcome_id:outcome||null,p_rationale:rationale});toast('Resolution proposed');await reload()}
+      catch(e){toast(e.message,true)}
+    };
+    if($('#adminReviewBtn'))$('#adminReviewBtn').onclick=async()=>{
+      const p=d.resolution?.latest_proposal;
+      if(!p?.id||p.status!=='proposed'){toast('No pending resolution proposal is ready for review.',true);return}
+      const decision=(prompt('Type APPROVE to review the proposal for '+m.title+' (no default)','')||'').trim().toUpperCase();
+      if(decision!=='APPROVE'){toast('Approval requires typing APPROVE.',true);return}
+      const note=(prompt('Explain the official evidence and frozen-rule review (20+ characters)','')||'').trim();
+      if(note.length<20){toast('Approval requires a specific reviewer note of at least 20 characters.',true);return}
+      if(!confirm('Approve pending proposal '+p.id+' for '+m.title+'? Confirm there are no open challenges and the applicable window has closed.'))return;
+      try{await rpc('admin_review_market_resolution',{p_proposal_id:p.id,p_decision:'approved',p_review_note:note});toast('Proposal approved');await reload()}
+      catch(e){toast(e.message,true)}
+    };
     if($('#adminChallengesBtn'))$('#adminChallengesBtn').onclick=async()=>{
+      if(!proposal?.id){toast('No active resolution proposal to review.',true);return}
       try{
         const result=await rpc('admin_resolution_challenges',{p_proposal_id:proposal.id});
         const open=(result?.challenges||[]).filter(x=>x.status==='open');
         if(!open.length){toast('No open challenges');return}
         const ch=open[0];
-        const decision=(prompt('Challenge: '+String(ch.note||'').slice(0,500)+'\n\nType DISMISS or UPHOLD','DISMISS')||'').trim().toUpperCase();
-        if(!['DISMISS','UPHOLD'].includes(decision))return;
-        const review=(prompt('Review note','Reviewed against the published rule and evidence')||'').trim();
+        const decision=(prompt('Challenge: '+String(ch.note||'').slice(0,500)+'\\n\\nType DISMISS or UPHOLD (no default)','')||'').trim().toUpperCase();
+        if(!['DISMISS','UPHOLD'].includes(decision)){toast('Type DISMISS or UPHOLD; no default action is taken.',true);return}
+        const review=(prompt('Explain the evidence supporting this challenge decision (20+ characters)','')||'').trim();
+        if(review.length<20){toast('Challenge review requires at least 20 characters of evidence reasoning.',true);return}
+        if(!confirm(decision+' challenge '+ch.id+' for '+m.title+'? This changes the proposal review state.'))return;
         await rpc('admin_review_resolution_challenge',{p_challenge_id:ch.id,p_decision:decision==='UPHOLD'?'uphold':'dismiss',p_review_note:review});
         toast(decision==='UPHOLD'?'Challenge upheld; proposal rejected':'Challenge dismissed');
         await reload();
       }catch(e){toast(e.message||'Challenge review failed',true)}
     };
-    if($('#adminPreviewBtn'))$('#adminPreviewBtn').onclick=async()=>{const side=(prompt('Preview YES or NO settlement','YES')||'').trim().toUpperCase();const oid=side==='NO'?no?.id:yes?.id;if(!oid)return;try{const q=await rpc('preview_settlement',{p_market_id:m.id,p_resolved_outcome_id:oid});alert('Settlement preview\n\n'+JSON.stringify(q,null,2))}catch(e){toast(e.message,true)}};
-    if($('#adminSettleBtn'))$('#adminSettleBtn').onclick=async()=>{const side=(prompt('Settle as YES or NO','YES')||'').trim().toUpperCase();const oid=side==='NO'?no?.id:side==='YES'?yes?.id:null;if(!oid)return;const note=(prompt('Settlement note','Resolved using reviewed evidence')||'').trim();if(!confirm('Finalize this market as '+side+'?'))return;try{await rpc('settle_market',{p_market_id:m.id,p_resolved_outcome_id:oid,p_resolution_note:note||null});toast('Market settled');await reload()}catch(e){toast(e.message,true)}};
-    if($('#adminVoidBtn'))$('#adminVoidBtn').onclick=async()=>{const note=(prompt('Reason for voiding market','Market cannot be resolved under the published rule')||'').trim();if(!confirm('Void this market and refund eligible positions?'))return;try{await rpc('void_market',{p_market_id:m.id,p_resolution_note:note||null});toast('Market voided');await reload()}catch(e){toast(e.message,true)}};
+    if($('#adminPreviewBtn'))$('#adminPreviewBtn').onclick=async()=>{
+      const side=(prompt('Type YES or NO for a settlement preview (no default)','')||'').trim().toUpperCase();
+      if(!['YES','NO'].includes(side)){toast('Type YES or NO to preview a specific outcome.',true);return}
+      const oid=side==='YES'?yes?.id:no?.id;
+      if(!oid){toast('Selected outcome is unavailable.',true);return}
+      try{const q=await rpc('preview_settlement',{p_market_id:m.id,p_resolved_outcome_id:oid});alert('Settlement preview for '+m.title+' ('+side+')\\n\\n'+JSON.stringify(q,null,2))}
+      catch(e){toast(e.message,true)}
+    };
+    if($('#adminSettleBtn'))$('#adminSettleBtn').onclick=async()=>{
+      const side=(prompt('Type YES or NO to finalize '+m.title+' (no default)','')||'').trim().toUpperCase();
+      if(!['YES','NO'].includes(side)){toast('Explicitly type YES or NO before settling.',true);return}
+      const oid=side==='NO'?no?.id:yes?.id;
+      if(!oid){toast('Selected outcome is unavailable.',true);return}
+      const note=(prompt('Explain the verified event outcome and official evidence (20+ characters)','')||'').trim();
+      if(note.length<20){toast('Settlement needs a specific evidence-backed note (at least 20 characters).',true);return}
+      if(!confirm('Finalize market '+m.title+' as '+side+'? Verify the frozen rule, the approved proposal and any challenge window first.'))return;
+      try{await rpc('settle_market',{p_market_id:m.id,p_resolved_outcome_id:oid,p_resolution_note:note});toast('Market settled');await reload()}
+      catch(e){toast(e.message,true)}
+    };
+    if($('#adminVoidBtn'))$('#adminVoidBtn').onclick=async()=>{
+      const note=(prompt('Explain the specific published-rule void condition and evidence (20+ characters)','')||'').trim();
+      if(note.length<20){toast('A documented void reason of at least 20 characters is required.',true);return}
+      if(!confirm('Void '+m.title+'? Only proceed when its frozen rules and approval workflow authorize a refund.'))return;
+      try{await rpc('void_market',{p_market_id:m.id,p_resolution_note:note});toast('Market voided');await reload()}
+      catch(e){toast(e.message,true)}
+    };
   }
   $('#shareMarket').onclick=()=>shareMarketLink(m.id,m.title);
   $('#closeMarket').onclick=()=>{marketOpenRequestId++;stopMarketRealtime();$('#overlay').innerHTML='';state.market=null;setMarketUrl(null,true)};
@@ -3499,6 +3547,7 @@ function adminOverdueReviewPanel(){
           '<b>'+esc(m.title||'Untitled market')+'</b>'+
           '<div class="meta"><span>'+esc(m.category||'Other')+' · '+Math.max(0,Math.trunc(Number(m.hours_since_close)||0))+' hours since closing</span><span class="statuschip">NEEDS HUMAN REVIEW</span></div>'+
           '<small>Market ID: '+esc(m.market_id||'—')+' · Closed '+dt(m.close_time)+'</small>'+
+          '<div style="margin:8px 0"><button type="button" class="btn small" data-review-market-id="'+esc(m.market_id||'')+'">Open market review controls</button></div>'+
           '<p class="auth-note">Frozen rule: '+esc(m.frozen_resolution_rule||'No resolution rule recorded')+'</p>'+
           '<small>Frozen source: '+esc(m.frozen_source_name||'—')+' · '+esc(m.frozen_source_url||'—')+'</small>'+
           (m.frozen_event_date?'<br><small>Scheduled event: '+esc(m.frozen_event_date)+'</small>':'')+
@@ -3931,6 +3980,29 @@ function renderAdmin(){
       }
     }
   };
+  // This opens the existing guarded market detail. It never resolves or pays a market.
+  // Recheck the current session and the reviewed worklist at click time, because
+  // an administrator can sign out/switch accounts after the queue loaded.
+  document.querySelectorAll('[data-review-market-id]').forEach(btn=>{
+    btn.onclick=async()=>{
+      const id=String(btn.dataset.reviewMarketId||'').trim();
+      const owner=state.user?.id;
+      const data=state.adminOverdueReview;
+      const validId=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+      if(!validId||!state.isAdmin||!owner||data?.owner!==owner||
+         data.data?.review_only!==true||data.data?.settlement_authorized!==false||
+         !Array.isArray(data.data?.markets)||!data.data.markets.some(m=>m.market_id===id)){
+        toast('Refresh the authorized resolution worklist before opening this market.',true);
+        return;
+      }
+      if(!state.online){toast('Reconnect before opening the live resolution controls.',true);return}
+      btn.disabled=true;
+      try{
+        await openMarket(id,{updateUrl:false,openSource:'admin_overdue_review'});
+      }catch(e){toast('Could not open this market review. Retry from the worklist.',true)}
+      finally{if(btn.isConnected)btn.disabled=false}
+    };
+  });
   if($('#refreshPaymentRehearsals'))$('#refreshPaymentRehearsals').onclick=async()=>{await loadAdmin();render();};
   document.querySelectorAll('[data-complete-rehearsal]').forEach(btn=>{
     btn.onclick=async()=>{
@@ -5004,7 +5076,7 @@ async function profileMenu(){
 
 
 document.addEventListener('click',async e=>{
-  const t=e.target.closest('[data-tab],[data-market-side],[data-market],[data-category]');
+  const t=e.target.closest('[data-tab],[data-market-side],[data-market],[data-category],[data-suggest-category]');
   if(t?.dataset.tab){
     const tab=t.dataset.tab;
     const request=(state.navigationRequest||0)+1;
