@@ -2,11 +2,11 @@
   "schema_version": 1,
   "source_repository": "festusakona40-code/Predict-Ug",
   "public_repository": "festusakona40-code/Predict-UG-Core",
-  "source_commit": "046b2076fdfa71b0fa6145170594bd4814d4d11a",
+  "source_commit": "8e3a498a7ef0ee7ccb31bf19bbe99452e8e1a5a7",
   "policy": "allowlist_only",
   "exact_copy_files": {
     "android/app/src/consumer/AndroidManifest.xml": "387774fb32dcc536413dc5ed3aa360a93aef9582",
-    "android/app/src/main/assets/index.html": "9152679f6ea66e66c67264396e7bddc306247116",
+    "android/app/src/main/assets/index.html": "6b3ee23cdaba0baa6a05ef5c81f788ed900c707f",
     "android/app/src/main/java/com/predictug/app/AppLaunchPolicy.java": "1ca23192eb468cd5fa6b7aa8afc8650b228bc5a3",
     "android/app/src/main/java/com/predictug/app/AppOriginPolicy.java": "45cf48e260391e9d72d0195ed49955d4dc7964f4",
     "android/app/src/main/java/com/predictug/app/MainActivity.java": "e34ef1c54e5b5d806c54ddc03f98d7df0922a602",
