@@ -18,7 +18,7 @@ if(appVersionCode!==versionCode)fail("Bundled APP_VERSION_CODE does not match Gr
 
 const required=[
   "async function fetchReleaseMetadata()",
-  "PUBLIC_ORIGIN+'/downloads/latest.json?t='",
+  "const endpoint=INSTALL_ORIGIN+'?release=1&t='+Date.now()",
   "INSTALL_ORIGIN+'?release=1&t='",
   "meta.versionCode>installed.versionCode",
   "newerAndroidRelease(meta,installed)",
@@ -32,6 +32,8 @@ const required=[
   "location.href=androidApkDownload(meta)",
   "setTimeout(()=>checkForAppUpdate(false),600)"
 ];
+if(html.includes("PUBLIC_ORIGIN+'/downloads/latest.json?t='"))fail("Stale Render release metadata fallback remains");
+if(!html.includes("Untrusted Android release identity") || !html.includes("meta.productionMoneyEnabled!==false"))fail("Practice-only release verification missing");
 for(const marker of required){
   if(!html.includes(marker))fail("Missing updater contract marker: "+marker);
 }
