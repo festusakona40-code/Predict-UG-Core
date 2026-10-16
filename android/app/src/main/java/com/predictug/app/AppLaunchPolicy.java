@@ -1,13 +1,13 @@
 package com.predictug.app;
 
-/** Explicit delivery exception for the versioned practice beta, not a trust policy. */
+/** Bundle-first consumer delivery policy; never a permission or trust boundary. */
 final class AppLaunchPolicy {
     private AppLaunchPolicy() {}
 
     static boolean useBundledPracticeBeta(String flavor, int versionCode) {
-        // Render currently cannot publish the audited shell. Beta 90 carries that
-        // exact shell and local SDK; API data and money gates stay authoritative.
-        // Future releases must deliberately choose their delivery policy again.
-        return "consumer".equals(flavor) && versionCode == 90;
+        // Keep future consumer APKs on their audited packaged interface while
+        // remote web hosting is blocked. This is independent of release number.
+        // Merchant builds must never load this consumer-only experience.
+        return "consumer".equals(flavor) && versionCode >= 86;
     }
 }

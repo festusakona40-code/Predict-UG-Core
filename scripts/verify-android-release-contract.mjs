@@ -18,7 +18,14 @@ if(appVersionCode!==versionCode)fail("Bundled APP_VERSION_CODE does not match Gr
 
 const required=[
   "async function fetchReleaseMetadata()",
-  "PUBLIC_ORIGIN+'/downloads/latest.json?t='",
+  "const endpoint=INSTALL_ORIGIN+'?release=1&t='+Date.now();",
+  "meta.channel!=='customer'",
+  "meta.productionMoneyEnabled!==false",
+  "meta.betaSigning!==true",
+  "Untrusted Android release identity",
+  "66a1431469d7a67450a3d28ce7adfcf11295eb274be305add681613bc1ad4d55",
+  "versionCode>=86",
+  "new app features need a newer APK.",
   "INSTALL_ORIGIN+'?release=1&t='",
   "meta.versionCode>installed.versionCode",
   "newerAndroidRelease(meta,installed)",
@@ -38,6 +45,10 @@ for(const marker of required){
 
 if(/location\.reload\(\)\s*;?\s*}\s*async function runAppCheck/.test(html)){
   fail("Update button regressed to reload-only behavior");
+}
+
+if(html.includes("PUBLIC_ORIGIN+'/downloads/latest.json?t='")){
+  fail("Release discovery must not depend on Render's stale metadata");
 }
 
 if(failures.length){

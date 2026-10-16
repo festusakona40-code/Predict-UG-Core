@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.90. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.91. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#ffffff"/>
@@ -493,8 +493,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.90';
-const APP_VERSION_CODE=90;
+const APP_BUILD='0.7.91';
+const APP_VERSION_CODE=91;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -816,7 +816,7 @@ function showHowItWorks(firstUse=false){
         '<div class="item"><b>3 · Practice first</b><br><small>The public beta uses Practice UGX: simulated amounts displayed in Ugandan shillings. These are not real money and cannot be converted, deposited or withdrawn.</small></div>'+
         '<div class="item"><b>4 · Settlement is rule-based</b><br><small>Every market has a published resolution rule and source. Predict UG does not settle a market just because AI or users think an outcome happened.</small></div>'+
       '</div>'+
-      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.90 · bundled frontend</p></div>'+
+      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.91 · bundled frontend</p></div>'+
       '<div class="auth-wrap" style="margin-top:12px"><button class="btn primary" id="howStart">Try a starter market</button><button class="btn ghost" id="howDone">Browse all markets</button><button class="btn ghost" id="howFeedback">Something is confusing</button></div>'+
     '</div></div>';
   $('#howClose').onclick=()=>{markFirstUseGuideSeen(guideKey);$('#overlay').innerHTML='';trackBehavior('first_use_guide_dismissed',{metadata:{first_use:firstUse}})};
@@ -4913,11 +4913,9 @@ function androidApkDownload(meta){
     +meta.sourceArtifactCommit+'/predict-ug.apk';
 }
 async function fetchReleaseMetadata(){
-  // The bundled asset origin cannot read Render JSON without CORS. The existing
-  // public backend release proxy supplies CORS and forwards the same metadata.
-  const endpoint=location.origin===PUBLIC_ORIGIN
-    ?PUBLIC_ORIGIN+'/downloads/latest.json?t='+Date.now()
-    :INSTALL_ORIGIN+'?release=1&t='+Date.now();
+  // One authoritative CORS-enabled release service, independent of Render.
+  // Even a stale live-web shell must not offer obsolete APK metadata.
+  const endpoint=INSTALL_ORIGIN+'?release=1&t='+Date.now();
   const r=await fetch(endpoint,{
     cache:'no-store',signal:AbortSignal.timeout(8000)
   });
@@ -4930,6 +4928,13 @@ async function fetchReleaseMetadata(){
     ||!/^[a-f0-9]{64}$/i.test(String(meta?.signingCertificateSha256||''))
     ||!/^[a-f0-9]{40}$/i.test(String(meta?.sourceArtifactCommit||'')))
     throw new Error('Update information is invalid');
+  // A public update may only point to a verified practice consumer APK.
+  // This pin intentionally requires a new reviewed release for any signing-key
+  // transition; Android itself must confirm upgrades of an installed package.
+  if(meta.channel!=='customer'||meta.productionMoneyEnabled!==false
+    ||meta.betaSigning!==true||meta.signingIdentity!=='Android Debug'
+    ||String(meta.signingCertificateSha256).toLowerCase()!=='66a1431469d7a67450a3d28ce7adfcf11295eb274be305add681613bc1ad4d55')
+    throw new Error('Untrusted Android release identity');
   const download=trustedApkDownload(meta.immutableDownload);
   if(new URL(download).pathname!=='/downloads/predict-ug-customer-'+meta.version+'.apk')
     throw new Error('APK version does not match update information');
@@ -4960,19 +4965,21 @@ async function checkForAppUpdate(interactive=false){
       }catch{}
     }
     return meta;
-  }catch(error){if(interactive)toast('Could not check for app updates. Try again.',true);return null}
+  }catch(error){
+    state.releaseUpdate=null;
+    if(interactive)toast('Could not check for app updates. Try again.',true);
+    return null;
+  }
 }
 function usesBundledAndroidInterface(){
   const installed=installedAndroidBuild();
-  // Explicit release policy: keep beta86, beta87, beta88, beta89 and beta90 on the audited APK
-  // interface. The optional remote refresh remains available to older builds.
-  return installed?.channel==='customer'&&(
-    (installed.version==='0.7.86'&&(installed.versionCode===86||installed.versionCode===null))||
-    (installed.version==='0.7.87'&&(installed.versionCode===87||installed.versionCode===null))||
-    (installed.version==='0.7.88'&&(installed.versionCode===88||installed.versionCode===null))||
-    (installed.version==='0.7.89'&&(installed.versionCode===89||installed.versionCode===null))||
-    (installed.version==='0.7.90'&&(installed.versionCode===90||installed.versionCode===null))
-  );
+  if(installed?.channel!=='customer')return false;
+  // Preserve the audited bundle for every future consumer build until
+  // a separately reviewed live-web delivery policy is approved.
+  if(Number.isSafeInteger(installed.versionCode))return installed.versionCode>=86;
+  // Compatibility for historic beta shells without an embedded versionCode.
+  return /^0[.]7[.][0-9]+$/.test(installed.version)
+    &&Number(installed.version.split('.')[2])>=86;
 }
 async function refreshAppInterface(){
   if('serviceWorker' in navigator){
@@ -5007,7 +5014,13 @@ async function forceAppUpdate(){
         return;
       }
     }
-    toast('Refreshing the latest Predict UG interface and data…');
+    if(installed?.channel==='customer'){
+      // Refresh can fetch current markets, but cannot replace APK-bundled code.
+      // Never imply that an old installed binary now contains new features.
+      toast('Predict UG '+installed.version+' is installed. Refreshing live data; new app features need a newer APK.');
+    }else{
+      toast('Refreshing Predict UG live data and interface…');
+    }
     await refreshAppInterface();
   }catch(error){toast('Could not update Predict UG. Check your connection and try again.',true)}
   finally{state.appUpdateBusy=false}
