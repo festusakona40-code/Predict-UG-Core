@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.85. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.86. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#ffffff"/>
@@ -493,8 +493,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.85';
-const APP_VERSION_CODE=85;
+const APP_BUILD='0.7.86';
+const APP_VERSION_CODE=86;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -811,7 +811,7 @@ function showHowItWorks(firstUse=false){
         '<div class="item"><b>3 · Practice first</b><br><small>The public beta uses Practice UGX: simulated amounts displayed in Ugandan shillings. These are not real money and cannot be converted, deposited or withdrawn.</small></div>'+
         '<div class="item"><b>4 · Settlement is rule-based</b><br><small>Every market has a published resolution rule and source. Predict UG does not settle a market just because AI or users think an outcome happened.</small></div>'+
       '</div>'+
-      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.85 · bundled frontend</p></div>'+
+      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.86 · bundled frontend</p></div>'+
       '<div class="auth-wrap" style="margin-top:12px"><button class="btn primary" id="howStart">Try a starter market</button><button class="btn ghost" id="howDone">Browse all markets</button><button class="btn ghost" id="howFeedback">Something is confusing</button></div>'+
     '</div></div>';
   $('#howClose').onclick=()=>{markFirstUseGuideSeen(guideKey);$('#overlay').innerHTML='';trackBehavior('first_use_guide_dismissed',{metadata:{first_use:firstUse}})};
@@ -4953,6 +4953,13 @@ async function checkForAppUpdate(interactive=false){
     return meta;
   }catch(error){if(interactive)toast('Could not check for app updates. Try again.',true);return null}
 }
+function usesBundledAndroidInterface(){
+  const installed=installedAndroidBuild();
+  // Explicit release policy: keep beta86 on the audited APK interface. The
+  // optional legacy remote refresh remains available to older app versions.
+  return installed?.channel==='customer'&&installed.version==='0.7.86'&&
+    (installed.versionCode===86||installed.versionCode===null);
+}
 async function refreshAppInterface(){
   if('serviceWorker' in navigator){
     const regs=await navigator.serviceWorker.getRegistrations();
@@ -4966,7 +4973,7 @@ async function refreshAppInterface(){
     await Promise.all(keys.filter(key=>key.startsWith('predict-ug')).map(key=>caches.delete(key)));
   }
   const current=new URL(location.href);
-  const target=location.hostname==='appassets.androidplatform.net'?new URL(PUBLIC_ORIGIN+'/'):current;
+  const target=location.origin==='https://appassets.androidplatform.net'&&!usesBundledAndroidInterface()?new URL(PUBLIC_ORIGIN+'/'):current;
   if(target!==current){target.search=current.search;target.hash=current.hash}
   target.searchParams.set('app_update',String(Date.now()));
   location.replace(target.toString());

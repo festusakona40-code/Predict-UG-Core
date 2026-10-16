@@ -6,11 +6,11 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class AppLaunchPolicyTest {
-    @Test public void bundleFirstIsExplicitlyScopedToConsumerBeta85() {
-        assertTrue(AppLaunchPolicy.useBundledPracticeBeta("consumer", 85));
-        assertFalse(AppLaunchPolicy.useBundledPracticeBeta("consumer", 84));
-        assertFalse(AppLaunchPolicy.useBundledPracticeBeta("consumer", 86));
-        assertFalse(AppLaunchPolicy.useBundledPracticeBeta("merchant", 85));
-        assertFalse(AppLaunchPolicy.useBundledPracticeBeta(null, 85));
+    @Test public void bundleFirstIsExplicitlyScopedToConsumerBeta86() {
+        assertTrue(AppLaunchPolicy.useBundledPracticeBeta("consumer", 86));
+        assertFalse(AppLaunchPolicy.useBundledPracticeBeta("consumer", 85));
+        assertFalse(AppLaunchPolicy.useBundledPracticeBeta("consumer", 87));
+        assertFalse(AppLaunchPolicy.useBundledPracticeBeta("merchant", 86));
+        assertFalse(AppLaunchPolicy.useBundledPracticeBeta(null, 86));
     }
 }
