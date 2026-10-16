@@ -1,0 +1,2 @@
+a3e6b48520beaeec7d7ad7ad04ce93f8dc8bb0e35aa6f75d772a165a4d96d4c5  android/app/build/outputs/apk/consumer/debug/app-consumer-debug.apk
+d611f36cae7c86b199ec15c35e94f0db79715e9f7a370c24ac10558c9ded4a10  android/app/build/outputs/bundle/consumerRelease/app-consumer-release.aab

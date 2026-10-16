@@ -1,0 +1,14 @@
+{
+  "channel": "public-beta",
+  "version": "0.7.86",
+  "versionCode": 86,
+  "apkSha256": "a3e6b48520beaeec7d7ad7ad04ce93f8dc8bb0e35aa6f75d772a165a4d96d4c5",
+  "aabSha256": "d611f36cae7c86b199ec15c35e94f0db79715e9f7a370c24ac10558c9ded4a10",
+  "apkSizeBytes": 48076511,
+  "signingCertificateSha256": "66a1431469d7a67450a3d28ce7adfcf11295eb274be305add681613bc1ad4d55",
+  "signingIdentity": "Android Debug",
+  "betaSigning": true,
+  "sourceCommit": "2a446635c005bb5484fd5416271189c2ce872e38",
+  "sourceRunId": 38854939827,
+  "productionMoneyEnabled": false
+}
