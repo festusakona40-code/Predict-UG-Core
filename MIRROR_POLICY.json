@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "policy_version": "2026-10-05.3",
+  "policy_version": "2026-10-16.1",
   "canonical_private_repository": "festusakona40-code/Predict-Ug",
   "public_ci_repository": "festusakona40-code/Predict-UG-Core",
   "purpose": "Deterministic allowlist for the sanitized public consumer CI mirror.",

@@ -366,7 +366,12 @@ public class MainActivity extends ComponentActivity {
             }
         });
 
-        if (savedInstanceState != null) {
+        if (AppLaunchPolicy.useBundledPracticeBeta(BuildConfig.FLAVOR, BuildConfig.VERSION_CODE)) {
+            // A saved remote tab must not bypass this release's bundle-first policy.
+            // The trusted HTTPS asset origin keeps the exact native bridge boundary.
+            // Render-origin sessions do not transfer; returning users may need to sign in.
+            webView.loadUrl(BUNDLED_APP_URL);
+        } else if (savedInstanceState != null) {
             webView.restoreState(savedInstanceState);
         } else {
             webView.loadUrl(LIVE_APP_URL);
