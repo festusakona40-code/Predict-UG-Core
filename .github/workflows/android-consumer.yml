@@ -123,6 +123,12 @@ jobs:
           print(f"consumer JUnit evidence: {total} tests, {failures} failures, {len(reports)} reports")
           if total < 3 or failures:
               raise SystemExit("Consumer CI requires at least the three existing security unit tests to execute and pass.")
+          policy_report = results / "TEST-com.predictug.app.AppLaunchPolicyTest.xml"
+          if not policy_report.is_file():
+              raise SystemExit("Consumer beta delivery policy test report is missing.")
+          policy = ET.parse(policy_report).getroot()
+          if int(policy.attrib.get("tests", 0)) < 1 or any(int(policy.attrib.get(key, 0)) for key in ("failures", "errors", "skipped")):
+              raise SystemExit("Consumer beta delivery policy must execute without failures or skips.")
           PY
 
       - name: Verify consumer permission boundary
@@ -166,6 +172,7 @@ jobs:
             android/app/build/outputs/bundle/consumerRelease/app-consumer-release.aab
             android/SHA256SUMS.txt
             android/SIGNING_CERT.txt
+            android/app/build/test-results/testConsumerDebugUnitTest/*.xml
           retention-days: 14
 
       - name: Publish verified beta APK branch
