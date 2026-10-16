@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.84. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.85. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#ffffff"/>
@@ -427,6 +427,7 @@ html,body,.app,.market-toolbar{background:var(--app-canvas);color:var(--text)}
 .outcome-btn.active.y{background:var(--green);color:#071710}.outcome-btn.active.y .outcome-chance{color:#071710}
 button:focus-visible,a:focus-visible{outline:3px solid var(--green);outline-offset:3px}
 
+@media(max-width:600px){.topbar{padding:calc(8px + env(safe-area-inset-top)) 12px 8px;align-items:flex-start}.brand{font-size:1.05rem;gap:7px}.header-actions{gap:5px}.header-actions .btn,.header-actions .pill{font-size:.78rem;padding:7px 8px}.container{padding:12px}.homehero{padding:15px;border-radius:16px}.homehero h1{font-size:1.8rem}.homehero p{font-size:.9rem}.searchrow{margin:10px 0;gap:7px}.chip{padding:7px 10px}.section-title{margin:15px 0 8px}}
 </style>
 </head>
 <body>
@@ -492,8 +493,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.84';
-const APP_VERSION_CODE=84;
+const APP_BUILD='0.7.85';
+const APP_VERSION_CODE=85;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -719,7 +720,9 @@ function personalizeMarkets(rows){
   const all=Array.isArray(rows)?[...rows]:[];
   // Category browsing must be as carefully curated as the homepage. Only an
   // explicit search may surface older routine publications for reference.
-  const list=state.search?all:all.filter(m=>!marketQuestionReviewReason(m?.title));
+  const curated=state.search?all:all.filter(m=>!marketQuestionReviewReason(m?.title));
+  // Fallback is limited to already-verified, non-benchmark markets.
+  const list=curated.length||state.category||state.search?curated:all.filter(m=>m.data_status==='verified'&&!m.external_benchmark);
   if(!state.user||state.category||state.search||!state.behaviorPrefs?.length)return list;
   const scores=new Map(state.behaviorPrefs.map(x=>[String(x.category||'').toLowerCase(),Number(x.score||0)]));
   return list.map((m,i)=>({
@@ -808,7 +811,7 @@ function showHowItWorks(firstUse=false){
         '<div class="item"><b>3 · Practice first</b><br><small>The public beta uses Practice UGX: simulated amounts displayed in Ugandan shillings. These are not real money and cannot be converted, deposited or withdrawn.</small></div>'+
         '<div class="item"><b>4 · Settlement is rule-based</b><br><small>Every market has a published resolution rule and source. Predict UG does not settle a market just because AI or users think an outcome happened.</small></div>'+
       '</div>'+
-      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.84 · bundled frontend</p></div>'+
+      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.85 · bundled frontend</p></div>'+
       '<div class="auth-wrap" style="margin-top:12px"><button class="btn primary" id="howStart">Try a starter market</button><button class="btn ghost" id="howDone">Browse all markets</button><button class="btn ghost" id="howFeedback">Something is confusing</button></div>'+
     '</div></div>';
   $('#howClose').onclick=()=>{markFirstUseGuideSeen(guideKey);$('#overlay').innerHTML='';trackBehavior('first_use_guide_dismissed',{metadata:{first_use:firstUse}})};
@@ -891,6 +894,35 @@ function rpcReadRetryable(error){
     ||['PGRST000','PGRST001','PGRST002','PGRST003'].includes(code)
     ||/timeout|timed out|network|failed to fetch|fetch failed|aborted|connection/.test(msg);
 }
+// BEGIN prediction recovery
+// One unresolved immutable placement per account. Storage must work before mutation.
+const predictionRecovery={
+  exclusive(userId,action){
+    if(!globalThis.navigator?.locks?.request)throw new Error('Safe prediction recovery requires browser lock support. No prediction was sent.');
+    return navigator.locks.request(this.key(userId),{mode:'exclusive'},action);
+  },
+  key:userId=>'predict-ug:unresolved-prediction:v1:'+userId,
+  read(userId){
+    const raw=localStorage.getItem(this.key(userId));
+    if(raw===null)return null;
+    const value=JSON.parse(raw);
+    if(value.version!==1||value.snapshot?.userId!==userId||!value.snapshot?.idempotencyKey||!value.quote)throw new Error('Saved prediction needs recovery. Do not place a new prediction.');
+    return value;
+  },
+  save(snapshot,quote){
+    const value={version:1,snapshot,quote},raw=JSON.stringify(value),key=this.key(snapshot.userId);
+    const old=this.read(snapshot.userId);
+    if(old&&JSON.stringify(old)!==raw)throw new Error('Resolve your previous prediction before starting another.');
+    localStorage.setItem(key,raw);
+    if(localStorage.getItem(key)!==raw)throw new Error('Could not safely save prediction recovery. No prediction was sent.');
+  },
+  clear(snapshot){
+    const old=this.read(snapshot.userId);
+    if(old?.snapshot.idempotencyKey===snapshot.idempotencyKey)localStorage.removeItem(this.key(snapshot.userId));
+  }
+};
+// END prediction recovery
+
 async function rpc(name,args={}){
   const mutating=rpcNeedsNetworkMutationGuard(name);
   if(!state.online&&mutating){
@@ -1318,13 +1350,60 @@ async function loadUniversityDirectory(){
 }
 
 async function loadPublicBootstrap(){
-  const key='bootstrap:'+(state.category||'all')+':'+(state.search||'');
+  const category=state.category||'',search=state.search||'';
+  const request=(state.bootstrapRequest||0)+1;state.bootstrapRequest=request;
+  const feedRequest=state.feedRequest||0;
+  const current=()=>state.bootstrapRequest===request&&
+    (state.feedRequest||0)===feedRequest&&
+    (state.category||'')===category&&(state.search||'')===search;
+  const key='bootstrap:'+(category||'all')+':'+search;
   try{
     const b=await rpc('web_bootstrap',{
-      p_category:state.category||null,
-      p_search:state.search||null,
+      p_category:category||null,
+      p_search:search||null,
       p_limit:80
     });
+    cacheWrite(key,b);
+    if(!current())return;
+    state.status=b?.status||{};
+    state.categories=b?.categories||[];
+    state.markets=personalizeMarkets(b?.markets||[]);
+    if(!state.markets.length){
+      try{
+        const fallback=await rpc('uganda_sportsbook_market_feed',{p_category:category||null,p_search:search||null,p_limit:80,p_uganda_first:true});
+        if(!current())return;
+        if(Array.isArray(fallback)&&fallback.length)state.markets=personalizeMarkets(fallback);
+      }catch(feedError){
+        if(!current())return;
+        state.status={...(state.status||{}),market_feed_error:String(feedError?.message||'Feed unavailable')};
+      }
+    }
+    state.ugandaTrends=b?.uganda_trends||[];
+    state.ugandaDemand=b?.uganda_demand||[];
+    state.ugandaSocialRadar=b?.uganda_social_radar||[];
+    state.ugandaConsumption=b?.uganda_consumption||[];
+    state.recentResults=b?.recent_results||[];
+    void Promise.allSettled([loadEventHub(),loadUniversityDirectory()]).then(()=>{if(current()&&state.tab==='markets')render()});
+    if(!current())return;
+  }catch(e){
+    if(!current())return;
+    // A slow rich bootstrap must not hide independently available, verified markets.
+    try{
+      const rows=await rpc('uganda_sportsbook_market_feed',{p_category:category||null,p_search:search||null,p_limit:80,p_uganda_first:true});
+      if(!current())return;
+      if(Array.isArray(rows)&&rows.length){
+        state.markets=personalizeMarkets(rows);
+        cacheWrite('feed:'+(category||'all')+':'+search,rows);
+        state.status={...(state.status||{}),market_feed_fallback:true};
+        return;
+      }
+    }catch(feedError){
+      if(!current())return;
+      state.status={...(state.status||{}),market_feed_error:String(feedError?.message||'Feed unavailable')};
+    }
+    const cached=cacheRead(key);
+    if(!cached)throw e;
+    const b=cached.value||{};
     state.status=b?.status||{};
     state.categories=b?.categories||[];
     state.markets=personalizeMarkets(b?.markets||[]);
@@ -1333,21 +1412,8 @@ async function loadPublicBootstrap(){
     state.ugandaSocialRadar=b?.uganda_social_radar||[];
     state.ugandaConsumption=b?.uganda_consumption||[];
     state.recentResults=b?.recent_results||[];
-    await Promise.all([loadEventHub(),loadUniversityDirectory()]);
-    cacheWrite(key,b);
-  }catch(e){
-    const cached=cacheRead(key);
-    if(!cached)throw e;
-    const b=cached.value||{};
-    state.status=b?.status||{};
-    state.categories=b?.categories||[];
-    state.markets=b?.markets||[];
-    state.ugandaTrends=b?.uganda_trends||[];
-    state.ugandaDemand=b?.uganda_demand||[];
-    state.ugandaSocialRadar=b?.uganda_social_radar||[];
-    state.ugandaConsumption=b?.uganda_consumption||[];
-    state.recentResults=b?.recent_results||[];
-    await Promise.all([loadEventHub(),loadUniversityDirectory()]);
+    void Promise.allSettled([loadEventHub(),loadUniversityDirectory()]).then(()=>{if(current()&&state.tab==='markets')render()});
+    if(!current())return;
     state.status={...(state.status||{}),offline_cache:true,offline_saved_at:cached.saved_at};
   }
 }
@@ -1386,7 +1452,7 @@ async function loadMarkets(){
     cacheWrite(key,rows);
     if(!current())return;
     state.markets=personalizeMarkets(rows);
-    await Promise.all([loadEventHub(),loadUniversityDirectory()]);
+    void Promise.allSettled([loadEventHub(),loadUniversityDirectory()]).then(()=>{if(current()&&state.tab==='markets')render()});
     if(!current())return;
     if(state.status?.offline_cache){
       const next={...(state.status||{})};
@@ -1461,7 +1527,7 @@ function statusHtml(){
   return '<div class="statusbar">'+
     '<span class="statuschip '+(offline?'warn':'ok')+'">'+(offline?'Saved questions · reconnect for odds':'Feed connected · review live odds')+'</span>'+
     '<span class="statuschip '+(mode==='cash'?'ok':'warn')+'">'+(mode==='cash'?'Cash trading enabled':'Cash rails pending approval')+'</span>'+
-    '<span class="statuschip">'+(state.markets?.length||0)+' open markets</span>'+
+    '<span class="statuschip">'+(state.markets?.length||0)+' listed market questions</span>'+
     '</div>';
 }
 function marketCard(m,openSource='market_card'){
@@ -1920,16 +1986,18 @@ function drawMarket(){
     '<button class="btn small danger" id="adminVoidBtn">Void</button>'+
   '</div><small>Proposal: '+esc(proposal.status||'none')+' · Evidence '+Number(proposal.evidence_count||0)+' · Open challenges '+proposalOpenChallenges+(proposalChallengeOpen?' · Window closes '+dt(proposal.challenge_until):'')+'</small></div>':'<div class="item" style="margin-top:10px"><b>Admin lifecycle</b><br><small>Offline read-only mode · reconnect to change market state.</small></div>'):'';
   const detailMode=(d.trading_mode||'forecast_credit')==='cash'?'Cash market':'Practice UGX';
+  // Both executable outcomes must be source-backed and open before displaying prices.
+  const detailOddsAvailable=!offlineDetail && yes?.book_open===true && no?.book_open===true;
   $('#overlay').innerHTML='<div class="modal"><div class="sheet full"><button class="btn small ghost" id="shareMarket" style="float:right;margin-right:8px">Share</button><button class="close" id="closeMarket">✕</button>'+
     '<section class="detail-head">'+
       hierarchyBreadcrumb+
       '<div class="detail-head-top"><div class="eyebrow"><span>'+esc(m.category)+'</span></div><span class="market-status-pill">'+esc(m.status||'open')+'</span></div>'+
       '<h2 class="detail-title">'+esc(m.title)+'</h2>'+
       '<div class="detail-sub">Trading closes '+dt(m.close_time)+(catalogEvent.determination_at?' · Expected determination '+dt(catalogEvent.determination_at):'')+liveLabel+(offlineDetail?' · Offline read-only'+(d.__offline_saved_at?' · synced '+cachedAgeLabel({saved_at:d.__offline_saved_at}):''):'')+'</div>'+
-      '<div class="detail-facts"><span class="detail-fact"><strong>'+(yes?pct(yes.display_probability):'—')+'</strong> YES chance</span><span class="detail-fact">'+esc(detailMode)+'</span><span class="detail-fact">Resolution source: <strong>'+esc(m.source_name||'attached rule')+'</strong></span></div>'+lifecycleStripHtml(m,d)+
+      '<div class="detail-facts"><span class="detail-fact"><strong>'+(detailOddsAvailable&&yes?pct(yes.display_probability):'—')+'</strong> YES chance</span><span class="detail-fact">'+esc(detailMode)+'</span><span class="detail-fact">Resolution source: <strong>'+esc(m.source_name||'attached rule')+'</strong></span></div>'+lifecycleStripHtml(m,d)+
     '</section>'+
     '<div class="detail-grid"><div>'+
-      '<div class="card detail-card probability-card"><div class="section-title"><h2>Market probability</h2><span class="statuschip">'+(yes?pct(yes.display_probability):'—')+' YES</span></div>'+historySvg(d)+'</div>'+
+      '<div class="card detail-card probability-card"><div class="section-title"><h2>Market probability</h2><span class="statuschip">'+(detailOddsAvailable&&yes?pct(yes.display_probability):'—')+' YES</span></div>'+historySvg(d)+'</div>'+
       rulesSummaryHtml(m,d)+
       '<div class="card detail-card resolution-card" style="margin-top:12px"><h3>Verification source</h3><p>'+esc(m.source_name||'Source not attached')+'</p><div class="meta"><span>Outcome evidence</span>'+(m.source_url?'<a href="'+esc(m.source_url)+'" target="_blank" rel="noopener">Open source ↗</a>':'')+'</div></div>'+
       ((d.resolution?.clarifications||[]).length?'<div class="section-title"><h2>Clarifications</h2></div><div class="timeline">'+d.resolution.clarifications.map(c=>'<div class="item">'+esc(c.clarification_text)+'<br><small>'+dt(c.created_at)+'</small></div>').join('')+'</div>':'')+
@@ -1937,15 +2005,15 @@ function drawMarket(){
       intelligencePanel+
       '<div class="section-title"><h2>Recent activity</h2></div><div class="timeline">'+((d.activity||[]).length?d.activity.slice(0,15).map(a=>'<div class="item"><b>'+esc(a.outcome_label)+'</b> · '+ugx(a.stake_ugx)+'<br><small>'+dt(a.created_at)+'</small></div>').join(''):'<div class="empty">No activity yet.</div>')+'</div>'+
     '</div><aside><div class="card tradebox"><h3>Make a prediction</h3><p class="trade-lead">Pick a side first. Your exact odds, maximum loss and possible return appear before confirmation.</p><div class="outcome-btns">'+
-      '<button class="outcome-btn y" data-outcome="'+(yes?.id||'')+'" data-label="YES"><span class="outcome-label">YES</span><span class="outcome-chance">'+(yes?pct(yes.display_probability):'—')+' chance</span><span class="outcome-odds">'+(yes?oddsText(yes.offered_odds,yes.display_probability):'—')+'</span></button>'+
-      '<button class="outcome-btn n" data-outcome="'+(no?.id||'')+'" data-label="NO"><span class="outcome-label">NO</span><span class="outcome-chance">'+(no?pct(no.display_probability):'—')+' chance</span><span class="outcome-odds">'+(no?oddsText(no.offered_odds,no.display_probability):'—')+'</span></button>'+
-      '</div><p class="auth-note" id="marketOddsContext">These are indicative odds, not a locked price. Choose YES or NO and an amount to get your live odds and possible return before confirmation.</p><div class="trade-divider"></div>'+
+      '<button class="outcome-btn y" data-outcome="'+(yes?.id||'')+'" data-label="YES"'+(detailOddsAvailable?'':' disabled aria-disabled="true"')+'><span class="outcome-label">YES</span><span class="outcome-chance">'+(detailOddsAvailable&&yes?pct(yes.display_probability):'—')+' chance</span><span class="outcome-odds">'+(detailOddsAvailable&&yes?oddsText(yes.offered_odds,yes.display_probability):'—')+'</span></button>'+
+      '<button class="outcome-btn n" data-outcome="'+(no?.id||'')+'" data-label="NO"'+(detailOddsAvailable?'':' disabled aria-disabled="true"')+'><span class="outcome-label">NO</span><span class="outcome-chance">'+(detailOddsAvailable&&no?pct(no.display_probability):'—')+' chance</span><span class="outcome-odds">'+(detailOddsAvailable&&no?oddsText(no.offered_odds,no.display_probability):'—')+'</span></button>'+
+      '</div><p class="auth-note" id="marketOddsContext" role="status">'+(detailOddsAvailable?'These are indicative odds, not a locked price. Choose YES or NO and an amount to get your live odds and possible return before confirmation.':'Predictions paused: no executable odds are available until independently supported pricing and market-health checks pass. This question remains for information only.')+'</p><div class="trade-divider"></div>'+
       '<label class="auth-note">Amount</label><input class="input" id="stakeInput" type="number" min="100" step="100" value="5000"><div class="quick-stakes"><button class="quick-stake" data-stake="1000">1K</button><button class="quick-stake" data-stake="5000">5K</button><button class="quick-stake" data-stake="10000">10K</button></div><div id="quoteBox" class="quote"><div class="quote-row"><span>Risk & return</span><b>Choose YES or NO</b></div><div class="auth-note">We will show what you risk and what you can receive before you confirm.</div></div>'+
       '<button class="btn primary" style="width:100%" id="placeBtn" disabled>Review prediction</button>'+
       '<button class="btn ghost" style="width:100%;margin-top:8px" id="watchBtn">'+(d.__watched?'★ Watching':'☆ Save this market')+'</button>'+
 
       (isClosed(m)?'<button class="btn ghost" style="width:100%;margin-top:8px" id="settleRequestBtn">Request settlement</button>':'')+
-      '<p class="auth-note">'+(state.status?.real_money_enabled?'Cash mode follows your eligibility.':'Cash deposits and withdrawals remain unavailable until approval. Practice-credit predictions are active.')+'</p>'+
+      '<p class="auth-note">'+(state.status?.real_money_enabled?'Cash mode follows your eligibility.':'Cash deposits and withdrawals remain unavailable until approval. Practice predictions require verified live odds.')+'</p>'+
       ((d.my_positions||[]).length?'<div class="item"><b>Your position</b><br>'+d.my_positions.map(p=>esc(p.outcome_label)+' · '+(d.trading_mode==='cash'?ugx(p.total_stake_ugx):practiceUgx(p.total_stake_ugx))+' · '+esc(p.position_status)).join('<br>')+'</div>':'')+
       adminPanel+
     '</div></aside></div></div></div>';
@@ -1974,16 +2042,24 @@ function drawMarket(){
     const odds=Number(q.decimal_odds),acceptedOdds=Number(q.accepted_odds_if_placed_now);
     const stake=Number(q.stake_ugx),payout=Number(q.estimated_payout_ugx);
     const winning=Number(q.if_correct_return_ugx),loss=Number(q.if_wrong_loss_ugx);
-    const maxStake=Number(q.max_accepted_stake_ugx);
+    const net=Number(q.if_correct_net_profit_ugx),maxStake=Number(q.max_accepted_stake_ugx);
+    // PostgreSQL fixed odds use a 4-decimal price and floor(stake * odds).
+    // Use integer arithmetic so browser floating-point rounding cannot change UGX returns.
+    if(!Number.isSafeInteger(stake)||stake<=0||!Number.isFinite(odds)||odds<=1)return false;
+    const oddsUnits=Math.round(odds*10000);
+    if(!Number.isSafeInteger(oddsUnits)||Math.abs(odds*10000-oddsUnits)>0.000001)return false;
+    const expectedPayout=Number((BigInt(stake)*BigInt(oddsUnits))/10000n);
     return q.pricing_model==='fixed_odds_bookmaker_dynamic'&&
       q.market_id===snapshot.marketId&&q.outcome_id===snapshot.outcome.id&&
-      q.mode===snapshot.balanceMode&&
-      Number.isSafeInteger(stake)&&stake>0&&stake===snapshot.stake&&
-      Number.isFinite(odds)&&odds>1&&odds===acceptedOdds&&
-      Number.isSafeInteger(payout)&&payout>=stake&&winning===payout&&
-      loss===stake&&Number.isSafeInteger(maxStake)&&maxStake>=0;
+      q.mode===snapshot.balanceMode&&stake===snapshot.stake&&
+      odds===acceptedOdds&&
+      Number.isSafeInteger(payout)&&Number.isSafeInteger(expectedPayout)&&payout===expectedPayout&&winning===payout&&
+      Number.isSafeInteger(net)&&net===payout-stake&&loss===stake&&
+      Number(q.if_wrong_return_ugx)===0&&Number(q.estimated_platform_fee_ugx)===0&&
+      q.price_is_fixed_if_accepted===true&&q.payout_is_estimate===false&&
+      Number.isSafeInteger(maxStake)&&maxStake>=0;
   };
-  const renderQuote=(q,snapshot)=>{
+    const renderQuote=(q,snapshot)=>{
     if(!quoteContractCoherent(q,snapshot)){
       latestQuote=null;
       $('#quoteBox').innerHTML='<span class="auth-note">Quote details could not be verified. Refresh before continuing.</span>';
@@ -2000,18 +2076,25 @@ function drawMarket(){
     const offered=Number(q.offered_probability_pct||0);
     const maxStake=Number(q.max_accepted_stake_ugx||0);
     const bookOpen=q.book_open===true;
+    if(!bookOpen){
+      latestQuote=null;
+      $('#quoteBox').innerHTML='<div class="auth-note" role="status">'+esc(q.book_unavailable_reason||'No verified executable quote is available for this market.')+'</div>';
+      $('#placeBtn').disabled=true;
+      $('#placeBtn').textContent='Predictions paused';
+      return;
+    }
     const acceptable=q.bet_acceptable===true;
     const source=String(q.fair_probability_source||'live market signal').replaceAll('_',' ');
     const returnText=quoteValue(q,q.if_correct_return_ugx??q.estimated_payout_ugx);
     const lossText=quoteValue(q,q.if_wrong_loss_ugx??q.stake_ugx);
     const profitText=(net>=0?'+':'')+quoteValue(q,net);
     $('#quoteBox').innerHTML=
-      '<div class=\"quote-row\"><span>You chose</span><b>'+esc(chosen.label)+' @ '+odds.toFixed(2)+'</b></div>'+
+      '<div class=\"quote-row\"><span>You chose</span><b>'+esc(chosen.label)+' @ '+odds.toFixed(4)+'</b></div>'+
       '<div class=\"quote-row\"><span>You pay</span><b>'+esc(quoteValue(q,q.stake_ugx||Number($('#stakeInput')?.value||0)))+'</b></div>'+
       '<div class=\"risk-grid\"><div class=\"risk-card win\"><small>If you are right</small><div class=\"risk-number\">'+esc(returnText)+'</div><div class=\"auth-note\">fixed potential return</div></div>'+
       '<div class=\"risk-card loss\"><small>If you are wrong</small><div class=\"risk-number\">− '+esc(lossText)+'</div><div class=\"auth-note\">full stake lost · return 0</div></div></div>'+
       '<div class=\"quote-row\"><span>Potential profit</span><b>'+esc(profitText)+'</b></div>'+
-      '<div class=\"quote-row\"><span>Your odds</span><b>'+odds.toFixed(2)+'</b></div>'+
+      '<div class=\"quote-row\"><span>Your odds</span><b>'+odds.toFixed(4)+'</b></div>'+
       (maxStake>0?'<div class=\"quote-row\"><span>Maximum accepted now</span><b>'+esc(quoteValue(q,maxStake))+'</b></div>':'')+
       (!bookOpen?'<div class=\"auth-note\" style=\"margin-top:8px;color:var(--amber)\">This market is temporarily unavailable for new predictions.</div>':'')+
       (bookOpen&&!acceptable?'<div class=\"auth-note\" style=\"margin-top:8px;color:var(--amber)\">Your amount is above the current risk limit. Reduce the stake to '+esc(quoteValue(q,maxStake))+'.</div>':'')+
@@ -2045,6 +2128,7 @@ function drawMarket(){
     }
   };
   const submitPrediction=async(q,snapshot)=>{
+    try{return await predictionRecovery.exclusive(snapshot.userId,async()=>{
     // Submit only the reviewed intent, never a mutable selection behind the modal.
     if(!snapshot.userId||!quoteSnapshotCurrent(snapshot)){
       $('#tradeReviewOverlay')?.remove();
@@ -2053,15 +2137,33 @@ function drawMarket(){
     }
     const stake=snapshot.stake;
     const confirmBtn=$('#reviewPlaceConfirm');
+    let serverAccepted=false;
     try{
       if(confirmBtn){confirmBtn.disabled=true;confirmBtn.textContent='Placing…'}
       // One key belongs to one immutable review, including manual network retries.
+      predictionRecovery.save({...snapshot,revision:0},q);
       const key=snapshot.idempotencyKey;
-      await rpc('place_reviewed_prediction',{p_market_id:snapshot.marketId,p_outcome_id:snapshot.outcome.id,p_stake_ugx:stake,p_idempotency_key:key,p_expected_mode:q.mode,p_expected_decimal_odds:q.decimal_odds,p_expected_payout_ugx:q.estimated_payout_ugx??q.if_correct_return_ugx});
+      const receipt=await rpc('place_reviewed_prediction',{p_market_id:snapshot.marketId,p_outcome_id:snapshot.outcome.id,p_stake_ugx:stake,p_idempotency_key:key,p_expected_mode:q.mode,p_expected_decimal_odds:q.decimal_odds,p_expected_payout_ugx:q.estimated_payout_ugx??q.if_correct_return_ugx});
+      // Only a receipt matching the immutable review can confirm a ticket. Null,
+      // partial or contradictory responses are uncertain, not a trade success.
+      const receiptMode=receipt?.money_mode==='forecast_credits'?'forecast_credit':receipt?.money_mode;
+      const payout=Number(receiptMode==='forecast_credit'?receipt?.potential_return_credits:receipt?.potential_return_ugx);
+      const reviewedPayout=Number(q.estimated_payout_ugx??q.if_correct_return_ugx);
+      if(!receipt?.position_id||receipt.market_id!==snapshot.marketId||
+         receipt.outcome_id!==snapshot.outcome.id||Number(receipt.stake_ugx)!==stake||
+         receiptMode!==q.mode||Number(receipt.accepted_odds_decimal)!==Number(q.decimal_odds)||
+         !Number.isSafeInteger(payout)||payout!==reviewedPayout){
+        const uncertainReceipt=new Error('Server receipt could not be verified');
+        uncertainReceipt.code='PUG_CONFIRMATION_UNCERTAIN';
+        throw uncertainReceipt;
+      }
+      serverAccepted=true;
+      predictionRecovery.clear(snapshot);
       trackBehavior('prediction_submitted',{category:m.category||m.category_key,marketId:m.id,metadata:{side:snapshot.outcome.label,mode:q?.mode||'forecast_credit'}});
       if(!quoteSnapshotCurrent(snapshot))return;
       loadBehaviorPrefs().then(()=>{state.markets=personalizeMarkets(state.markets)}).catch(()=>{});
       const review=$('#tradeReviewOverlay');if(review)review.remove();
+      toast('Prediction accepted. Updating your history…');
       await Promise.all([loadBalance(),loadBetaMission()]);
       if(!quoteSnapshotCurrent(snapshot))return;
       const missionTrades=Number(state.betaMission?.trades||0);
@@ -2073,10 +2175,40 @@ function drawMarket(){
       drawMarket();
       await loadMarkets();
     }catch(e){
-      if(!quoteSnapshotCurrent(snapshot))return;
+      // The server's acceptance is final even if a later balance/history refresh fails.
+      // Do not tell the customer that a confirmed prediction failed.
+      if(!quoteSnapshotCurrent(snapshot)&&state.online)return;
       const msg=String(e?.message||'');
-      if(String(e?.code||'')==='PUG01'||/reviewed.*(?:quote|odds|mode).*changed|prediction mode.*changed/i.test(msg)){
+      if(serverAccepted){
         $('#tradeReviewOverlay')?.remove();
+        toast('Prediction accepted. Balance refresh delayed; check your ticket history.',true);
+        return;
+      }
+      const uncertain=(e?.code==='PUG_CONFIRMATION_UNCERTAIN'||
+        /failed to fetch|network|connection|timeout|aborted/i.test(msg)||
+        e?.name==='AbortError'||e?.name==='TimeoutError');
+      if(uncertain){
+        const warning=$('#reviewConnectionWarning')||(typeof document.createElement==='function'?document.createElement('p'):null);
+        if(warning&&!warning.id){
+          warning.id='reviewConnectionWarning';
+          warning.className='auth-note';
+          warning.style.color='var(--amber)';
+          $('#tradeReviewOverlay .sheet')?.appendChild(warning);
+        }
+        if(warning)warning.textContent='Confirmation incomplete. Your prediction MAY have been accepted. Check ticket history, or retry this SAME reviewed prediction; do not start a new prediction until its status is clear.';
+        toast('Prediction status uncertain. Check history or retry the same review.',true);
+        if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent='Retry same reviewed prediction'}
+        if($('#placeBtn'))$('#placeBtn').disabled=true;
+        return;
+      }
+      if(e?.code==='P0001'&&/^(market is not open|market has closed)$/i.test(msg.trim())){
+        predictionRecovery.clear(snapshot);
+        $('#tradeReviewOverlay')?.remove();invalidateQuote();
+        toast('The server rejected this prediction because the market is closed. No ticket was placed.',true);return;
+      }
+      if(String(e?.code||'')==='PUG01'){
+        $('#tradeReviewOverlay')?.remove();
+        predictionRecovery.clear(snapshot);
         invalidateQuote();
         toast('Odds or payment mode changed. Check the refreshed quote and review again before placing.',true);
         await updateQuote();
@@ -2094,19 +2226,27 @@ function drawMarket(){
       if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent=q?.mode==='cash'?'Place cash prediction':'Place practice prediction'}
       if($('#placeBtn'))$('#placeBtn').disabled=false;
     }
+    })}catch(e){toast(e.message||'Could not safely recover prediction. No new prediction sent.',true)}
   };
   const reviewPrediction=async()=>{
     if(!state.online){toast('Offline: reconnect before placing a prediction.',true);return}
     if(!state.user){showAuth();return}
+    let recovery;
+    try{recovery=predictionRecovery.read(state.user.id)}catch(e){toast(e.message||'Prediction recovery storage unavailable. No prediction sent.',true);return}
+    if(recovery){
+      if(recovery.snapshot.marketId!==m.id){await openMarket(recovery.snapshot.marketId);toast('Recover your unresolved prediction here. Choose a side, then review to retry the original saved prediction.',true);return}
+      if(recovery.snapshot.balanceMode!==state.balanceMode){toast('Return to the original balance mode to recover your prediction.',true);return}
+      chosen={...recovery.snapshot.outcome};stakeElement.value=String(recovery.snapshot.stake);
+    }
     if(!chosen)return;
     const snapshot=quoteSnapshot();
     const stake=snapshot.stake;
     if(!Number.isFinite(stake)||stake<=0){invalidateQuote();return}
     try{
       $('#placeBtn').disabled=true;$('#placeBtn').textContent='Refreshing odds…';
-      const q=await rpc('quote_prediction',{p_market_id:snapshot.marketId,p_outcome_id:snapshot.outcome.id,p_stake_ugx:stake});
+      const q=recovery?recovery.quote:await rpc('quote_prediction',{p_market_id:snapshot.marketId,p_outcome_id:snapshot.outcome.id,p_stake_ugx:stake});
       if(!quoteSnapshotCurrent(snapshot))return;
-      renderQuote(q,snapshot);
+      if(!recovery)renderQuote(q,snapshot);
       $('#placeBtn').textContent='Review risk & payout';
       if(!quoteContractCoherent(q,snapshot)){
         toast('The quote did not match your market, outcome, stake or accepted odds. Refresh and review again.',true);
@@ -2114,7 +2254,7 @@ function drawMarket(){
       }
       if(q.book_open!==true||q.bet_acceptable!==true){
         const max=Number(q.max_accepted_stake_ugx||0);
-        toast(q.book_open===false?'Market temporarily unavailable':('Maximum accepted stake is '+quoteValue(q,max)),true);
+        toast(q.book_open===false?String(q.book_unavailable_reason||'Market temporarily unavailable'):('Maximum accepted stake is '+quoteValue(q,max)),true);
         return;
       }
       trackBehavior('explain_odds_opened',{category:m.category||m.category_key,marketId:m.id,metadata:{surface:'final_prediction_review'}});
@@ -2127,13 +2267,14 @@ function drawMarket(){
       const cash=q.mode==='cash';
       const amount=x=>quoteValue(q,x);
       const slipLabel=cash?'Final cash prediction':'Practice prediction review';
-      const confirmLabel=cash?'Place cash prediction':'Place practice prediction';
+      const confirmLabel=recovery?'Retry same reviewed prediction':(cash?'Place cash prediction':'Place practice prediction');
       const practiceNotice=cash?'':'<div class=\"card\" style=\"margin:12px 0;background:var(--k-greenTint);border-color:var(--k-greenPressed)\"><b>Practice UGX · not cash</b><p class=\"auth-note\" style=\"margin:6px 0 0\">This is a simulated stake in UGX denominations. Practice balances and wins cannot be converted or withdrawn.</p></div>';
             // The final review is a market CONTRACT, not merely a price quotation.
-      const resolutionRule=String(m.resolution_rule||'').trim();
-      const resolutionSource=String(m.source_name||'').trim();
-      if(!resolutionRule||!resolutionSource||!m.close_time||
-         !Number.isFinite(Date.parse(m.close_time))){
+      const reviewMarket=recovery?.snapshot.terms||m;
+      const resolutionRule=String(reviewMarket.resolution_rule||'').trim();
+      const resolutionSource=String(reviewMarket.source_name||'').trim();
+      if(!resolutionRule||!resolutionSource||!reviewMarket.close_time||
+         !Number.isFinite(Date.parse(reviewMarket.close_time))){
         toast('Settlement terms are unavailable. This market cannot accept predictions yet.',true);
         return;
       }
@@ -2141,27 +2282,28 @@ document.body.insertAdjacentHTML('beforeend',
         '<div id=\"tradeReviewOverlay\" class=\"modal\" style=\"z-index:90\"><div class=\"sheet\" style=\"max-width:520px\">'+
           '<button class=\"close\" id=\"reviewTradeClose\">✕</button>'+
           '<div class=\"media-label\">'+esc(slipLabel)+'</div><h2>Check your odds and risk</h2>'+practiceNotice+
-          '<div class=\"review-hero\"><span class=\"review-side '+(snapshot.outcome.label==='NO'?'no':'')+'\">'+esc(snapshot.outcome.label)+' @ '+odds.toFixed(2)+'</span><h3 style=\"margin:10px 0 4px\">'+esc(m.title)+'</h3><div class=\"auth-note\">Stake: '+esc(amount(stake))+'</div></div>'+
+          '<div class=\"review-hero\"><span class=\"review-side '+(snapshot.outcome.label==='NO'?'no':'')+'\">'+esc(snapshot.outcome.label)+' @ '+odds.toFixed(4)+'</span><h3 style=\"margin:10px 0 4px\">'+esc(reviewMarket.title)+'</h3><div class=\"auth-note\">Stake: '+esc(amount(stake))+'</div></div>'+
           '<div class=\"quote\" role=\"group\" aria-label=\"Final market and settlement terms\">'+
             '<div class=\"quote-row\"><span>YES probability</span><b>'+pct(yes?.display_probability)+'</b></div>'+
             '<div class=\"quote-row\"><span>NO probability</span><b>'+pct(no?.display_probability)+'</b></div>'+
-            '<div class=\"quote-row\"><span>Trading closes</span><b>'+dt(m.close_time)+'</b></div>'+
+            '<div class=\"quote-row\"><span>Trading closes</span><b>'+dt(reviewMarket.close_time)+'</b></div>'+
             '<div class=\"quote-row\"><span>Resolution source</span><b>'+esc(resolutionSource)+'</b></div>'+
             '<details open style=\"margin-top:8px\"><summary class=\"auth-note\">Settlement rule · read before confirming</summary><p class=\"auth-note\" style=\"margin:8px 0 0;white-space:pre-wrap\">'+esc(resolutionRule)+'</p></details>'+
           '</div>'+
           '<div class=\"risk-grid\"><div class=\"risk-card win\"><small>If correct</small><div class=\"risk-number\">'+esc(amount(q.if_correct_return_ugx??q.estimated_payout_ugx))+'</div><div class=\"auth-note\">return · profit '+esc((net>=0?'+':'')+amount(net))+'</div></div>'+
           '<div class=\"risk-card loss\"><small>If wrong</small><div class=\"risk-number\">− '+esc(amount(q.if_wrong_loss_ugx??stake))+'</div><div class=\"auth-note\">return 0</div></div></div>'+
-          '<div class=\"quote\"><div class=\"quote-row\"><span>Accepted odds</span><b>'+odds.toFixed(2)+'</b></div><div class=\"quote-row\"><span>Predict UG margin</span><b>'+marginText+'</b></div><div class=\"quote-row\"><span>Extra settlement fee</span><b>None</b></div><div class=\"quote-row\"><span>Price type</span><b>Fixed once accepted</b></div></div>'+
+          '<div class=\"quote\"><div class=\"quote-row\"><span>Accepted odds</span><b>'+odds.toFixed(4)+'</b></div><div class=\"quote-row\"><span>Predict UG margin</span><b>'+marginText+'</b></div><div class=\"quote-row\"><span>Extra settlement fee</span><b>None</b></div><div class=\"quote-row\"><span>Price type</span><b>Fixed once accepted</b></div></div>'+
           '<p class=\"auth-note\">Your accepted odds are locked on this ticket. Predict UG may move later odds automatically as probabilities and market exposure change, but your existing ticket does not change.</p>'+
           (cash?'<label class=\"auth-note\" style=\"display:flex;gap:8px;align-items:flex-start;margin:12px 0\"><input type=\"checkbox\" id=\"reviewRiskAck\"> <span>I understand I can lose the full '+esc(amount(stake))+' stake if this prediction is wrong.</span></label>':'')+
           '<div class=\"auth-wrap\"><button class=\"btn primary\" id=\"reviewPlaceConfirm\" '+(cash?'disabled':'')+'>'+esc(confirmLabel)+'</button><button class=\"btn ghost\" id=\"reviewTradeCancel\">Go back</button></div>'+
         '</div></div>');
+      if(recovery){const warning=document.createElement?.('p');if(warning){warning.className='auth-note';warning.textContent='Previous confirmation is unresolved. This explicit retry uses the SAME saved outcome, stake, odds and key; it cannot create a second ticket for that key.';$('#tradeReviewOverlay .sheet')?.appendChild(warning)}}
       $('#reviewTradeClose').onclick=()=>$('#tradeReviewOverlay')?.remove();
       $('#reviewTradeCancel').onclick=()=>$('#tradeReviewOverlay')?.remove();
       if(cash&&$('#reviewRiskAck'))$('#reviewRiskAck').onchange=()=>{$('#reviewPlaceConfirm').disabled=!$('#reviewRiskAck').checked};
       // Copy economic primitives so later quote updates cannot alter this review.
       const reviewedQuote=Object.freeze({...q});
-      const reviewedSnapshot=Object.freeze({...snapshot,idempotencyKey:'web-'+crypto.randomUUID()});
+      const reviewedSnapshot=Object.freeze({...snapshot,terms:recovery?.snapshot.terms||{title:m.title,resolution_rule:m.resolution_rule,source_name:m.source_name,close_time:m.close_time},idempotencyKey:recovery?.snapshot.idempotencyKey||'web-'+crypto.randomUUID()});
       $('#reviewPlaceConfirm').onclick=()=>submitPrediction(reviewedQuote,reviewedSnapshot);
     }catch(e){
       if(!quoteSnapshotCurrent(snapshot))return;
@@ -2179,6 +2321,18 @@ document.body.insertAdjacentHTML('beforeend',
   $('#stakeInput').oninput=()=>{invalidateQuote();clearTimeout(quoteTimer);quoteTimer=setTimeout(updateQuote,280)};
   document.querySelectorAll('[data-stake]').forEach(b=>b.onclick=()=>{$('#stakeInput').value=b.dataset.stake;updateQuote()});
   $('#placeBtn').onclick=reviewPrediction;
+  // Recovery remains accessible even when today's market no longer offers quotes.
+  if(state.user){
+    try{
+      if(predictionRecovery.read(state.user.id)){
+        const recoveryButton=document.createElement('button');
+        recoveryButton.className='btn';recoveryButton.id='recoverSavedPrediction';
+        recoveryButton.textContent='Recover unresolved prediction';
+        recoveryButton.onclick=reviewPrediction;
+        $('#placeBtn').insertAdjacentElement('afterend',recoveryButton);
+      }
+    }catch(e){toast('Saved prediction recovery is unavailable. No new prediction can be sent.',true)}
+  }
   $('#watchBtn').onclick=()=>toggleSavedMarket(m.id);
   if($('#settleRequestBtn'))$('#settleRequestBtn').onclick=async()=>{if(!state.online){toast('Offline: reconnect before requesting settlement.',true);return}if(!state.user){showAuth();return}try{await rpc('request_market_settlement',{p_market_id:m.id,p_suggested_outcome_id:null,p_note:'User requested settlement review from market page.'});toast('Settlement request submitted')}catch(e){toast(e.message,true)}};
   if($('#challengeResolutionBtn'))$('#challengeResolutionBtn').onclick=async()=>{
@@ -3552,6 +3706,14 @@ function adminOverdueReviewPanel(){
           '<small>Frozen source: '+esc(m.frozen_source_name||'—')+' · '+esc(m.frozen_source_url||'—')+'</small>'+
           (m.frozen_event_date?'<br><small>Scheduled event: '+esc(m.frozen_event_date)+'</small>':'')+
           '<br><small>Evidence: '+Math.max(0,Math.trunc(Number(m.evidence_count)||0))+' · Proposals: '+Math.max(0,Math.trunc(Number(m.proposal_count)||0))+'</small>'+
+          (m.attached_evidence_id?
+            '<div class="auth-note" data-review-evidence="attached"><b>Attached evidence · reviewer confirmation required</b>'+
+            '<br><small>Record '+esc(m.attached_evidence_id)+' · captured '+dt(m.attached_evidence_captured_at)+'</small>'+
+            '<br><small>Publisher: '+esc(m.attached_evidence_source||'Unspecified')+'</small>'+
+            '<br><small>Source: '+esc(m.attached_evidence_url||'Unavailable')+'</small>'+
+            '<p class="auth-note">'+esc(m.attached_evidence_note||'No reviewer note')+'</p>'+
+            '<small>Evidence is not an approved result or completed settlement.</small></div>':
+            (Number(m.evidence_count)>0?'<p class="auth-note">Attached evidence details unavailable; do not infer a reviewed result.</p>':''))+
           (m.review_observation_id&&Number(m.review_match_count)===1?
             '<br><small>Official-source candidate #'+esc(m.review_observation_id)+
             ' · reported '+esc(m.review_reported_score||'No score extracted')+
@@ -3670,7 +3832,7 @@ function renderAdmin(){
     '</div>'+
     '</details>'+
     '<div class="section-title"><h2>Launch blockers</h2></div><div class="timeline">'+((r.blockers||[]).length?r.blockers.map(x=>'<div class="item">'+esc(x)+'</div>').join(''):'<div class="item">No blockers.</div>')+'</div>'+    '<div class="section-title"><h2>Sportsbook pricing & risk</h2></div>'+
-    '<div class="card"><div class="statgrid"><div class="stat"><small>Model</small><b>Dynamic fixed odds</b></div><div class="stat"><small>Risk health</small><b>'+esc(state.sportsbookRisk?.latest_audit?.health_status||'—')+'</b></div><div class="stat"><small>Near limit</small><b>'+Number(state.sportsbookRisk?.latest_audit?.near_limit_markets||0)+'</b></div><div class="stat"><small>Cash reserve</small><b>'+ugx(state.sportsbookRisk?.cash_book_reserve_ugx||0)+'</b></div></div><p class="auth-note" style="margin-top:10px">All enabled market categories use category margins plus live exposure adjustments. Accepted odds are locked per ticket. Real cash stays fail-closed while the cash reserve/limits or other launch gates are incomplete.</p></div>'+        '<details class="admin-disclosure"><summary>Probability validation & recovery</summary>'+
+    '<div class="card"><div class="statgrid"><div class="stat"><small>Model</small><b>Dynamic fixed odds</b></div><div class="stat"><small>Risk health</small><b>'+esc(state.sportsbookRisk?.latest_audit?.health_status||'—')+'</b></div><div class="stat"><small>Customer tradable books</small><b>'+esc(state.sportsbookRisk?.latest_audit?.details?.two_sided_books??'—')+'</b></div><div class="stat"><small>Paused customer books</small><b>'+esc(state.sportsbookRisk?.latest_audit?.details?.paused_binary_books??'—')+'</b></div><div class="stat"><small>Negative-margin books</small><b>'+esc(state.sportsbookRisk?.latest_audit?.details?.negative_margin_books??'—')+'</b></div><div class="stat"><small>One-sided quotes</small><b>'+esc(state.sportsbookRisk?.latest_audit?.details?.one_sided_books??'—')+'</b></div><div class="stat"><small>Resolved practice tickets</small><b>'+esc(state.sportsbookRisk?.latest_audit?.details?.settled_practice_tickets??'—')+'</b></div><div class="stat"><small>Realized practice book P&amp;L</small><b>'+(state.sportsbookRisk?.latest_audit?.details?.realized_practice_bookmaker_result_ugx==null?'—':practiceUgx(state.sportsbookRisk.latest_audit.details.realized_practice_bookmaker_result_ugx))+'</b></div><div class="stat"><small>Cash reserve</small><b>'+ugx(state.sportsbookRisk?.cash_book_reserve_ugx||0)+'</b></div></div><div class="meta"><span>Price audit updated</span><b>'+dt(state.sportsbookRisk?.latest_audit?.checked_at)+'</b></div>'+(state.sportsbookRisk?.latest_audit?.details?.profit_sample_insufficient?'<p class="auth-note" role="status">Insufficient settled predictions to establish bookmaker profitability. Do not confuse positive overround or research simulations with real earnings.</p>':'')+'<p class="auth-note" style="margin-top:10px">Read-only customer-market pricing and historical practice settlement evidence. Internal shadow books are excluded. Accepted odds are locked per ticket. Cash reserve and external launch gates remain separate.</p></div>'+        '<details class="admin-disclosure"><summary>Probability validation & recovery</summary>'+
     '<div class="section-title"><h2>Probability Lab</h2><span class="statuschip">real-world validation</span></div>'+
     '<div class="card">'+
       '<div class="statgrid">'+
