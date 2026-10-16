@@ -223,7 +223,7 @@ public class MainActivity extends ComponentActivity {
                     webView.evaluateJavascript(
                             "(function(){return window.__predictUgBootReady===true?'ready':String(window.__predictUgBootPhase||'not-ready')})()",
                             value -> {
-                                if (value == null || !value.contains("ready")) {
+                                if (!"\"ready\"".equals(value)) {
                                     NativeCrashReporter.reportNonFatal(
                                             MainActivity.this,
                                             "android-webview",
