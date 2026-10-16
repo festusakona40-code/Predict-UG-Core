@@ -30,3 +30,16 @@ Render-origin sessions/localStorage do not transfer to the bundled asset origin.
 The physical APK84→85 upgrade/session flow is unverified. This candidate has no
 verified APK artifact until the consumer Android workflow completes; existing
 published artifact links above remain evidence for their stated older versions.
+
+## Practice beta86 delivery candidate
+
+Version 0.7.86 / code86 keeps Update on the existing bundled HTTPS asset URL
+when release metadata advertises no newer APK; market query and hash remain.
+A newer verified binary still follows the existing APK update route. Beta85 is
+not the final promoted candidate because its Update action could open older
+Render HTML. Its published artifact remains immutable; this fix needs beta86.
+
+No session migration is performed. Returning Render-origin users may need to
+sign in with their existing account/password. Physical85→86 upgrade/session and
+prediction acceptance remain unverified. Beta86 native CI/artifact verification
+is pending; previous artifact evidence applies only to its original version.
