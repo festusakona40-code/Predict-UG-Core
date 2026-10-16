@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.87. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.88. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#ffffff"/>
@@ -493,8 +493,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.87';
-const APP_VERSION_CODE=87;
+const APP_BUILD='0.7.88';
+const APP_VERSION_CODE=88;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -753,6 +753,8 @@ function maybeShowFirstUseGuide(){
 }
 
 function starterMarketCandidate(){
+  if(state.status?.offline_cache||state.online===false)return null;
+  const quoted=value=>(typeof value==='number'||typeof value==='string')&&String(value).trim()!==''&&Number.isFinite(Number(value))&&Number(value)>1;
   const rows=Array.isArray(state.markets)?state.markets:[];
   const eligible=rows.filter(m=>{
     if(marketQuestionReviewReason(m?.title))return false;
@@ -760,6 +762,7 @@ function starterMarketCandidate(){
     return !!m?.market_id&&!m?.external_benchmark&&
       !isPoliticalCategory(m?.category||m?.category_key)&&
       String(m?.status||'').toLowerCase()==='open'&&
+      quoted(m?.yes_odds)&&quoted(m?.no_odds)&&
       Number.isFinite(close)&&close>Date.now();
   });
   const score=m=>{
@@ -811,7 +814,7 @@ function showHowItWorks(firstUse=false){
         '<div class="item"><b>3 · Practice first</b><br><small>The public beta uses Practice UGX: simulated amounts displayed in Ugandan shillings. These are not real money and cannot be converted, deposited or withdrawn.</small></div>'+
         '<div class="item"><b>4 · Settlement is rule-based</b><br><small>Every market has a published resolution rule and source. Predict UG does not settle a market just because AI or users think an outcome happened.</small></div>'+
       '</div>'+
-      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.87 · bundled frontend</p></div>'+
+      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.88 · bundled frontend</p></div>'+
       '<div class="auth-wrap" style="margin-top:12px"><button class="btn primary" id="howStart">Try a starter market</button><button class="btn ghost" id="howDone">Browse all markets</button><button class="btn ghost" id="howFeedback">Something is confusing</button></div>'+
     '</div></div>';
   $('#howClose').onclick=()=>{markFirstUseGuideSeen(guideKey);$('#overlay').innerHTML='';trackBehavior('first_use_guide_dismissed',{metadata:{first_use:firstUse}})};
@@ -1537,13 +1540,15 @@ function marketCard(m,openSource='market_card'){
   const displayTitle=String(m.title||'').replace(/^\[SHADOW\]\s*/i,'');
   const trust=m.data_status==='verified'?'Verified source':m.data_status==='source_attached'?'Source attached':'Resolution source';
   const savedPreview=!!state.status?.offline_cache||state.online===false;
-  const yesOdds=savedPreview?'—':oddsText(m.yes_odds,y),noOdds=savedPreview?'—':oddsText(m.no_odds,n);
+  const validCardOdds=value=>(typeof value==='number'||typeof value==='string')&&String(value).trim()!==''&&Number.isFinite(Number(value))&&Number(value)>1;
+  const cardOddsAvailable=!savedPreview&&validCardOdds(m.yes_odds)&&validCardOdds(m.no_odds);
+  const yesOdds=cardOddsAvailable?oddsText(m.yes_odds):'—',noOdds=cardOddsAvailable?oddsText(m.no_odds):'—';
   return '<article class="card market-card" data-market="'+m.market_id+'" data-open-source="'+esc(openSource)+'">'+
     '<div class="eyebrow"><span>'+esc(m.category)+' · '+esc(originLabel)+'</span><span>Closes '+dt(m.close_time)+'</span></div>'+
     '<div class="market-main-row"><div class="market-title">'+esc(displayTitle)+'</div><div class="market-price">'+(savedPreview?'—':pct(y))+'<small>'+(savedPreview?'Saved preview':'YES chance')+'</small></div></div>'+
     (savedPreview?'<div class="auth-note">Offline or unavailable feed · reconnect to review current probabilities.</div>':y==null?'<div class="auth-note">Chance unavailable · open market for details</div>':'<div class="bar"><span style="width:'+y+'%"></span></div>')+
-    '<div class="market-actions">'+(savedPreview?'<div class="auth-note" role="status">Saved question only · reconnect to review live YES/NO odds.</div>':'<button type="button" class="market-mini y" data-market="'+m.market_id+'" data-market-side="YES" aria-label="Choose YES"><span>YES</span><b>'+yesOdds+'</b></button><button type="button" class="market-mini n" data-market="'+m.market_id+'" data-market-side="NO" aria-label="Choose NO"><span>NO</span><b>'+noOdds+'</b></button>')+'</div>'+
-    '<p class="auth-note market-odds-note">'+(savedPreview?'No live quote is available from saved data. Reconnect before predicting.':'Displayed odds can change. Confirm your live odds and possible return before predicting.')+'</p>'+ 
+    '<div class="market-actions">'+(!cardOddsAvailable?'<div class="auth-note" role="status">'+(savedPreview?'Saved question only · reconnect to review live YES/NO odds.':'Predictions paused · live YES/NO odds are unavailable. Open the market for details.')+'</div>':'<button type="button" class="market-mini y" data-market="'+m.market_id+'" data-market-side="YES" aria-label="Choose YES"><span>YES</span><b>'+yesOdds+'</b></button><button type="button" class="market-mini n" data-market="'+m.market_id+'" data-market-side="NO" aria-label="Choose NO"><span>NO</span><b>'+noOdds+'</b></button>')+'</div>'+
+    '<p class="auth-note market-odds-note">'+(savedPreview?'No live quote is available from saved data. Reconnect before predicting.':!cardOddsAvailable?'Question and resolution evidence remain available to view.':'Displayed odds can change. Confirm your live odds and possible return before predicting.')+'</p>'+ 
     '<div class="meta"><span class="trust-mark">✓ '+esc(trust)+'</span><span>'+(m.watched?'★ Saved':'View market →')+'</span></div>'+
   '</article>';
 }
@@ -4955,11 +4960,12 @@ async function checkForAppUpdate(interactive=false){
 }
 function usesBundledAndroidInterface(){
   const installed=installedAndroidBuild();
-  // Explicit release policy: keep beta86 and beta87 on the audited APK interface. The
-  // optional legacy remote refresh remains available to older app versions.
+  // Explicit release policy: keep beta86, beta87 and beta88 on the audited APK
+  // interface. The optional remote refresh remains available to older builds.
   return installed?.channel==='customer'&&(
     (installed.version==='0.7.86'&&(installed.versionCode===86||installed.versionCode===null))||
-    (installed.version==='0.7.87'&&(installed.versionCode===87||installed.versionCode===null))
+    (installed.version==='0.7.87'&&(installed.versionCode===87||installed.versionCode===null))||
+    (installed.version==='0.7.88'&&(installed.versionCode===88||installed.versionCode===null))
   );
 }
 async function refreshAppInterface(){
