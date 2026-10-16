@@ -18,28 +18,14 @@ GitHub Actions is the canonical public build path.
 
 This repository is public for transparent consumer builds and CI. No open-source license has been granted yet.
 
-## Practice beta85 delivery candidate
+## Verified practice beta 0.7.86
 
-Version 0.7.85 / code85 starts the audited bundled frontend and local SDK from
-the existing trusted HTTPS asset origin. This explicit consumer-beta exception
-avoids waiting for a remote HTML deployment; backend data and money gates remain
-authoritative. The optional Render route retains the existing exact-origin guard.
+[Download Android practice beta 0.7.86](https://raw.githubusercontent.com/festusakona40-code/Predict-UG-Core/3cd131822afa8cda882be2636c78008ba665ad64/predict-ug.apk).
 
-Returning users may need to sign in with their existing account/password because
-Render-origin sessions/localStorage do not transfer to the bundled asset origin.
-The physical APK84→85 upgrade/session flow is unverified. This candidate has no
-verified APK artifact until the consumer Android workflow completes; existing
-published artifact links above remain evidence for their stated older versions.
+This consumer/code86 release opens the audited bundled frontend and local SDK at the existing trusted HTTPS asset origin. Update keeps that bundled interface when no newer verified APK is advertised. Native bridge/origin trust is unchanged. Real money remains disabled.
 
-## Practice beta86 delivery candidate
+Verified public main build: [38854939827](https://github.com/festusakona40-code/Predict-UG-Core/actions/runs/38854939827). Four native JUnit tests passed, including the launch policy; APK/AAB, no-SMS permission boundary and signer verification passed. Full downloaded APK size 48,076,511 bytes and SHA256 `a3e6b48520beaeec7d7ad7ad04ce93f8dc8bb0e35aa6f75d772a165a4d96d4c5` matched CI metadata; bundled HTML and SDK match the audited source exactly.
 
-Version 0.7.86 / code86 keeps Update on the existing bundled HTTPS asset URL
-when release metadata advertises no newer APK; market query and hash remain.
-A newer verified binary still follows the existing APK update route. Beta85 is
-not the final promoted candidate because its Update action could open older
-Render HTML. Its published artifact remains immutable; this fix needs beta86.
+The existing Android Debug beta signing certificate is retained. This is a controlled practice beta, not a permanent production-signed release. Returning Render-origin users may need to sign in with their existing account/password; sessions are not migrated across origins. Physical install/upgrade, phone OTP and full customer prediction acceptance remain unverified.
 
-No session migration is performed. Returning Render-origin users may need to
-sign in with their existing account/password. Physical85→86 upgrade/session and
-prediction acceptance remain unverified. Beta86 native CI/artifact verification
-is pending; previous artifact evidence applies only to its original version.
+Beta85 is retained unchanged at tag `public-beta-v0.7.85`; its Update action could reopen older Render HTML, so use 86. The Render browser site is a separate delivery surface; APK verification does not certify its current source revision.
