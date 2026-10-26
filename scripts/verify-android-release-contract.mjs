@@ -34,6 +34,18 @@ const required=[
 ];
 if(html.includes("PUBLIC_ORIGIN+'/downloads/latest.json?t='"))fail("Stale Render release metadata fallback remains");
 if(!html.includes("Untrusted Android release identity") || !html.includes("meta.productionMoneyEnabled!==false"))fail("Practice-only release verification missing");
+const certFlag=process.argv.indexOf('--signing-cert');
+if(certFlag>=0){
+  const expected='66a1431469d7a67450a3d28ce7adfcf11295eb274be305add681613bc1ad4d55';
+  try{
+    const proof=fs.readFileSync(process.argv[certFlag+1],'utf8');
+    const certificates=[...proof.matchAll(/^Signer #\d+ certificate SHA-256 digest:\s*([a-f0-9]{64})\s*$/gim)];
+    if(certificates.length!==1||certificates[0][1].toLowerCase()!==expected)
+      fail('APK signing certificate does not match the installed customer release; do not publish an incompatible upgrade');
+  }catch{
+    fail('APK signing certificate proof is missing or unreadable');
+  }
+}
 for(const marker of required){
   if(!html.includes(marker))fail("Missing updater contract marker: "+marker);
 }

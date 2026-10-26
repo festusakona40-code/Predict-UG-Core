@@ -25,7 +25,8 @@
     "scripts/prepare-consumer-assets.mjs",
     "scripts/verify-android-release-contract.mjs",
     "scripts/verify-public-export.mjs",
-    "scripts/verify-public-mirror-boundary.mjs"
+    "scripts/verify-public-mirror-boundary.mjs",
+    "scripts/verify-android-signing-contract.test.mjs"
   ],
   "public_allowed_prefixes": [
     "android/app/src/consumer/",

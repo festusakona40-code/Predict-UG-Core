@@ -7,6 +7,8 @@ on:
       - "package.json"
       - "package-lock.json"
       - "scripts/prepare-consumer-assets.mjs"
+      - "scripts/verify-android-release-contract.mjs"
+      - "scripts/verify-android-signing-contract.test.mjs"
       - "scripts/verify-public-export.mjs"
       - "scripts/verify-public-mirror-boundary.mjs"
       - "PUBLIC_EXPORT_MANIFEST.json"
@@ -20,6 +22,8 @@ on:
       - "package.json"
       - "package-lock.json"
       - "scripts/prepare-consumer-assets.mjs"
+      - "scripts/verify-android-release-contract.mjs"
+      - "scripts/verify-android-signing-contract.test.mjs"
       - "scripts/verify-public-export.mjs"
       - "scripts/verify-public-mirror-boundary.mjs"
       - "PUBLIC_EXPORT_MANIFEST.json"
@@ -61,7 +65,9 @@ jobs:
         run: node scripts/prepare-consumer-assets.mjs
 
       - name: Verify release/update contract
-        run: node scripts/verify-android-release-contract.mjs
+        run: |
+          node --test scripts/verify-android-signing-contract.test.mjs
+          node scripts/verify-android-release-contract.mjs
 
       - name: Verify origin-bound native bridge
         shell: bash
@@ -85,10 +91,22 @@ jobs:
           java-version: "17"
 
       - name: Restore stable public beta debug signing key
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: ~/.android/debug.keystore
           key: predict-ug-public-beta-debug-keystore-v1
+          fail-on-cache-miss: true
+
+      - name: Verify recovered customer signing identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="66a1431469d7a67450a3d28ce7adfcf11295eb274be305add681613bc1ad4d55"
+          actual="$(keytool -exportcert -alias androiddebugkey -keystore "$HOME/.android/debug.keystore" -storepass android | sha256sum | awk '{print $1}')"
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::Original customer signing key is unavailable. Restore it from a durable private backup; do not generate a replacement upgrade key."
+            exit 1
+          fi
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd
@@ -160,6 +178,7 @@ jobs:
             APKSIGNER="$ANDROID_HOME/build-tools/36.0.0/apksigner"
           fi
           "$APKSIGNER" verify --print-certs "$APK" > android/SIGNING_CERT.txt
+          node scripts/verify-android-release-contract.mjs --signing-cert android/SIGNING_CERT.txt
           cat android/SHA256SUMS.txt
           cat android/SIGNING_CERT.txt
 
