@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Bundled inside Predict UG Android v0.7.92. Supabase is backend only. -->
+  <!-- Bundled inside Predict UG Android v0.7.93. Supabase is backend only. -->
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#ffffff"/>
@@ -428,6 +428,33 @@ html,body,.app,.market-toolbar{background:var(--app-canvas);color:var(--text)}
 button:focus-visible,a:focus-visible{outline:3px solid var(--green);outline-offset:3px}
 
 @media(max-width:600px){.topbar{padding:calc(8px + env(safe-area-inset-top)) 12px 8px;align-items:flex-start}.brand{font-size:1.05rem;gap:7px}.header-actions{gap:5px}.header-actions .btn,.header-actions .pill{font-size:.78rem;padding:7px 8px}.container{padding:12px}.homehero{padding:15px;border-radius:16px}.homehero h1{font-size:1.8rem}.homehero p{font-size:.9rem}.searchrow{margin:10px 0;gap:7px}.chip{padding:7px 10px}.section-title{margin:15px 0 8px}}
+/* Compact home: keep priced questions visible and paused questions distinct. */
+.polished-home{padding:20px 22px 16px!important;border-radius:18px!important}
+.polished-home h1{font-size:clamp(1.6rem,3.6vw,2.15rem)!important;line-height:1.12;margin:0 0 8px!important;letter-spacing:-.045em}
+.polished-home>p{max-width:700px;font-size:.93rem;line-height:1.5;margin:0;color:var(--muted)}
+.polished-home .home-kicker{margin-bottom:10px;font-size:.64rem}
+.polished-home .home-intro-actions{margin-top:13px;gap:7px}
+.home-market-summary{display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding-top:13px;margin-top:15px;border-top:1px solid var(--line);font-size:.78rem;color:var(--muted)}
+.home-market-summary span{display:inline-flex;align-items:center;gap:6px}.home-market-summary strong{color:var(--text);font-variant-numeric:tabular-nums}
+.home-market-summary small{margin-left:auto;font-size:.73rem}
+.readiness-dot{height:6px;width:6px;border-radius:50%;background:var(--green)}.readiness-dot.is-paused{background:var(--muted)}
+.starter-mission-compact{display:flex;align-items:center;gap:12px;margin:12px 0 14px;padding:13px 16px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.starter-mission-compact>div{flex:1;min-width:0}.starter-mission-compact strong{display:block;font-size:.92rem;margin:3px 0}.starter-mission-compact small{display:block;color:var(--muted);font-size:.73rem}
+.starter-mission-compact .feed-kicker{font-size:.61rem;letter-spacing:.07em}.starter-mission-compact .btn{white-space:nowrap}
+.chip-count{display:inline-block;margin-left:4px;min-width:16px;text-align:center;font-size:.68rem;opacity:.65;font-variant-numeric:tabular-nums}
+.feed-count-note{font-size:.68rem;color:var(--muted);margin:2px 0 9px;line-height:1.4}
+.paused-discovery-section{margin-top:24px;padding-top:8px;border-top:1px solid var(--line)}
+.paused-discovery-section>.auth-note{max-width:720px;margin:0 0 12px}.paused-discovery-section .feed-kicker{color:var(--muted)}
+.paused-discovery-section .market-card{background:var(--surface);border-style:dashed}
+@media(max-width:640px){
+  .polished-home{padding:16px!important;border-radius:15px!important}.polished-home .home-kicker span{font-size:.6rem}
+  .polished-home .home-intro-actions{gap:6px}.polished-home .home-intro-actions .btn{font-size:.74rem;padding:8px 10px}.polished-home .quiet-badge{font-size:.65rem;padding:6px 8px}
+  .home-market-summary{gap:10px 16px;margin-top:12px;padding-top:11px;font-size:.72rem}.home-market-summary small{width:100%;margin:0;font-size:.65rem}
+  .starter-mission-compact{gap:8px;padding:12px;flex-wrap:wrap}.starter-mission-compact>div{flex-basis:50%}.starter-mission-compact .btn{font-size:.71rem;padding:8px 9px}.starter-mission-compact .btn.ghost{display:none}
+  .market-feed-header h2{font-size:1.12rem}.market-feed-header>small{max-width:135px;text-align:right;font-size:.68rem}
+  .category-counts .chip{padding:8px 11px;font-size:.76rem}.feed-count-note{font-size:.63rem}
+}
+
 </style>
 </head>
 <body>
@@ -493,8 +520,8 @@ const { createClient } = window.supabase;
 const SUPABASE_URL='https://rnvyrlmrwhfauuskyhje.supabase.co';
 const SUPABASE_KEY='sb_publishable_xKc18Je4UmWkfc0NOYiEOQ_lvEks_aU';
 const PUBLIC_ORIGIN='https://predict-ug-app.onrender.com';
-const APP_BUILD='0.7.92';
-const APP_VERSION_CODE=92;
+const APP_BUILD='0.7.93';
+const APP_VERSION_CODE=93;
 const publicSupabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},db:{retry:false}});
 const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false},db:{retry:false}});
 let authRestoreFailed=false;
@@ -816,7 +843,7 @@ function showHowItWorks(firstUse=false){
         '<div class="item"><b>3 · Practice first</b><br><small>The public beta uses Practice UGX: simulated amounts displayed in Ugandan shillings. These are not real money and cannot be converted, deposited or withdrawn.</small></div>'+
         '<div class="item"><b>4 · Settlement is rule-based</b><br><small>Every market has a published resolution rule and source. Predict UG does not settle a market just because AI or users think an outcome happened.</small></div>'+
       '</div>'+
-      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.92 · bundled frontend</p></div>'+
+      '<div class="card" style="margin-top:12px"><b>Is this betting?</b><p class="auth-note">Predict UG Android 0.7.93 · bundled frontend</p></div>'+
       '<div class="auth-wrap" style="margin-top:12px"><button class="btn primary" id="howStart">Try a starter market</button><button class="btn ghost" id="howDone">Browse all markets</button><button class="btn ghost" id="howFeedback">Something is confusing</button></div>'+
     '</div></div>';
   $('#howClose').onclick=()=>{markFirstUseGuideSeen(guideKey);$('#overlay').innerHTML='';trackBehavior('first_use_guide_dismissed',{metadata:{first_use:firstUse}})};
@@ -879,7 +906,7 @@ function startMarketRealtime(id){
 }
 function rpcNeedsNetworkMutationGuard(name){
   const n=String(name||'');
-  return /^(place_|cancel_|cash_out_|request_|set_|settle_|void_|create_|accept_|delete_|update_|save_|challenge_)/.test(n) ||
+  return /^(place_|cancel_|cash_out_|top_up_|request_|set_|settle_|void_|create_|accept_|delete_|update_|save_|challenge_)/.test(n) ||
     /^(admin_.*(?:create|set|add|publish|propose|review|clear|update|pair|revoke)|mark_)/.test(n);
 }
 function rpcTimeoutSignal(ms){
@@ -1424,8 +1451,64 @@ async function loadPublicBootstrap(){
 }
 async function bootstrap(){
   window.__predictUgBootPhase='public-bootstrap';
-  await loadPublicBootstrap();
-  state.loading=false;render();markBootReady('public-ready');setTimeout(()=>checkForAppUpdate(false),600);
+  state.marketFeedPending=true;
+  // The shell is usable even when market services are unavailable.
+  render();markBootReady('shell-ready');
+  const publicLoad=loadPublicBootstrap();
+  const startupRequest=state.bootstrapRequest;
+  try{
+    await promiseTimeout(publicLoad,9000,'Market service is taking too long');
+  }catch(error){
+    if(state.bootstrapRequest===startupRequest){
+      // Discard late rich-bootstrap results after bounded startup has moved on.
+      state.bootstrapRequest=(state.bootstrapRequest||0)+1;
+      state.status={...(state.status||{}),offline_cache:true,market_feed_error:'Markets are temporarily unavailable. Reconnecting to Uganda questions…'};
+      // Retry only after an actual startup timeout, rather than doubling the
+      // database load for every healthy customer. Never use stored odds as live.
+      const recoveryRevision=state.bootstrapRequest;
+      const recoveryFeedRequest=state.feedRequest||0;
+      const recoveryCategory=state.category||'';
+      const recoverySearch=state.search||'';
+      setTimeout(async()=>{
+        if(state.bootstrapRequest!==recoveryRevision||
+          (state.feedRequest||0)!==recoveryFeedRequest||
+          (state.category||'')!==recoveryCategory||
+          (state.search||'')!==recoverySearch||
+          state.tab!=='markets'||state.online===false||
+          (state.markets||[]).length)return;
+        // A lightweight, authoritative feed call has independent timing from
+        // the abandoned rich-bootstrap request. It updates only a matching
+        // category/search revision via loadMarkets' existing race guards.
+        const recovery=loadMarkets();
+        const recoveryFeedRevision=state.feedRequest||0;
+        try{
+          await promiseTimeout(recovery,14000,'Uganda market recovery timed out');
+          if(state.bootstrapRequest!==recoveryRevision||
+            (state.feedRequest||0)!==recoveryFeedRevision||
+            (state.category||'')!==recoveryCategory||
+            (state.search||'')!==recoverySearch||
+            state.tab!=='markets')return;
+          if((state.markets||[]).length){
+            if(!state.status?.offline_cache){
+              const next={...(state.status||{})};
+              delete next.market_feed_error;
+              delete next.offline_cache;
+              delete next.offline_saved_at;
+              state.status=next;
+            }
+            render();
+          }
+        }catch{
+          // A timed-out feed may still resolve later; disallow stale commits.
+          if((state.feedRequest||0)===recoveryFeedRevision)
+            state.feedRequest=recoveryFeedRevision+1;
+        }
+      },1200);
+    }
+    toast('Markets are temporarily unavailable. Your saved session has been kept.',true);
+  }
+  state.marketFeedPending=false;
+  state.loading=false;render();setTimeout(()=>checkForAppUpdate(false),600);
 
   window.__predictUgBootPhase='session-restore';
   const sessionOk=await restoreSessionAfterPublicRender();
@@ -1530,7 +1613,7 @@ function statusHtml(){
   const mode=state.status?.trading_mode||'forecast_credit';
   const offline=state.status?.offline_cache||!state.online;
   return '<div class="statusbar">'+
-    '<span class="statuschip '+(offline?'warn':'ok')+'">'+(offline?'Saved questions · reconnect for odds':'Feed connected · review live odds')+'</span>'+
+    '<span class="statuschip '+(offline?'warn':'ok')+'">'+(offline?(state.status?.market_feed_error&&!state.markets?.length?'Markets unavailable · tap Refresh':'Saved questions · reconnect for odds'):'Feed connected · review live odds')+'</span>'+
     '<span class="statuschip '+(mode==='cash'?'ok':'warn')+'">'+(mode==='cash'?'Cash trading enabled':'Cash rails pending approval')+'</span>'+
     '<span class="statuschip">'+(state.markets?.length||0)+' listed market questions</span>'+
     '</div>';
@@ -1542,8 +1625,7 @@ function marketCard(m,openSource='market_card'){
   const displayTitle=String(m.title||'').replace(/^\[SHADOW\]\s*/i,'');
   const trust=m.data_status==='verified'?'Verified source':m.data_status==='source_attached'?'Source attached':'Resolution source';
   const savedPreview=!!state.status?.offline_cache||state.online===false;
-  const validCardOdds=value=>(typeof value==='number'||typeof value==='string')&&String(value).trim()!==''&&Number.isFinite(Number(value))&&Number(value)>1;
-  const cardOddsAvailable=!savedPreview&&validCardOdds(m.yes_odds)&&validCardOdds(m.no_odds);
+  const cardOddsAvailable=!savedPreview&&hasPairedIndicativeOdds(m);
   const yesOdds=cardOddsAvailable?oddsText(m.yes_odds):'—',noOdds=cardOddsAvailable?oddsText(m.no_odds):'—';
   return '<article class="card market-card" data-market="'+m.market_id+'" data-open-source="'+esc(openSource)+'">'+
     '<div class="eyebrow"><span>'+esc(m.category)+' · '+esc(originLabel)+'</span><span>Closes '+dt(m.close_time)+'</span></div>'+
@@ -1617,9 +1699,19 @@ function ugandaDateKey(value){
   const get=type=>parts.find(x=>x.type===type)?.value;
   return get('year')+'-'+get('month')+'-'+get('day');
 }
-function selectMarketFeedRows(rows,sort,now=Date.now()){
+// A listed/open question is not necessarily a currently executable book.
+// Server feed masks both odds when market evidence, pricing or freshness fails.
+function hasPairedIndicativeOdds(m){
+  return [m?.yes_odds,m?.no_odds].every(value=>
+    (typeof value==='number'||typeof value==='string')&&
+    String(value).trim()!==''&&Number.isFinite(Number(value))&&Number(value)>1);
+}
+function selectMarketFeedRows(rows,sort,now=Date.now(),allowLiveQuotes=true){
   if(sort==='pending')return rows.filter(m=>m.status==='closed').sort((a,b)=>Date.parse(b.close_time)-Date.parse(a.close_time));
   let result=rows.filter(m=>String(m.status||'open').toLowerCase()==='open'&&Number.isFinite(Date.parse(m.close_time))&&Date.parse(m.close_time)>now);
+  // The Live tab must never advertise a paused/unpriced, stale or offline-
+  // cached question as open for placement. Other tabs retain discovery.
+  if(sort==='live')result=result.filter(m=>allowLiveQuotes&&hasPairedIndicativeOdds(m));
   if(sort==='today')result=result.filter(m=>ugandaDateKey(m.close_time)===ugandaDateKey(now));
   if(sort==='closing')result=result.filter(m=>Date.parse(m.close_time)-now<=72*3600000);
   if(['live','today','closing'].includes(sort))result.sort((a,b)=>Date.parse(a.close_time)-Date.parse(b.close_time));
@@ -1634,7 +1726,26 @@ async function loadPendingMarkets(){
 function pendingMarketCard(m){
   return '<article class="card market-card" data-market="'+esc(m.market_id)+'" data-open-source="pending"><div class="eyebrow"><span>'+esc(m.category)+'</span><span>Predictions closed '+dt(m.close_time)+'</span></div><h3>'+esc(m.title)+'</h3><p>Awaiting verified outcome. Predictions are closed.</p><span class="statuschip">Pending result</span><div class="card-footer">View market & resolution rule →</div></article>';
 }
+// BEGIN home market readiness
+// This classifies visible price previews, never permission to place a prediction.
+// The backend must still issue a fresh quote and confirm accepted odds.
+function homeMarketReadiness(rows,now=Date.now(),allowPricePreview=true){
+  const priced=[],paused=[],categoryCounts=Object.create(null),seen=new Set();
+  for(const market of Array.isArray(rows)?rows:[]){
+    const closes=Date.parse(market?.close_time||'');
+    if(!market?.market_id||seen.has(market.market_id)||
+      String(market.status||'open').toLowerCase()!=='open'||!Number.isFinite(closes)||closes<=now)continue;
+    seen.add(market.market_id);
+    const category=String(market.category_key||market.category||'Other').trim().toLowerCase();
+    categoryCounts[category]=(categoryCounts[category]||0)+1;
+    (allowPricePreview&&hasPairedIndicativeOdds(market)?priced:paused).push(market);
+  }
+  return {priced,paused,categoryCounts,total:priced.length+paused.length};
+}
+// END home market readiness
+
 function renderMarkets(){
+  const firstFeedPending=state.marketFeedPending===true&&!(state.markets||[]).length;
   const mode=state.status?.trading_mode||'forecast_credit';
   const starterMarket=starterMarketCandidate();
   const starterIsFootball=!!starterMarket&&/sport|football|soccer/i.test(String(starterMarket.category||starterMarket.category_key||'')+' '+String(starterMarket.title||''));
@@ -1642,20 +1753,25 @@ function renderMarkets(){
   const starterLabel=starterIsFootball?'Try football':starterCategory==='weather'?'Try Weather':starterCategory==='entertainment'?'Try a creator market':'Try a market';
   const localBase=(state.markets||[]).filter(m=>!m.external_benchmark);
   const pending=filterMarketRows(state.pendingMarkets||[],state.category,state.search);
-  const localMarkets=selectMarketFeedRows(state.feedSort==='pending'?pending:localBase,state.feedSort);
+  const localMarkets=selectMarketFeedRows(state.feedSort==='pending'?pending:localBase,state.feedSort,Date.now(),state.online!==false&&!state.status?.offline_cache);
   const feedHeading=state.feedSort==='today'?{kicker:'Today in Uganda',title:'Closing today'}
-    :state.feedSort==='live'?{kicker:'Live',title:'Open for predictions'}
+    :state.feedSort==='live'?{kicker:'Live',title:'Markets with YES & NO quotes'}
     :state.feedSort==='pending'?{kicker:'Pending',title:'Awaiting a result'}
     :state.feedSort==='closing'?{kicker:'Next 72 hours',title:'Closing soon'}
     :state.feedSort==='active'?{kicker:'Activity',title:'Most active'}
     :{kicker:'For you',title:'Uganda now'};
+  const pricePreviewsAllowed=state.online!==false&&!state.status?.offline_cache;
+  const feedReadiness=homeMarketReadiness(localMarkets,Date.now(),pricePreviewsAllowed);
+  const categoryReadiness=homeMarketReadiness(localBase,Date.now(),pricePreviewsAllowed);
+  const pricedLocalMarkets=state.feedSort==='pending'?localMarkets:feedReadiness.priced;
+  const pausedLocalMarkets=state.feedSort==='pending'?[]:feedReadiness.paused;
   const globalMarkets=(state.markets||[]).filter(m=>m.external_benchmark);
   const unfilteredHome=!state.category&&!state.search&&state.feedSort==='trending';
-  const closingSoon=unfilteredHome?localMarkets.filter(m=>{const ms=Date.parse(m?.close_time||'');const d=ms-Date.now();return Number.isFinite(ms)&&d>0&&d<=72*3600000}).slice().sort((a,b)=>Date.parse(a.close_time)-Date.parse(b.close_time)).slice(0,3):[];
+  const closingSoon=unfilteredHome?pricedLocalMarkets.filter(m=>{const ms=Date.parse(m?.close_time||'');const d=ms-Date.now();return Number.isFinite(ms)&&d>0&&d<=72*3600000}).slice().sort((a,b)=>Date.parse(a.close_time)-Date.parse(b.close_time)).slice(0,3):[];
   const diverseTopPicks=[];
   if(unfilteredHome){
     const seen=new Set();
-    for(const m of localMarkets){
+    for(const m of pricedLocalMarkets){
       const cat=String(m?.category||m?.category_key||'Other');
       if(seen.has(cat)||closingSoon.some(x=>x.market_id===m.market_id))continue;
       seen.add(cat);
@@ -1665,7 +1781,7 @@ function renderMarkets(){
   }
   const diverseIds=new Set(diverseTopPicks.map(m=>m.market_id));
   const closingIds=new Set(closingSoon.map(m=>m.market_id));
-  const remainingLocalMarkets=unfilteredHome?localMarkets.filter(m=>!diverseIds.has(m.market_id)&&!closingIds.has(m.market_id)):localMarkets;
+  const remainingLocalMarkets=unfilteredHome?pricedLocalMarkets.filter(m=>!diverseIds.has(m.market_id)&&!closingIds.has(m.market_id)):pricedLocalMarkets;
   const ugTrends=(state.ugandaTrends||[]).slice(0,8);
   const ugDemand=(state.ugandaDemand||[]).slice(0,6);
   const social=(state.ugandaSocialRadar||[]).slice(0,6);
@@ -1681,30 +1797,39 @@ function renderMarkets(){
   $('#view').innerHTML=
     '<section class="homehero polished-home">'+
       '<div class="home-kicker">Predict UG <span>Uganda-first markets</span></div>'+
-      '<h1>What will happen next?</h1>'+
-      '<p>Follow Uganda questions in sports, music, campus, weather and news. Choose YES or NO; see the odds, risk and result in one place.</p>'+
+      '<h1>Uganda, one prediction ahead.</h1>'+
+      '<p>Find a question. Review the evidence. Choose YES or NO with Practice UGX.</p>'+
       '<div class="home-intro-actions">'+
         (!state.user?'<button class="btn small primary" id="homeCreateAccount">Create free account</button>':'<button class="btn small primary" id="homeMyPredictions">My predictions</button>')+
         '<button class="btn small ghost" id="homeHowItWorks">How it works</button>'+
         (starterMarket?'<button class="btn small ghost" id="starterMarketBtn">'+starterLabel+'</button>':'')+
-        '<span class="quiet-badge">'+(mode==='cash'?'Cash mode':'Practice UGX · not cash')+' · '+(state.online?'Live':'Offline cache')+'</span>'+
-      '</div>'+
+        '<span class="quiet-badge">'+(mode==='cash'?'Cash mode':'Practice UGX · not cash')+'</span>'+
+      '</div>'+ 
+      (firstFeedPending?'<div class="home-market-summary" role="status" aria-live="polite">Loading Uganda questions…</div>':
+      '<div class="home-market-summary" aria-label="Current feed availability">'+
+        '<span><i class="readiness-dot '+(pricePreviewsAllowed?'':'is-paused')+'"></i><strong>'+feedReadiness.priced.length+'</strong> price previews</span>'+
+        '<span><strong>'+pausedLocalMarkets.length+'</strong> '+(pricePreviewsAllowed?'questions to follow':'saved questions')+'</span>'+
+        '<small>'+(pricePreviewsAllowed?'Live quote required before confirmation':'Reconnect to check current odds')+'</small>'+
+      '</div>')+ 
     '</section>'+
 
-    (mission&&!missionComplete?'<section class="card" style="margin:12px 0 14px;border-color:var(--k-greenPressed);background:linear-gradient(145deg,var(--k-greenTint),var(--k-surface))"><div class="section-title" style="margin:0 0 10px"><div><span class="feed-kicker">Getting started</span><h2 style="margin:3px 0 0">Make your first 3 predictions</h2></div><span class="statuschip">'+Math.min(mission.trades,mission.goal)+' / '+mission.goal+'</span></div><p class="auth-note" style="margin:0 0 12px">Predict with Practice UGX (simulated shillings) and watch the outcomes. Practice wins are not real-money payouts.</p><div style="height:8px;border-radius:999px;background:var(--k-surface);overflow:hidden;margin-bottom:12px"><div style="height:100%;width:'+Math.min(100,(mission.trades/mission.goal)*100)+'%;background:var(--k-green)"></div></div><div class="auth-wrap"><button class="btn small primary" id="betaMissionBtn">Make prediction '+Math.min(mission.goal,mission.trades+1)+'</button><button class="btn small ghost" id="betaMissionHow">How predictions work</button></div></section>':'')+
+    (mission&&!missionComplete?'<section class="starter-mission-compact"><div><span class="feed-kicker">Getting started · '+Math.min(mission.trades,mission.goal)+' / '+mission.goal+'</span><strong>Make your first 3 predictions</strong><small>Practice UGX only · no cash value</small></div><button class="btn small primary" id="betaMissionBtn">'+(starterMarket?'Choose a question':'Explore questions')+'</button><button class="btn small ghost" id="betaMissionHow" aria-label="How practice predictions work">How it works</button></section>':'')+
     (missionComplete?'<section class="card" style="margin:12px 0 14px;border-color:var(--k-blueTint);background:linear-gradient(145deg,var(--k-blueTint),var(--k-surface))"><div class="section-title" style="margin:0 0 8px"><div><span class="feed-kicker">Starter mission complete</span><h2 style="margin:3px 0 0">You have made your first 3 predictions</h2></div><span class="statuschip ok">3 / 3</span></div><p class="auth-note" style="margin:0 0 12px">See your results, follow more Uganda questions or invite someone. Practice UGX has no cash value; referrals have no financial reward.</p><div class="auth-wrap"><button class="btn small primary" id="betaMissionInvite">Invite someone</button><button class="btn small ghost" id="betaMissionExplore">Explore markets</button></div></section>':'')+
     '<section class="market-toolbar">'+
       '<div class="searchrow"><input class="input" id="searchInput" value="'+esc(state.search)+'" placeholder="Search Predict UG"><button class="btn primary" id="searchBtn">Search</button></div>'+
-      '<div class="chips"><button class="chip '+(!state.category?'active':'')+'" data-category="">All</button>'+state.categories.map(c=>'<button class="chip '+(state.category===c.category_key?'active':'')+'" data-category="'+esc(c.category_key)+'">'+esc(c.label)+'</button>').join('')+'</div>'+
+      '<div class="chips category-counts" aria-label="Market categories"><button class="chip '+(!state.category?'active':'')+'" data-category="">All <span class="chip-count">'+categoryReadiness.total+'</span></button>'+state.categories.map(c=>'<button class="chip '+(state.category===c.category_key?'active':'')+'" data-category="'+esc(c.category_key)+'">'+esc(c.label)+' <span class="chip-count">'+(categoryReadiness.categoryCounts[String(c.category_key||c.label||'').trim().toLowerCase()]||0)+'</span></button>').join('')+'</div>'+ 
+      '<div class="feed-count-note">Counts reflect this feed; choose a category to load its questions.</div>'+
       '<div class="chips" aria-label="Market feed sort"><button class="chip '+(state.feedSort==='trending'?'active':'')+'" data-feed-sort="trending">For you</button><button class="chip '+(state.feedSort==='live'?'active':'')+'" data-feed-sort="live">Live</button><button class="chip '+(state.feedSort==='today'?'active':'')+'" data-feed-sort="today">Today</button><button class="chip '+(state.feedSort==='pending'?'active':'')+'" data-feed-sort="pending">Pending</button><button class="chip '+(state.feedSort==='closing'?'active':'')+'" data-feed-sort="closing">Closing soon</button><button class="chip '+(state.feedSort==='active'?'active':'')+'" data-feed-sort="active">Most active</button></div>'+
     '</section>'+
 
-    (closingSoon.length?'<div class="market-feed-header"><div><span class="feed-kicker">Time sensitive</span><h2>Closing soon</h2></div><small style="color:var(--muted)">Short-horizon markets</small></div><div class="grid">'+closingSoon.map(m=>marketCard(m,'closing_soon')).join('')+'</div>':'')+
+    (closingSoon.length?'<div class="market-feed-header"><div><span class="feed-kicker">Time sensitive</span><h2>Closing soon</h2></div><small style="color:var(--muted)">Priced questions · confirm live odds</small></div><div class="grid">'+closingSoon.map(m=>marketCard(m,'closing_soon')).join('')+'</div>':'')+
 
-    (diverseTopPicks.length?'<div class="market-feed-header"><div><span class="feed-kicker">Featured</span><h2>Top picks across Uganda</h2></div><small style="color:var(--muted)">One strong market from each category</small></div><div class="grid">'+diverseTopPicks.map(m=>marketCard(m,'top_picks')).join('')+'</div>':'')+
-    ((!unfilteredHome||remainingLocalMarkets.length||!localMarkets.length)?(
-    '<div class="market-feed-header"><div><span class="feed-kicker">'+(unfilteredHome?'Explore':esc(feedHeading.kicker))+'</span><h2>'+(unfilteredHome?'More Uganda markets':esc(feedHeading.title))+'</h2></div><button class="btn small ghost" data-tab="media">Open Pulse</button></div>'+
-    (remainingLocalMarkets.length?'<div class="grid">'+remainingLocalMarkets.map(m=>state.feedSort==='pending'?pendingMarketCard(m):marketCard(m,'all_markets')).join('')+'</div>':'<div class="empty">'+(state.feedSort==='today'?'No matching markets close today in Uganda. Choose Live to see upcoming questions.':state.feedSort==='pending'?'No matching markets are awaiting a result.':state.feedSort==='closing'?'No matching markets close within the next 72 hours.':(state.category&&!state.search?'No strong prediction questions in this category yet. <button class="btn small" type="button" data-category="">Explore all markets</button> <button class="btn small ghost" type="button" data-suggest-category="'+esc(state.category)+'">Suggest an event with evidence</button>':'No Uganda markets match your filters right now.'))+'</div>')): '')+
+    (diverseTopPicks.length?'<div class="market-feed-header"><div><span class="feed-kicker">Featured</span><h2>Ready to review</h2></div><small style="color:var(--muted)">Price previews across Uganda</small></div><div class="grid">'+diverseTopPicks.map(m=>marketCard(m,'top_picks')).join('')+'</div>':'')+
+    ((!unfilteredHome||remainingLocalMarkets.length||!pricedLocalMarkets.length)?(
+    '<div class="market-feed-header"><div><span class="feed-kicker">'+(unfilteredHome?'Explore':esc(feedHeading.kicker))+'</span><h2>'+(unfilteredHome?'More questions with odds':esc(feedHeading.title))+'</h2></div><button class="btn small ghost" data-tab="media">Open Pulse</button></div>'+
+    (remainingLocalMarkets.length?'<div class="grid">'+remainingLocalMarkets.map(m=>state.feedSort==='pending'?pendingMarketCard(m):marketCard(m,'all_markets')).join('')+'</div>':'<div class="empty">'+(firstFeedPending?'Checking sources and current availability…':!pricePreviewsAllowed&&!localMarkets.length?'Live markets could not be refreshed. No saved questions are available. Tap Refresh to try again.':state.feedSort==='today'?'No matching markets close today in Uganda. Choose Live to see upcoming questions.':state.feedSort==='pending'?'No matching markets are awaiting a result.':state.feedSort==='closing'?'No matching markets close within the next 72 hours.':state.feedSort==='live'?'No markets have both live YES and NO quotes available right now. Explore Uganda questions in For you or check again after reconnecting.':(pausedLocalMarkets.length?'These questions are awaiting live odds. Follow them below; predictions stay paused until pricing is available.':state.category&&!state.search?'No strong prediction questions in this category yet. <button class="btn small" type="button" data-category="">Explore all markets</button> <button class="btn small ghost" type="button" data-suggest-category="'+esc(state.category)+'">Suggest an event with evidence</button>':'No Uganda markets match your filters right now.'))+'</div>')): '')+
+
+    (pausedLocalMarkets.length?'<section class="paused-discovery-section"><div class="market-feed-header"><div><span class="feed-kicker">'+(pricePreviewsAllowed?'Discovery':'Offline')+'</span><h2>'+(pricePreviewsAllowed?'Questions to follow':'Saved questions')+'</h2></div><span class="quiet-badge">'+pausedLocalMarkets.length+' questions</span></div><p class="auth-note">'+(pricePreviewsAllowed?'Explore the evidence while live odds are unavailable. These questions are not open for predictions.':'Saved details may be out of date. Reconnect to check availability and live odds.')+'</p><div class="grid">'+pausedLocalMarkets.map(m=>marketCard(m,'paused_discovery')).join('')+'</div></section>':'')+
 
     '<details class="home-discovery"><summary>Explore events & universities</summary><div class="home-discovery-content">'+
     (events.length?'<div class="section-title"><div><span class="feed-kicker">Events</span><h2>Explore by event</h2></div><small style="color:var(--muted)">Browse related questions</small></div><div class="event-rail">'+events.map(eventHubCard).join('')+'</div>':'')+
@@ -2716,6 +2841,89 @@ async function loadPaymentHistory(){
     reportClientError(e.message||'Could not load payment activity',e.stack||'',{kind:'payment_history_load'});
   }
 }
+// BEGIN practice refill
+// Practice-only recovery intent: {version:1,userId,amount:10000,idempotencyKey}.
+// Persist before sending; uncertain replies always reuse the same ledger key.
+const practiceRefill={
+  busy:new Set(),
+  key:userId=>'predict-ug:practice-refill:v1:'+userId,
+  read(userId){
+    const raw=localStorage.getItem(this.key(userId));
+    if(raw===null)return null;
+    const value=JSON.parse(raw);
+    if(value?.version!==1||value.userId!==userId||value.amount!==10000||
+      typeof value.idempotencyKey!=='string'||!value.idempotencyKey||value.idempotencyKey.length>100){
+      throw new Error('Saved practice refill needs recovery. No new request was sent.');
+    }
+    return value;
+  },
+  intent(userId){
+    const existing=this.read(userId);if(existing)return existing;
+    const value={version:1,userId,amount:10000,idempotencyKey:'practice-refill-'+crypto.randomUUID()};
+    const raw=JSON.stringify(value),key=this.key(userId);
+    localStorage.setItem(key,raw);
+    if(localStorage.getItem(key)!==raw)throw new Error('Could not save practice refill recovery. No request was sent.');
+    return value;
+  },
+  clear(intent){
+    if(this.read(intent.userId)?.idempotencyKey===intent.idempotencyKey)localStorage.removeItem(this.key(intent.userId));
+  },
+  label(userId){
+    if(this.busy.has(userId))return 'Adding practice funds…';
+    try{if(this.read(userId))return 'Retry same practice refill'}catch{}
+    return 'Add UGX 10,000 practice funds';
+  }
+};
+async function refillPracticeFunds(){
+  const userId=state.user?.id;
+  if(!userId){showAuth();return}
+  if(practiceRefill.busy.has(userId))return;
+  const current=()=>state.user?.id===userId;
+  const practiceMode=()=>state.portfolio?.trading_mode!=='cash'&&state.balanceMode!=='cash';
+  if(!state.online){toast('Reconnect before adding practice funds.',true);return}
+  // Server capability is fail-closed. Practice mode alone does not establish
+  // RPC permission; cached status must never advertise a revoked grant.
+  if(state.status?.practice_refill_enabled!==true||state.status?.offline_cache===true){
+    toast('Practice refill is not available for this account. No request was sent.',true);return;
+  }
+  if(!practiceMode()){toast('Practice refill is available in practice mode only.',true);return}
+  practiceRefill.busy.add(userId);render();
+  let sent=false,accepted=false;
+  try{
+    if(!navigator.locks?.request)throw new Error('Safe refill needs browser lock support. No request was sent.');
+    await navigator.locks.request(practiceRefill.key(userId),{mode:'exclusive'},async()=>{
+      if(!current())return;
+      const auth=await supabase.auth.getUser();
+      if(!current())return;
+      if(auth.error||auth.data?.user?.id!==userId)throw new Error('Sign in again before adding practice funds.');
+      if(!state.online||!practiceMode()||state.status?.practice_refill_enabled!==true||state.status?.offline_cache===true)throw new Error('Practice refill is not currently available. No request was sent.');
+      const intent=practiceRefill.intent(userId);
+      sent=true;
+      const result=await rpc('top_up_practice_funds',{p_amount_ugx:intent.amount,p_idempotency_key:intent.idempotencyKey});
+      const balance=result?.practice_balance_ugx;
+      if(typeof balance!=='number'||!Number.isSafeInteger(balance)||balance<0||typeof result?.idempotent_replay!=='boolean'){
+        throw new Error('Practice refill receipt could not be confirmed.');
+      }
+      accepted=true;
+      practiceRefill.clear(intent);
+      if(!current())return;
+      // Replays describe the original ledger balance; refresh current totals.
+      if(result.idempotent_replay!==true){
+        state.balance=balance;
+        if(state.portfolio?.profile)state.portfolio.profile.forecast_credit_balance_ugx=balance;
+      }
+      const refreshed=await Promise.allSettled([loadBalance(),loadPortfolio()]);
+      if(current())toast('Practice funds added · no cash value.'+(refreshed.some(x=>x.status==='rejected')?' Refresh to update your balance.':''));
+    });
+  }catch(error){
+    if(current())toast(accepted?'Practice funds added. Refresh your portfolio; retrying uses the same refill receipt.':sent?'Your practice refill may already be added. Tap Retry same practice refill to confirm safely.':error.message||'Could not prepare practice refill.',!accepted);
+  }finally{
+    practiceRefill.busy.delete(userId);
+    if(current())render();
+  }
+}
+// END practice refill
+
 async function loadPortfolio(){
   const userId=state.user?.id;if(!userId)return;
   const request=(state.portfolioRequest||0)+1;state.portfolioRequest=request;
@@ -3249,6 +3457,7 @@ function renderPortfolio(){
     '<section class="homehero"><div class="media-label">Your forecasting account</div><h1>Portfolio</h1><p>Your balance, exposure, possible return and settled results in one place.</p>'+
     '<div class="hero-kpis"><span class="hero-kpi">Available · '+valueText(balance)+'</span><span class="hero-kpi">In predictions · '+valueText(committed)+'</span><span class="hero-kpi">Potential return · '+valueText(potentialReturn)+'</span><span class="hero-kpi">'+(cashMode?'Pending withdrawal · '+valueText(pendingWithdrawal):(openHistory.length+' open · '+won+' won · '+lost+' lost'))+'</span></div></section>'+
     (!cashMode?'<div class="statusbar"><span class="statuschip warn">Practice UGX · simulated, not cash or withdrawable</span></div><button class="btn small ghost" id="practiceUgxExplainer" style="margin-bottom:12px">What is Practice UGX?</button>':'')+
+    (!cashMode&&state.status?.practice_refill_enabled===true&&state.status?.offline_cache!==true?'<div class="card" style="margin-bottom:16px"><b>Free practice funds</b><p class="auth-note">Add simulated UGX to try predictions. Practice funds are not cash or withdrawable.</p><button class="btn primary" id="practiceRefillBtn" '+(practiceRefill.busy.has(state.user.id)?'disabled':'')+'>'+practiceRefill.label(state.user.id)+'</button></div>':'')+
     '<div class="section-title"><h2>Open predictions</h2><button class="btn small ghost" id="findMarketBtn">Find a market</button></div>'+
     (openHistory.length?'<div class="timeline">'+openHistory.map(x=>'<button class="item" data-open-market="'+esc(x.market_id)+'" style="width:100%;text-align:left;color:inherit"><div class="eyebrow"><span>'+esc(x.outcome_label)+' · '+valueText(x.total_stake_ugx)+'</span>'+chip(x)+'</div><b style="display:block;margin:7px 0">'+esc(x.market_title)+'</b><small>Odds '+(Number(x.effective_odds_decimal||0)>1?Number(x.effective_odds_decimal).toFixed(2):'—')+' · potential return '+valueText(x.quoted_payout_ugx||0)+' · '+dt(x.last_trade_at)+'</small></button>').join('')+'</div>':'<div class="empty">No open predictions. Pick a market and choose YES or NO.</div>')+
     (active.length?'<div class="section-title"><h2>Exit early</h2></div><div class="timeline">'+active.map(x=>'<div class="item"><b>'+esc(x.market_title)+'</b><br><span>'+esc(x.outcome_label)+' · '+ugx(x.stake_ugx)+'</span><br><small>'+ugx(x.sellable_stake_ugx)+' can be exited</small><br><button class="btn small primary" style="margin-top:8px" data-cashout="'+x.position_id+'">'+(cashMode?'Cash out':'Exit prediction')+'</button></div>').join('')+'</div>':'')+
@@ -3257,6 +3466,7 @@ function renderPortfolio(){
     (cashMode?'<div class="card" style="margin-top:18px"><div class="section-title" style="margin-top:0"><h2>Wallet</h2><small style="color:var(--muted)">MTN & Airtel Money</small></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn primary" id="cashDepositBtn">Deposit</button><button class="btn" id="cashWithdrawBtn">Withdraw</button></div><p class="auth-note">Deposits are credited only after the backend verifies the Mobile Money transaction. Withdrawals remain locked until payout completion is confirmed.</p><div class="section-title"><h3>Recent Mobile Money activity</h3><button class="btn small ghost" id="refreshPaymentHistory">Refresh</button></div>'+paymentActivityHtml()+'</div>':'<div class="card" style="margin-top:18px"><b>Real-money wallet is not active</b><p class="auth-note">Your balance is Practice UGX only. It is simulated, cannot be exchanged for real Uganda shillings and cannot be withdrawn while cash launch gates remain off.</p>'+(state.isAdmin?'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn small" id="previewDepositBtn">Rehearse customer deposit</button><button class="btn small" id="previewWithdrawBtn">Preview withdrawal</button></div><button class="btn primary" style="margin-top:10px;width:100%" id="safePasskeyDepositTest">Safe deposit approval test · no money</button><p class="auth-note">This verifies your registered fingerprint/face/PIN against the real merchant passkey backend. It does not create a deposit, credit a wallet, send a payout, or enable cash mode.</p>':'')+'</div>');
   if($('#findMarketBtn'))$('#findMarketBtn').onclick=()=>{state.tab='markets';render()};
   if($('#practiceUgxExplainer'))$('#practiceUgxExplainer').onclick=showPracticeUgxInfo;
+  if($('#practiceRefillBtn'))$('#practiceRefillBtn').onclick=refillPracticeFunds;
   if($('#cashDepositBtn'))$('#cashDepositBtn').onclick=runCashDepositFlow;
   if($('#cashWithdrawBtn'))$('#cashWithdrawBtn').onclick=runCashWithdrawalFlow;
   if($('#refreshPaymentHistory'))$('#refreshPaymentHistory').onclick=async()=>{await loadPaymentHistory();render();};
